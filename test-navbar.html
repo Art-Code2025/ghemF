@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اختبار النافبار</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; background: #f8f6ea; }
+        .navbar { background: white; padding: 20px; border-radius: 10px; margin-bottom: 20px; }
+        .category-btn { 
+            background: #f8f6ea; 
+            border: 1px solid #ccc; 
+            padding: 10px 20px; 
+            margin: 5px; 
+            border-radius: 10px; 
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+        .category-btn:hover { 
+            background: #e8e6da; 
+            transform: scale(1.05);
+        }
+        .test-results { 
+            background: white; 
+            padding: 20px; 
+            border-radius: 10px; 
+            margin: 10px 0;
+        }
+    </style>
+</head>
+<body>
+    <div class="navbar">
+        <h2>🧪 اختبار النافبار</h2>
+        <div id="categories-container">
+            <p>جاري تحميل التصنيفات...</p>
+        </div>
+    </div>
+    
+    <div class="test-results">
+        <h3>🔍 نتائج الاختبار:</h3>
+        <div id="test-output"></div>
+    </div>
+
+    <script>
+        const output = document.getElementById('test-output');
+        const categoriesContainer = document.getElementById('categories-container');
+        
+        function log(message) {
+            output.innerHTML += `<p>${new Date().toLocaleTimeString()}: ${message}</p>`;
+        }
+        
+        async function testNavbar() {
+            try {
+                log('🔄 بدء اختبار النافبار...');
+                
+                // Test API
+                const response = await fetch('http://localhost:3001/api/categories');
+                if (!response.ok) throw new Error('API غير متاح');
+                
+                const categories = await response.json();
+                log(`✅ تم جلب ${categories.length} تصنيف من API`);
+                
+                // Create buttons
+                categoriesContainer.innerHTML = '';
+                categories.forEach((category, index) => {
+                    const button = document.createElement('button');
+                    button.className = 'category-btn';
+                    button.textContent = category.name;
+                    button.id = `test-category-${category.id}`;
+                    
+                    // Special handling for مريول مدرسي
+                    if (category.name === 'مريول مدرسي') {
+                        button.style.backgroundColor = '#ffcccc';
+                        button.style.border = '3px solid red';
+                        button.style.fontWeight = 'bold';
+                        button.style.zIndex = '999';
+                        button.style.position = 'relative';
+                        button.style.pointerEvents = 'auto';
+                        log(`🔧 مريول مدرسي button created with ID: ${button.id}`);
+                    }
+                    
+                    button.onclick = (e) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        log(`🔗 تم النقر على: ${category.name} (ID: ${category.id})`);
+                        
+                        if (category.name === 'مريول مدرسي') {
+                            log('🎯 مريول مدرسي يعمل بشكل صحيح!');
+                            log(`🔧 Button element: ${e.target.tagName}`);
+                            log(`🔧 Button ID: ${e.target.id}`);
+                            log(`🔧 Button classes: ${e.target.className}`);
+                            
+                            // Test direct navigation
+                            const testUrl = `/category/${category.id}`;
+                            log(`🔗 محاولة التنقل إلى: ${testUrl}`);
+                            
+                            // Simulate real app behavior
+                            log('✅ النقر تم بنجاح على مريول مدرسي!');
+                        }
+                    };
+                    
+                    // Add event listeners for debugging
+                    button.addEventListener('mouseenter', () => {
+                        if (category.name === 'مريول مدرسي') {
+                            log('🖱️ مؤشر الفأرة على مريول مدرسي');
+                        }
+                    });
+                    
+                    button.addEventListener('mouseleave', () => {
+                        if (category.name === 'مريول مدرسي') {
+                            log('🖱️ مؤشر الفأرة غادر مريول مدرسي');
+                        }
+                    });
+                    
+                    categoriesContainer.appendChild(button);
+                });
+                
+                log('✅ تم إنشاء الأزرار بنجاح');
+                
+                // Test specific category
+                const schoolApron = categories.find(c => c.name === 'مريول مدرسي');
+                if (schoolApron) {
+                    log(`🎯 وجد مريول مدرسي - ID: ${schoolApron.id}`);
+                    
+                    // Additional DOM test
+                    setTimeout(() => {
+                        const button = document.getElementById(`test-category-${schoolApron.id}`);
+                        if (button) {
+                            log(`🔧 مريول مدرسي button found in DOM`);
+                            log(`🔧 Button visible: ${button.offsetHeight > 0}`);
+                            log(`🔧 Button clickable: ${button.style.pointerEvents !== 'none'}`);
+                            
+                            // Force test click
+                            button.style.backgroundColor = '#00ff00';
+                            log('🔧 تغيير لون مريول مدرسي إلى أخضر للاختبار');
+                        } else {
+                            log('❌ مريول مدرسي button not found in DOM!');
+                        }
+                    }, 1000);
+                } else {
+                    log('❌ لم يتم العثور على مريول مدرسي');
+                }
+                
+            } catch (error) {
+                log(`❌ خطأ: ${error.message}`);
+            }
+        }
+        
+        // Start test
+        testNavbar();
+    </script>
+</body>
+</html> 
