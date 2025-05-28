@@ -18,7 +18,8 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   useEffect(() => {
     const handleResize = () => {
       const isMobile = window.innerWidth < 768; // md breakpoint
-      setImageDisplayMode(isMobile ? 'contain' : 'cover');
+      // Always use cover for professional look
+      setImageDisplayMode('cover');
     };
 
     // Set initial mode
@@ -114,7 +115,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[400px] sm:h-[450px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden bg-gradient-to-br from-pink-50 via-white to-rose-50 -mt-16 sm:-mt-20 md:-mt-0"
+      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-gradient-to-br from-pink-50 via-white to-rose-50"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -136,23 +137,14 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
             alt={`مجموعة مميزة ${index + 1}`}
             className={`slider-image w-full h-full transition-all duration-[4000ms] ease-out ${
               index === activeIndex ? 'scale-102 filter brightness-105 saturate-110' : 'scale-100'
-            } ${
-              // Smart responsive object-fit: contain on mobile, cover on larger screens
-              imageDisplayMode === 'contain' 
-                ? 'object-contain' 
-                : 'object-cover'
-            }`}
+            } object-cover`}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
           
-          {/* Elegant Overlay - Reduced on mobile for better image visibility */}
+          {/* Professional Overlay - Consistent across all devices */}
           <div className={`absolute inset-0 transition-all duration-2000 ${
             index === activeIndex 
-              ? imageDisplayMode === 'contain' 
-                ? 'bg-gradient-to-br from-black/10 via-gray-900/5 to-black/15' // Lighter overlay for contain mode
-                : 'bg-gradient-to-br from-black/20 via-gray-900/10 to-black/30'
-              : imageDisplayMode === 'contain'
-              ? 'bg-gradient-to-br from-black/20 via-gray-900/15 to-black/25'
+              ? 'bg-gradient-to-br from-black/20 via-gray-900/10 to-black/30'
               : 'bg-gradient-to-br from-black/40 via-gray-900/30 to-black/50'
           }`} />
           
@@ -176,12 +168,12 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       ))}
 
-      {/* Refined CTA Section - Responsive sizing */}
-      <div className="absolute inset-0 flex items-end justify-center z-20 px-4 pb-16 sm:pb-20 md:pb-24">
-        <div className="text-center space-y-4 sm:space-y-5 lg:space-y-6">
-          {/* Elegant Heading - Better mobile sizing */}
-          <div className="space-y-3 sm:space-y-4">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight tracking-wide drop-shadow-2xl">
+      {/* Refined CTA Section - Better mobile positioning */}
+      <div className="absolute inset-0 flex items-end justify-center z-20 px-4 pb-12 sm:pb-16 md:pb-20">
+        <div className="text-center space-y-3 sm:space-y-4 lg:space-y-5">
+          {/* Elegant Heading - Optimized mobile sizing */}
+          <div className="space-y-2 sm:space-y-3">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight tracking-wide drop-shadow-2xl">
               <span className="bg-gradient-to-r from-white via-pink-100 to-white bg-clip-text text-transparent">
                 مجموعة
               </span>
@@ -190,16 +182,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
                 استثنائية
               </span>
             </h1>
-            <div className="h-1 bg-gradient-to-r from-transparent via-white/70 to-transparent w-16 sm:w-20 lg:w-24 xl:w-28 mx-auto rounded-full" />
+            <div className="h-0.5 sm:h-1 bg-gradient-to-r from-transparent via-white/70 to-transparent w-12 sm:w-16 lg:w-20 xl:w-24 mx-auto rounded-full" />
           </div>
 
-          {/* Sophisticated CTA Button - Better mobile sizing */}
+          {/* Sophisticated CTA Button - Perfect mobile sizing */}
           <div className="relative">
             <a
               href="/products"
-              className={`group relative inline-flex items-center gap-2 sm:gap-3 lg:gap-4 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-4 sm:px-6 lg:px-8 xl:px-10 py-2 sm:py-3 lg:py-4 xl:py-5 rounded-xl border-2 border-pink-400/60 hover:border-pink-300/80 transition-all duration-500 transform ${
+              className={`group relative inline-flex items-center gap-2 sm:gap-3 lg:gap-4 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-5 sm:px-6 lg:px-8 xl:px-10 py-2.5 sm:py-3 lg:py-4 xl:py-5 rounded-xl border-2 border-pink-400/60 hover:border-pink-300/80 transition-all duration-500 transform ${
                 buttonLoaded ? 'translate-x-0 opacity-100' : '-translate-x-[150px] opacity-0'
-              } hover:scale-110 hover:shadow-2xl hover:shadow-pink-500/40 text-sm sm:text-base lg:text-lg xl:text-xl font-semibold shadow-2xl overflow-hidden ease-[cubic-bezier(0.4,0,0.2,1)]`}
+              } hover:scale-105 hover:shadow-2xl hover:shadow-pink-500/40 text-sm sm:text-base lg:text-lg xl:text-xl font-semibold shadow-2xl overflow-hidden ease-[cubic-bezier(0.4,0,0.2,1)]`}
             >
               {/* Pink Shimmer Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-300/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1500 ease-out" />
@@ -209,48 +201,35 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
               
               <span className="relative z-10 text-sm sm:text-base opacity-95">✨</span>
               <span className="relative z-10 tracking-wide font-semibold"> استكشف منتجاتنا </span>
-              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
+              <ChevronLeft className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Navigation with Image Display Toggle - Hidden on mobile */}
-      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 xl:bottom-12 left-1/2 transform -translate-x-1/2 z-30 hidden md:flex">
-        <div className="slider-controls flex items-center gap-2 sm:gap-3 lg:gap-4 bg-white/15 backdrop-blur-xl rounded-full px-3 sm:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 lg:py-2.5 xl:py-3 border border-white/20">
-          {/* Image Display Mode Toggle */}
-          <button
-            onClick={toggleImageDisplayMode}
-            className="p-1 sm:p-1.5 lg:p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 group"
-            title={imageDisplayMode === 'contain' ? 'تبديل إلى عرض مقصوص' : 'تبديل إلى عرض كامل'}
-          >
-            {imageDisplayMode === 'contain' ? (
-              <Maximize2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 text-white/80 group-hover:text-white transition-colors" />
-            ) : (
-              <Minimize2 className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 text-white/80 group-hover:text-white transition-colors" />
-            )}
-          </button>
-
+      {/* Enhanced Navigation - Now visible on mobile with better positioning */}
+      <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 xl:bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex">
+        <div className="slider-controls flex items-center gap-1.5 sm:gap-2 lg:gap-3 bg-white/15 backdrop-blur-xl rounded-full px-2 sm:px-3 lg:px-4 xl:px-5 py-1 sm:py-1.5 lg:py-2 xl:py-2.5 border border-white/20">
           {/* Play/Pause Control */}
           <button
             onClick={togglePlayPause}
             className="p-1 sm:p-1.5 lg:p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 group"
           >
             {isPlaying ? (
-              <Pause className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 text-white/80 group-hover:text-white transition-colors" />
+              <Pause className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5 text-white/80 group-hover:text-white transition-colors" />
             ) : (
-              <Play className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 text-white/80 group-hover:text-white transition-colors" />
+              <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5 text-white/80 group-hover:text-white transition-colors" />
             )}
           </button>
 
-          {/* Elegant Navigation Dots */}
+          {/* Elegant Navigation Dots - Mobile optimized */}
           <div className="flex items-center gap-1 sm:gap-1.5">
             {images.map((_, index) => (
               <button
                 key={index}
                 onClick={() => handleDotClick(index)}
                 className={`relative transition-all duration-500 ${
-                  index === activeIndex ? 'w-4 sm:w-6 lg:w-8 h-1 sm:h-1.5 lg:h-2' : 'w-1 sm:w-1.5 lg:w-2 h-1 sm:h-1.5 lg:h-2'
+                  index === activeIndex ? 'w-3 sm:w-4 lg:w-6 h-1 sm:h-1.5 lg:h-2' : 'w-1 sm:w-1.5 lg:w-2 h-1 sm:h-1.5 lg:h-2'
                 }`}
               >
                 {/* Base Dot */}
@@ -276,36 +255,34 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
             onClick={resetSlider}
             className="p-1 sm:p-1.5 lg:p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 group"
           >
-            <RotateCcw className="w-2 h-2 sm:w-2.5 sm:h-2.5 lg:w-3 lg:h-3 text-white/80 group-hover:text-white group-hover:rotate-180 transition-all duration-300" />
+            <RotateCcw className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5 text-white/80 group-hover:text-white group-hover:rotate-180 transition-all duration-300" />
           </button>
         </div>
       </div>
 
-      {/* Display Mode Indicator - Hidden on mobile */}
-      <div className="absolute top-4 left-4 z-30 hidden md:block">
-        <div className="bg-black/30 backdrop-blur-sm rounded-full px-2 sm:px-3 py-1 sm:py-1.5 border border-white/20">
-          <span className="text-white/80 text-xs sm:text-sm font-light">
-            {imageDisplayMode === 'contain' ? '📱 عرض كامل' : '🖥️ عرض مقصوص'}
-          </span>
+      {/* Mobile Swipe Indicator */}
+      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 md:hidden">
+        <div className="bg-black/20 backdrop-blur-sm rounded-full px-3 py-1 border border-white/20">
+          <span className="text-white/70 text-xs font-light">← اسحب للتنقل →</span>
         </div>
       </div>
 
-      {/* Subtle Corner Accents */}
-      <div className="absolute top-3 sm:top-4 lg:top-6 left-3 sm:left-4 lg:left-6 w-8 h-8 sm:w-12 sm:h-12 lg:w-16 lg:h-16 z-20">
-        <div className="absolute top-0 left-0 w-2 sm:w-3 lg:w-4 h-px bg-white/40" />
-        <div className="absolute top-0 left-0 w-px h-2 sm:h-3 lg:h-4 bg-white/40" />
+      {/* Subtle Corner Accents - Mobile optimized */}
+      <div className="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
+        <div className="absolute top-0 left-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
+        <div className="absolute top-0 left-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
       </div>
-      <div className="absolute top-3 sm:top-4 lg:top-6 right-3 sm:right-4 lg:right-6 w-8 h-8 sm:w-12 sm:h-12 lg:w-16 lg:h-16 z-20">
-        <div className="absolute top-0 right-0 w-2 sm:w-3 lg:w-4 h-px bg-white/40" />
-        <div className="absolute top-0 right-0 w-px h-2 sm:h-3 lg:h-4 bg-white/40" />
+      <div className="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
+        <div className="absolute top-0 right-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
+        <div className="absolute top-0 right-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
       </div>
-      <div className="absolute bottom-3 sm:bottom-4 lg:bottom-6 left-3 sm:left-4 lg:left-6 w-8 h-8 sm:w-12 sm:h-12 lg:w-16 lg:h-16 z-20">
-        <div className="absolute bottom-0 left-0 w-2 sm:w-3 lg:w-4 h-px bg-white/40" />
-        <div className="absolute bottom-0 left-0 w-px h-2 sm:h-3 lg:h-4 bg-white/40" />
+      <div className="absolute bottom-2 sm:bottom-3 lg:bottom-4 left-2 sm:left-3 lg:left-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
+        <div className="absolute bottom-0 left-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
+        <div className="absolute bottom-0 left-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
       </div>
-      <div className="absolute bottom-3 sm:bottom-4 lg:bottom-6 right-3 sm:right-4 lg:right-6 w-8 h-8 sm:w-12 sm:h-12 lg:w-16 lg:h-16 z-20">
-        <div className="absolute bottom-0 right-0 w-2 sm:w-3 lg:w-4 h-px bg-white/40" />
-        <div className="absolute bottom-0 right-0 w-px h-2 sm:h-3 lg:h-4 bg-white/40" />
+      <div className="absolute bottom-2 sm:bottom-3 lg:bottom-4 right-2 sm:right-3 lg:right-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
+        <div className="absolute bottom-0 right-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
+        <div className="absolute bottom-0 right-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
       </div>
 
 
