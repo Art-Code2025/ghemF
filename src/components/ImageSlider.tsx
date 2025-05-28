@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import '../styles/mobile-slider.css';
 
 interface ImageSliderProps {
@@ -13,12 +13,13 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images, currentIndex = 0 }) =
   const [progress, setProgress] = useState(0);
   const [buttonLoaded, setButtonLoaded] = useState(false);
 
-  // Sync currentIndex prop
+  // مزامنة currentIndex الخارجي
   useEffect(() => {
     setActiveIndex(currentIndex);
+    setProgress(0);
   }, [currentIndex]);
 
-  // Auto-play
+  // التشغيل التلقائي
   useEffect(() => {
     let interval: number;
     if (isPlaying && images.length > 1) {
@@ -35,14 +36,15 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images, currentIndex = 0 }) =
     return () => clearInterval(interval);
   }, [isPlaying, images.length]);
 
-  // Load animation trigger
+  // تفعيل زرّ الـCTA بعد التحميل
   useEffect(() => {
     setTimeout(() => setButtonLoaded(true), 200);
   }, []);
 
-  // Swipe handlers
+  // تحكّم بالسحب على الموبايل
   const [touchStart, setTouchStart] = useState<number | null>(null);
-  const [touchEnd, setTouchEnd] = useState<number | null>(null);
+  const [touchEnd, setTouchEnd]     = useState<number | null>(null);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
@@ -53,10 +55,28 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images, currentIndex = 0 }) =
   const handleTouchEnd = () => {
     if (touchStart === null || touchEnd === null) return;
     const dist = touchStart - touchEnd;
-    if (dist > 50)      { setActiveIndex(i => (i + 1) % images.length); setProgress(0); }
-    else if (dist < -50){ setActiveIndex(i => (i - 1 + images.length) % images.length); setProgress(0); }
+    if (dist > 50) {
+      // يسار → التالي
+      setActiveIndex(i => (i + 1) % images.length);
+      setProgress(0);
+    } else if (dist < -50) {
+      // يمين → السابق
+      setActiveIndex(i => (i - 1 + images.length) % images.length);
+      setProgress(0);
+    }
   };
 
+  // أزرار التنقل يدويًا
+  const prevSlide = () => {
+    setActiveIndex(i => (i - 1 + images.length) % images.length);
+    setProgress(0);
+  };
+  const nextSlide = () => {
+    setActiveIndex(i => (i + 1) % images.length);
+    setProgress(0);
+  };
+
+  // حالة عدم وجود صور
   if (!images || images.length === 0) {
     return (
       <div className="image-slider-container no-images">
@@ -72,22 +92,19 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images, currentIndex = 0 }) =
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
+      {/* الشرائح */}
       {images.map((src, idx) => {
         const isActive   = idx === activeIndex;
-        const isPrevious = idx === (activeIndex - 1 + images.length) % images.length;
         return (
           <div
             key={idx}
-            className={`slide 
-              ${isActive   ? 'active'   : ''} 
-              ${isPrevious? 'previous' : ''}
-            `}
+            className={`slide ${isActive ? 'active' : ''}`}
           >
             <img
               src={src}
               alt={`مجموعة مميزة ${idx + 1}`}
               loading={idx === 0 ? 'eager' : 'lazy'}
-              className={`slider-image ${isActive ? 'highlight' : ''}`}
+              className="slider-image"
             />
             <div className="overlay" />
             {isActive && (
@@ -109,13 +126,20 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images, currentIndex = 0 }) =
         );
       })}
 
+      {/* أزرار Prev/Next */}
+      <button className="slider-nav prev" onClick={prevSlide}>
+        <ChevronLeft />
+      </button>
+      <button className="slider-nav next" onClick={nextSlide}>
+        <ChevronRight />
+      </button>
+
       {/* CTA */}
       <div className="cta">
         <div className="cta-content">
           <div className="cta-heading">
             <h1>
-              <span className="text-gradient-white">مجموعة</span>
-              <br />
+              <span className="text-gradient-white">مجموعة</span><br/>
               <span className="text-gradient-gold">استثنائية</span>
             </h1>
             <div className="cta-underline" />
@@ -133,7 +157,7 @@ const ImageSlider: React.FC<ImageSliderProps> = ({ images, currentIndex = 0 }) =
         </div>
       </div>
 
-      {/* Corner accents */}
+      {/* زوايا ديكورية */}
       <div className="corner top-left" />
       <div className="corner top-right" />
       <div className="corner bottom-left" />
