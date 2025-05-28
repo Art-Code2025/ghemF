@@ -8,7 +8,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
-import { createProductSlug } from '../utils/slugify';
+import { createProductSlug, createCategorySlug } from '../utils/slugify';
 
 // Lazy load components that aren't immediately visible
 const ContactFooter = lazy(() => import('../components/ContactFooter'));
@@ -50,6 +50,14 @@ interface Product {
   detailedImages?: string[];
   specifications?: { name: string; value: string }[];
   createdAt?: string;
+}
+
+// تعريف نوع الفئة
+interface Category {
+  id: number;
+  name: string;
+  description: string;
+  image: string;
 }
 
 // تعريف المميزات ولماذا تختارنا
@@ -135,16 +143,20 @@ function Home() {
   const [heroLoaded, setHeroLoaded] = useState(false);
   const [displayMode, setDisplayMode] = useState<'grid' | 'list' | 'carousel'>('grid');
   const [serverAvailable, setServerAvailable] = useState<boolean>(true);
+  const [categories, setCategories] = useState<Category[]>([]);
+  const [initialLoad, setInitialLoad] = useState(true);
 
   // جلب الخدمات والمنتجات من الخادم
   useEffect(() => {
     fetchServices();
     fetchProducts();
+    fetchCategories();
     // استرجاع طريقة العرض من localStorage
     const savedMode = localStorage.getItem('displayMode') as 'grid' | 'list' | 'carousel';
     if (savedMode) {
       setDisplayMode(savedMode);
     }
+    setInitialLoad(false);
   }, []);
 
   const fetchServices = async () => {
@@ -162,6 +174,15 @@ function Home() {
       setProducts(data.slice(0, 8)); // أخذ أول 8 منتجات فقط
     } catch (error) {
       console.error('Error fetching products:', error);
+    }
+  };
+
+  const fetchCategories = async () => {
+    try {
+      const data = await apiCall(API_ENDPOINTS.CATEGORIES);
+      setCategories(data);
+    } catch (error) {
+      console.error('Error fetching categories:', error);
     }
   };
 
@@ -461,327 +482,39 @@ function Home() {
         </div>
       </div>
 
-      {/* قسم الخدمات */}
-      <div id="services" ref={sectionsRef.services} className="container mx-auto px-6 py-24">
-        <div className={`text-center mb-20 transition-all duration-700 ${
-          visibleSections.services ? 'opacity-100 transform-none' : 'opacity-0 translate-y-10'
-        }`}>
-          <h2 className="text-4xl md:text-6xl font-bold mb-6 text-gray-800 inline-block relative pulse-effect">
-            <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-              خدماتنا المتميزة
-            </span>
-            <div className={`h-1 w-32 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto mt-4 rounded-full transition-all duration-700 delay-200 shimmer-effect ${
-              visibleSections.services ? 'w-32' : 'w-0'
+      {/* Services Section */}
+      <div className="bg-gradient-to-br from-gray-50 to-white py-24 relative overflow-hidden" ref={sectionsRef.services}>
+        <div className="container mx-auto px-6">
+          <div className={`text-center mb-20 transition-all duration-700 ${
+            visibleSections.services ? 'opacity-100 transform-none' : 'opacity-0 -translate-y-10'
+          }`}>
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                خدماتنا المميزة
+              </span>
+            </h2>
+            <div className={`h-1 w-24 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto mb-8 rounded-full transition-all duration-700 delay-200 ${
+              visibleSections.services ? 'w-24' : 'w-0'
             }`}></div>
-          </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mt-6 leading-relaxed">
-            مجموعة متكاملة من خدمات التنظيف والصيانة عالية الجودة باستخدام أحدث التقنيات العالمية
-          </p>
-        </div>
+            <p className="text-xl text-gray-600 max-w-3xl mx-auto leading-relaxed">
+              نقدم مجموعة شاملة من خدمات التنظيف والصيانة المتخصصة لتلبية جميع احتياجاتكم
+            </p>
+          </div>
 
-        {error && (
-          <div className="text-center mb-6 p-6 bg-gradient-to-r from-red-100 to-pink-100 border border-red-200 text-red-700 rounded-2xl glass-effect animate-fade-in shadow-lg">
-            <div className="flex items-center justify-center gap-2">
-              <svg className="w-5 h-5" fill="currentColor" viewBox="0 0 20 20">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
-              </svg>
-              {error}
-            </div>
-          </div>
-        )}
-
-        {loading ? (
-          <div className="text-center py-12 pulse-effect">
-            <div className="inline-block w-16 h-16 border-4 border-pink-500 border-t-transparent rounded-full animate-spin shadow-lg"></div>
-            <p className="mt-6 text-gray-600 text-lg">جاري تحميل خدماتنا المتميزة...</p>
-          </div>
-        ) : services.length === 0 ? (
-          <div className="text-center py-12 glass-effect p-8 rounded-2xl shadow-lg animate-fade-in border-2 border-pink-200">
-            <div className="w-16 h-16 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <svg className="w-8 h-8 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-            </div>
-            <p className="text-gray-600 text-lg">لا توجد خدمات متاحة حاليًا</p>
-          </div>
-        ) : (
-          <div className={displayMode === 'grid' ? 'grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8' : displayMode === 'list' ? 'space-y-6' : ''}>
-            {displayMode === 'carousel' ? (
-              <Slider {...sliderSettings}>
-                {services.map((service, index) => (
-                  <div key={service.id} className="px-3 carousel-item">
-                    <Link
-                      to={`/service/${service.id}`}
-                      onClick={() => trackVisit(service.id)}
-                      className="group relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-105 glass-effect border-2 border-transparent hover:border-pink-200 flex flex-col h-full animate-slide-in"
-                      style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                      <div className="h-56 overflow-hidden relative bg-gradient-to-br from-pink-50 to-purple-50">
-                        {service.mainImage ? (
-                          <img
-                            src={getImageSrc(service.mainImage)}
-                            alt={service.name}
-                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                            loading="lazy"
-                            width="300"
-                            height="200"
-                          />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <Star className="w-12 h-12 text-pink-400 pulse-effect" />
-                          </div>
-                        )}
-                        <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-pink-600/30 to-purple-600/30 transition-all duration-500 shimmer-effect"></div>
-                        <div className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
-                          <Heart className="w-4 h-4 text-pink-500" />
-                        </div>
-                      </div>
-                      <div className="p-6 flex-grow">
-                        <div className="relative inline-block mb-4">
-                          <h3 className="text-xl font-bold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 leading-tight">
-                            {service.name}
-                          </h3>
-                          <div className="absolute bottom-0 left-0 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500 shimmer-effect"></div>
-                        </div>
-                        <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">{service.homeShortDescription}</p>
-                      </div>
-                      <div className="mt-auto">
-                        <div className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 transition-all duration-300 relative overflow-hidden">
-                          <div className="py-4 px-6 flex items-center justify-between relative z-10">
-                            <span className="font-semibold text-white text-base">استكشف الخدمة</span>
-                            <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm shadow-md flex items-center justify-center transform group-hover:-translate-x-2 transition-all duration-300">
-                              <ArrowLeft className="w-4 h-4 text-white transform rotate-180 transition-transform duration-300 group-hover:rotate-90" />
-                            </div>
-                          </div>
-                          <span className="absolute inset-0 bg-white/10 transform translate-x-full group-hover:-translate-x-0 transition-transform duration-500 shimmer-effect"></span>
-                        </div>
-                      </div>
-                    </Link>
-                  </div>
-                ))}
-              </Slider>
-            ) : (
-              services.map((service, index) => (
-                <Link
-                  key={service.id}
-                  to={`/service/${service.id}`}
-                  onClick={() => trackVisit(service.id)}
-                  className={`${
-                    displayMode === 'list' ? 'list-item flex items-center glass-effect rounded-2xl shadow-lg p-6 border-2 border-transparent hover:border-pink-200' : 'group relative bg-white rounded-2xl shadow-lg overflow-hidden'
-                  } transition-all duration-500 hover:shadow-2xl hover:scale-105 glass-effect border-2 border-transparent hover:border-pink-200 flex flex-col h-full animate-slide-in`}
+          {services.length > 0 ? (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {services.map((service, index) => (
+                <div 
+                  key={service.id} 
+                  className={`group bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-105 glass-effect border-2 border-transparent hover:border-pink-200 flex flex-col h-full animate-slide-in ${
+                    visibleSections.services ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-20'
+                  }`}
                   style={{ animationDelay: `${index * 100}ms` }}
                 >
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-pink-500 to-purple-500 transform origin-left scale-x-0 group-hover:scale-x-100 transition-transform duration-500 shimmer-effect"></div>
-                  <div className={`${displayMode === 'list' ? 'w-32 h-32 flex-shrink-0 ml-6 rounded-xl overflow-hidden' : 'h-56 overflow-hidden'} relative bg-gradient-to-br from-pink-50 to-purple-50`}>
-                    {service.mainImage ? (
-                      <img
-                        src={getImageSrc(service.mainImage)}
-                        alt={service.name}
-                        className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
-                        loading="lazy"
-                        width="300"
-                        height="200"
-                      />
-                    ) : (
-                      <div className="w-full h-full flex items-center justify-center">
-                        <Star className="w-12 h-12 text-pink-400 pulse-effect" />
-                      </div>
-                    )}
-                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-pink-600/30 to-purple-600/30 transition-all duration-500 shimmer-effect"></div>
-                    {displayMode !== 'list' && (
-                      <div className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
-                        <Heart className="w-4 h-4 text-pink-500" />
-                      </div>
-                    )}
-                  </div>
-                  <div className="p-6 flex-grow">
-                    <div className="relative inline-block mb-4">
-                      <h3 className="text-xl font-bold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 leading-tight">
-                        {service.name}
-                      </h3>
-                      <div className="absolute bottom-0 left-0 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500 shimmer-effect"></div>
-                    </div>
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">{service.homeShortDescription}</p>
-                  </div>
-                  {displayMode !== 'list' && (
-                    <div className="mt-auto">
-                      <div className="bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 transition-all duration-300 relative overflow-hidden">
-                        <div className="py-4 px-6 flex items-center justify-between relative z-10">
-                          <span className="font-semibold text-white text-base">استكشف الخدمة</span>
-                          <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm shadow-md flex items-center justify-center transform group-hover:-translate-x-2 transition-all duration-300">
-                            <ArrowLeft className="w-4 h-4 text-white transform rotate-180 transition-transform duration-300 group-hover:rotate-90" />
-                          </div>
-                        </div>
-                        <span className="absolute inset-0 bg-white/10 transform translate-x-full group-hover:-translate-x-0 transition-transform duration-500 shimmer-effect"></span>
-                      </div>
-                    </div>
-                  )}
-                </Link>
-              ))
-            )}
-          </div>
-        )}
-      </div>
-
-      {/* قسم المنتجات المميزة */}
-      {products.length > 0 && (
-        <div className="bg-gradient-to-br from-gray-50 to-white py-24">
-          <div className="container mx-auto px-6">
-            <div className="text-center mb-20">
-              <h2 className="text-4xl md:text-6xl font-bold mb-6 text-gray-800 inline-block relative pulse-effect">
-                <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-                  منتجاتنا المميزة
-                </span>
-                <div className="h-1 w-32 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto mt-4 rounded-full shimmer-effect"></div>
-              </h2>
-              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mt-6 leading-relaxed">
-                اكتشف مجموعتنا المختارة من أفضل المنتجات عالية الجودة
-              </p>
-            </div>
-
-            {/* Mobile: Horizontal Scroll */}
-            <div className="block sm:hidden">
-              <style>
-                {`
-                  .scrollbar-hide {
-                    -ms-overflow-style: none;
-                    scrollbar-width: none;
-                  }
-                  .scrollbar-hide::-webkit-scrollbar {
-                    display: none;
-                  }
-                  .line-clamp-2 {
-                    display: -webkit-box;
-                    -webkit-line-clamp: 2;
-                    -webkit-box-orient: vertical;
-                    overflow: hidden;
-                  }
-                  .mobile-card {
-                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-                  }
-                  .mobile-card:hover {
-                    transform: translateY(-4px) scale(1.02);
-                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-                  }
-                `}
-              </style>
-              <div className="flex gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
-                {products.map((product, idx) => (
-                  <div
-                    key={product.id}
-                    className="flex-shrink-0 w-72 snap-start"
-                  >
-                    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl h-full mobile-card group relative">
-                      {/* Gradient Border Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-                      
-                      {/* Product Image - Natural Aspect Ratio */}
-                      <div className="relative h-48 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
-                        <img
-                          src={buildImageUrl(product.mainImage)}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
-                          onError={(e) => {
-                            e.currentTarget.src = '/placeholder-image.png';
-                          }}
-                        />
-                        {/* Premium Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
-                        {/* Price Badge */}
-                        <div className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
-                          {product.price.toFixed(0)} ر.س
-                        </div>
-                        {/* Product Type Badge */}
-                        {product.productType && (
-                          <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                            {product.productType}
-                          </div>
-                        )}
-                      </div>
-                      
-                      {/* Product Info - Centered Layout */}
-                      <div className="p-5 flex flex-col items-center text-center space-y-3">
-                        {/* Product Name - Centered */}
-                        <h3 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight min-h-[3rem] hover:text-pink-600 transition-colors duration-300">
-                          {product.name}
-                        </h3>
-                        
-                        {/* Elegant Divider */}
-                        <div className="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent w-16"></div>
-                        
-                        {/* Price Section - Centered */}
-                        <div className="flex flex-col items-center space-y-2">
-                          {product.originalPrice && product.originalPrice > product.price ? (
-                            <>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-gray-400 line-through font-medium">
-                                  {product.originalPrice.toFixed(0)} ر.س
-                                </span>
-                                <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                                  -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                                </span>
-                              </div>
-                              <div className="text-xl font-bold text-pink-600">
-                                {product.price.toFixed(0)} <span className="text-base text-gray-600">ر.س</span>
-                              </div>
-                            </>
-                          ) : (
-                            <div className="text-xl font-bold text-pink-600">
-                              {product.price.toFixed(0)} <span className="text-base text-gray-600">ر.س</span>
-                            </div>
-                          )}
-                          
-                          {/* Stock Indicator */}
-                          <div className="text-sm">
-                            {product.stock > 0 ? (
-                              <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">متوفر</span>
-                            ) : (
-                              <span className="text-red-600 font-medium bg-red-50 px-2 py-1 rounded-full">نفذ</span>
-                            )}
-                          </div>
-                        </div>
-                        
-                        {/* Action Button */}
-                        <Link
-                          to={`/product/${createProductSlug(product.id, product.name)}`}
-                          className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold text-center block hover:scale-105 hover:shadow-xl"
-                        >
-                          عرض التفاصيل
-                        </Link>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-              
-              {/* Scroll Indicators */}
-              <div className="flex justify-center mt-2">
-                <div className="flex gap-1">
-                  {products.map((_, idx) => (
-                    <div key={idx} className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-pink-500"></div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Mobile Scroll Hint */}
-              <div className="flex justify-center mt-2">
-                <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                  <span>👈</span>
-                  <span>اسحب لرؤية المزيد</span>
-                  <span>👉</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Desktop: Grid */}
-            <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-              {products.map((product, index) => (
-                <div key={product.id} className="group relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-105 glass-effect border-2 border-transparent hover:border-pink-200 flex flex-col h-full animate-slide-in" style={{ animationDelay: `${index * 100}ms` }}>
                   <div className="h-56 overflow-hidden relative bg-gradient-to-br from-pink-50 to-purple-50">
                     <img
-                      src={buildImageUrl(product.mainImage)}
-                      alt={product.name}
+                      src={buildImageUrl(service.mainImage)}
+                      alt={service.name}
                       className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
                       loading="lazy"
                       onError={(e) => {
@@ -792,26 +525,24 @@ function Home() {
                     <div className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
                       <Heart className="w-4 h-4 text-pink-500" />
                     </div>
-                    <div className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
-                      {product.price.toFixed(0)} ر.س
-                    </div>
                   </div>
                   <div className="p-6 flex-grow">
                     <div className="relative inline-block mb-4">
                       <h3 className="text-xl font-bold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 leading-tight">
-                        {product.name}
+                        {service.name}
                       </h3>
                       <div className="absolute bottom-0 left-0 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500 shimmer-effect"></div>
                     </div>
-                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">{product.description}</p>
+                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">{service.homeShortDescription}</p>
                   </div>
                   <div className="mt-auto">
                     <Link
-                      to={`/product/${createProductSlug(product.id, product.name)}`}
+                      to={`/service/${service.id}`}
+                      onClick={() => trackVisit(service.id)}
                       className="block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 transition-all duration-300 relative overflow-hidden"
                     >
                       <div className="py-4 px-6 flex items-center justify-between relative z-10">
-                        <span className="font-semibold text-white text-base">عرض المنتج</span>
+                        <span className="font-semibold text-white text-base">عرض الخدمة</span>
                         <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm shadow-md flex items-center justify-center transform group-hover:-translate-x-2 transition-all duration-300">
                           <ArrowLeft className="w-4 h-4 text-white transform rotate-180 transition-transform duration-300 group-hover:rotate-90" />
                         </div>
@@ -822,21 +553,30 @@ function Home() {
                 </div>
               ))}
             </div>
-
-            {/* View All Products Button */}
-            <div className="text-center mt-12">
-              <Link
-                to="/products"
-                className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                <Package className="w-6 h-6" />
-                <span>عرض جميع المنتجات</span>
-                <ArrowLeft className="w-5 h-5 transform rotate-180" />
-              </Link>
+          ) : (
+            <div className="text-center py-12 glass-effect p-8 rounded-2xl shadow-lg animate-fade-in border-2 border-pink-200">
+              <div className="w-16 h-16 bg-gradient-to-r from-pink-100 to-purple-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <svg className="w-8 h-8 text-pink-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+                </svg>
+              </div>
+              <p className="text-gray-600 text-lg">لا توجد خدمات متاحة حاليًا</p>
             </div>
+          )}
+
+          {/* View All Services Button */}
+          <div className="text-center mt-12">
+            <Link
+              to="/services"
+              className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+            >
+              <Package className="w-6 h-6" />
+              <span>عرض جميع الخدمات</span>
+              <ArrowLeft className="w-5 h-5 transform rotate-180" />
+            </Link>
           </div>
         </div>
-      )}
+      </div>
 
       {/* Why Choose Us section */}
       <div className="bg-gradient-to-br from-pink-600 to-purple-700 text-white py-24 relative overflow-hidden" ref={sectionsRef.whyChooseUs}>

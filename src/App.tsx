@@ -264,68 +264,142 @@ const App: React.FC = () => {
           
           {/* عرض Categories فوراً بدون شرط */}
           {categories.length > 0 ? (
-            <div className={`grid gap-4 sm:gap-6 lg:gap-8 ${
-              categories.length === 1 ? 'grid-cols-1 max-w-sm sm:max-w-md mx-auto' :
-              categories.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl sm:max-w-4xl mx-auto' :
-              categories.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
-              categories.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
-              'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
-            }`}>
-              {categories.map((category, index) => (
-                <div 
-                  key={category.id} 
-                  className="relative group"
-                >
-                  <Link to={`/category/${createCategorySlug(category.id, category.name)}`}>
-                    <div className="relative bg-gradient-to-br from-white via-pink-50/50 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl overflow-hidden border border-pink-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-pink-300/80">
-                      
-                      <div className="relative">
-                        {/* Category Image */}
-                        <div className="relative h-52 sm:h-60 md:h-68 lg:h-76 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
-                          <img
-                            src={buildImageUrl(category.image)}
-                            alt={category.name}
-                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
-                            onError={(e) => {
-                              e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
-                            }}
-                          />
-                          
-                          {/* Premium Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-pink-500/20 to-transparent" />
-                          
-                          {/* Category Number Badge */}
-                          <div className="absolute top-3 sm:top-4 lg:top-6 right-3 sm:right-4 lg:right-6 w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg animate-pulse">
-                            {index + 1}
+            <>
+              {/* Mobile: Horizontal Scroll */}
+              <div className="block sm:hidden">
+                <div className="flex gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+                  {categories.map((category, index) => (
+                    <div key={category.id} className="flex-shrink-0 w-72 snap-start">
+                      <Link to={`/category/${createCategorySlug(category.id, category.name)}`}>
+                        <div className="relative bg-gradient-to-br from-white via-pink-50/50 to-white backdrop-blur-xl rounded-2xl overflow-hidden border border-pink-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-pink-300/80">
+                          <div className="relative">
+                            {/* Category Image - Taller */}
+                            <div className="relative h-64 overflow-hidden rounded-t-2xl">
+                              <img
+                                src={buildImageUrl(category.image)}
+                                alt={category.name}
+                                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                                onError={(e) => {
+                                  e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
+                                }}
+                              />
+                              
+                              {/* Premium Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-pink-500/20 to-transparent" />
+                              
+                              {/* Category Number Badge */}
+                              <div className="absolute top-3 right-3 w-8 h-8 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-bold text-xs shadow-lg animate-pulse">
+                                {index + 1}
+                              </div>
+                            </div>
+                            
+                            {/* Category Info */}
+                            <div className="relative p-4 bg-gradient-to-b from-white to-pink-50/30">
+                              <div className="text-center">
+                                <h3 className="text-lg font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3">
+                                  {category.name}
+                                </h3>
+                                
+                                <div className="h-0.5 bg-gradient-to-r from-transparent via-pink-400 to-transparent rounded-full mb-3 mx-auto w-12" />
+                                
+                                <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-2">
+                                  {category.description || 'اكتشف مجموعة متنوعة من المنتجات عالية الجودة'}
+                                </p>
+                                
+                                {/* Luxury Button */}
+                                <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 text-white px-5 py-2.5 rounded-xl font-bold hover:from-pink-600 hover:to-rose-600 shadow-xl backdrop-blur-xl border-2 border-pink-400/40 inline-flex items-center gap-2 transition-all duration-300 hover:shadow-2xl hover:scale-110 text-sm group">
+                                  <span className="group-hover:translate-x-1 transition-transform duration-300">استكشف مجموعاتنا</span>
+                                  <ChevronLeft className="w-4 h-4 group-hover:translate-x-1 transition-transform duration-300" />
+                                </div>
+                              </div>
+                            </div>
                           </div>
                         </div>
+                      </Link>
+                    </div>
+                  ))}
+                </div>
+                
+                {/* Scroll Indicators */}
+                <div className="flex justify-center mt-2">
+                  <div className="flex gap-1">
+                    {categories.map((_, idx) => (
+                      <div key={idx} className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-pink-500"></div>
+                    ))}
+                  </div>
+                </div>
+                
+                {/* Mobile Scroll Hint */}
+                <div className="flex justify-center mt-2">
+                  <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                    <span>👈</span>
+                    <span>اسحب لرؤية المزيد</span>
+                    <span>👉</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Desktop: Grid */}
+              <div className={`hidden sm:grid gap-4 sm:gap-6 lg:gap-8 ${
+                categories.length === 1 ? 'grid-cols-1 max-w-sm sm:max-w-md mx-auto' :
+                categories.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl sm:max-w-4xl mx-auto' :
+                categories.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+                categories.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
+                'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
+              }`}>
+                {categories.map((category, index) => (
+                  <div key={category.id} className="relative group">
+                    <Link to={`/category/${createCategorySlug(category.id, category.name)}`}>
+                      <div className="relative bg-gradient-to-br from-white via-pink-50/50 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl overflow-hidden border border-pink-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-pink-300/80">
                         
-                        {/* Category Info */}
-                        <div className="relative p-4 sm:p-6 lg:p-8 bg-gradient-to-b from-white to-pink-50/30">
-                          <div className="text-center">
-                            <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3 sm:mb-4">
-                              {category.name}
-                            </h3>
+                        <div className="relative">
+                          {/* Category Image - Taller */}
+                          <div className="relative h-60 sm:h-68 md:h-76 lg:h-84 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
+                            <img
+                              src={buildImageUrl(category.image)}
+                              alt={category.name}
+                              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                              onError={(e) => {
+                                e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
+                              }}
+                            />
                             
-                            <div className="h-0.5 bg-gradient-to-r from-transparent via-pink-400 to-transparent rounded-full mb-3 sm:mb-4 mx-auto w-12 sm:w-16" />
+                            {/* Premium Overlay */}
+                            <div className="absolute inset-0 bg-gradient-to-t from-pink-900/60 via-pink-500/20 to-transparent" />
                             
-                            <p className="text-responsive-sm text-gray-600 leading-relaxed mb-4 sm:mb-6 line-clamp-2">
-                              {category.description || 'اكتشف مجموعة متنوعة من المنتجات عالية الجودة'}
-                            </p>
-                            
-                            {/* Luxury Button */}
-                            <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 text-white px-5 sm:px-7 lg:px-9 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl font-bold hover:from-pink-600 hover:to-rose-600 shadow-xl backdrop-blur-xl border-2 border-pink-400/40 inline-flex items-center gap-2 sm:gap-3 transition-all duration-300 hover:shadow-2xl hover:scale-110 text-sm sm:text-base group">
-                              <span className="group-hover:translate-x-1 transition-transform duration-300"> استكشف مجموعاتنا </span>
-                              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                            {/* Category Number Badge */}
+                            <div className="absolute top-3 sm:top-4 lg:top-6 right-3 sm:right-4 lg:right-6 w-8 h-8 sm:w-9 sm:h-9 lg:w-10 lg:h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-bold text-xs sm:text-sm shadow-lg animate-pulse">
+                              {index + 1}
+                            </div>
+                          </div>
+                          
+                          {/* Category Info */}
+                          <div className="relative p-4 sm:p-6 lg:p-8 bg-gradient-to-b from-white to-pink-50/30">
+                            <div className="text-center">
+                              <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3 sm:mb-4">
+                                {category.name}
+                              </h3>
+                              
+                              <div className="h-0.5 bg-gradient-to-r from-transparent via-pink-400 to-transparent rounded-full mb-3 sm:mb-4 mx-auto w-12 sm:w-16" />
+                              
+                              <p className="text-responsive-sm text-gray-600 leading-relaxed mb-4 sm:mb-6 line-clamp-2">
+                                {category.description || 'اكتشف مجموعة متنوعة من المنتجات عالية الجودة'}
+                              </p>
+                              
+                              {/* Luxury Button */}
+                              <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 text-white px-5 sm:px-7 lg:px-9 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl font-bold hover:from-pink-600 hover:to-rose-600 shadow-xl backdrop-blur-xl border-2 border-pink-400/40 inline-flex items-center gap-2 sm:gap-3 transition-all duration-300 hover:shadow-2xl hover:scale-110 text-sm sm:text-base group">
+                                <span className="group-hover:translate-x-1 transition-transform duration-300">استكشف مجموعاتنا</span>
+                                <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
+                              </div>
                             </div>
                           </div>
                         </div>
                       </div>
-                    </div>
-                  </Link>
-                </div>
-              ))}
-            </div>
+                    </Link>
+                  </div>
+                ))}
+              </div>
+            </>
           ) : !initialLoad && !loading ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -391,8 +465,8 @@ const App: React.FC = () => {
                       {/* Gradient Border Effect */}
                       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
                       
-                      {/* Product Image - Natural Aspect Ratio */}
-                      <div className="relative h-48 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
+                      {/* Product Image - Natural Aspect Ratio - Taller */}
+                      <div className="relative h-56 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
                           src={buildImageUrl(product.mainImage)}
                           alt={product.name}

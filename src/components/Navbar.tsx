@@ -183,31 +183,38 @@ function Navbar() {
           {/* Menu Button for Mobile */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-gray-800 hover:text-gray-600 p-2 sm:p-3 rounded-xl lg:hidden transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 shadow-lg hover:shadow-xl"
+            className="text-gray-800 hover:text-gray-600 p-2 sm:p-3 rounded-xl lg:hidden transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 shadow-lg hover:shadow-xl z-50"
           >
             {isMenuOpen ? <X size={24} className="sm:w-7 sm:h-7" /> : <Menu size={24} className="sm:w-7 sm:h-7" />}
           </button>
 
-          {/* Premium Logo - Responsive & Centered */}
-          <div 
-            onClick={(e) => {
-              e.preventDefault();
-              e.stopPropagation();
-              console.log('🏠 Logo clicked - navigating to home');
-              navigate('/');
-              setIsMenuOpen(false);
-              window.scrollTo(0, 0);
-            }}
-            className="flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group absolute left-1/2 transform -translate-x-1/2 lg:relative lg:left-auto lg:transform-none cursor-pointer"
-          >
-            <div className="relative">
-              <img src={logo} alt="Premium Brand Logo" className="h-10 sm:h-14 lg:h-20 w-auto drop-shadow-2xl" />
-              <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+          {/* Premium Logo - Fixed Center */}
+          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:relative lg:left-auto lg:top-auto lg:transform-none z-40">
+            <div 
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                console.log('🏠 Logo clicked - navigating to home');
+                navigate('/');
+                setIsMenuOpen(false);
+                window.scrollTo(0, 0);
+              }}
+              className="flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group cursor-pointer"
+            >
+              <div className="relative">
+                <img 
+                  src={logo} 
+                  alt="GHEM Store Logo" 
+                  className="h-10 sm:h-14 lg:h-20 w-auto drop-shadow-2xl select-none" 
+                  draggable={false}
+                />
+                <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+              </div>
             </div>
           </div>
 
           {/* Premium Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2 z-30">
             {/* عرض Categories فوراً بدون شرط */}
             {categories.map((category, index) => (
                 <button

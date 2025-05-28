@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { ChevronLeft, RotateCcw } from 'lucide-react';
 // تأكد أن مسار ملف الـ CSS هذا صحيح، وأنه لا يحتوي على ستايلات تتعارض مع أسهم السلايدر
 // import '../styles/mobile-slider.css'; 
@@ -88,8 +89,8 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
       {/* زر "استكشف منتجاتنا" مصغر ومنزل قليلاً */}
       <div className="absolute inset-0 flex justify-center items-center pt-8 sm:pt-12 z-20 pointer-events-none">
-        <a
-          href="/products"
+        <Link
+          to="/products"
           className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 
                      px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-lg
                      transition-all duration-300 transform 
@@ -103,7 +104,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
             <span>استكشف منتجاتنا</span>
             <ChevronLeft className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:-translate-x-0.5 transition-transform duration-300" />
           </div>
-        </a>
+        </Link>
       </div>
       
       {/* زر إعادة التعيين */}

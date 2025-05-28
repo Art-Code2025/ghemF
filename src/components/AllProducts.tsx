@@ -216,9 +216,9 @@ const AllProducts: React.FC = () => {
 
         {/* Products Grid/List */}
         {filteredProducts.length > 0 ? (
-          <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 justify-items-center' : 'space-y-4 sm:space-y-6'}`}>
+          <div className={`${viewMode === 'grid' ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 justify-items-center place-items-center' : 'space-y-4 sm:space-y-6'} w-full`}>
             {filteredProducts.map(product => (
-              <div key={product.id} className="w-full max-w-sm">
+              <div key={product.id} className="w-full max-w-sm mx-auto">
                 <ProductCard
                   product={product}
                   viewMode={viewMode}

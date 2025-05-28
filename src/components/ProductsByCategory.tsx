@@ -188,9 +188,9 @@ const ProductsByCategory: React.FC = () => {
           </div>
         </div>
       ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 justify-items-center">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 lg:gap-12 justify-items-center place-items-center w-full">
           {products.map(product => (
-            <div key={product.id} className="w-full max-w-sm">
+            <div key={product.id} className="w-full max-w-sm mx-auto">
               <ProductCard product={product} />
             </div>
           ))}
