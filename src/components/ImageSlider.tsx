@@ -66,16 +66,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[500px] overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl shadow-2xl"
+      className="image-slider-container relative w-full h-[350px] overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl shadow-2xl"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Images with Full Coverage */}
+      {/* Images with Proper Aspect Ratio */}
       {images.map((image, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-all duration-1000 ease-out ${
+          className={`absolute inset-0 transition-all duration-1000 ease-out flex items-center justify-center p-4 ${
             index === activeIndex 
               ? 'opacity-100 scale-100 z-10' 
               : index === (activeIndex - 1 + images.length) % images.length
@@ -86,27 +86,27 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
           <img
             src={image}
             alt={`مجموعة مميزة ${index + 1}`}
-            className={`w-full h-full object-cover transition-all duration-1000 ease-out ${
+            className={`max-w-full max-h-full object-contain transition-all duration-1000 ease-out rounded-xl shadow-lg ${
               index === activeIndex ? 'scale-100 filter brightness-105 saturate-110' : 'scale-95'
             }`}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
           
           {/* تدرج خفيف للحماية */}
-          <div className={`absolute inset-0 transition-all duration-1000 pointer-events-none ${
+          <div className={`absolute inset-0 rounded-xl transition-all duration-1000 pointer-events-none ${
             index === activeIndex 
-              ? 'bg-gradient-to-t from-black/20 via-transparent to-transparent'
-              : 'bg-gradient-to-t from-black/40 via-transparent to-black/10'
+              ? 'bg-gradient-to-t from-black/10 via-transparent to-transparent'
+              : 'bg-gradient-to-t from-black/20 via-transparent to-black/5'
           }`} />
         </div>
       ))}
 
-      {/* زر الدعوة للعمل - في المنتصف العلوي */}
-      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
+      {/* زر الدعوة للعمل - في المنتصف */}
+      <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-20">
         <a
           href="/products"
           className={`group relative inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-6 py-3 rounded-full border border-pink-400/60 hover:border-pink-300/80 transition-all duration-300 transform ${
-            buttonLoaded ? 'translate-y-0 opacity-100' : 'translate-y-[-50px] opacity-0'
+            buttonLoaded ? 'scale-100 opacity-100' : 'scale-75 opacity-0'
           } hover:scale-105 hover:shadow-xl hover:shadow-pink-500/40 text-sm font-medium shadow-xl overflow-hidden`}
         >
           {/* تأثير اللمعان */}
@@ -120,16 +120,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
       {/* نقاط التنقل */}
       {images.length > 1 && (
-        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex space-x-3 bg-black/30 backdrop-blur-lg rounded-full px-4 py-2.5">
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex space-x-3 bg-black/20 backdrop-blur-md rounded-full px-3 py-2">
             {images.map((_, index) => (
               <button
                 key={index}
                 onClick={() => handleDotClick(index)}
-                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   index === activeIndex
-                    ? 'bg-white scale-125 shadow-lg'
-                    : 'bg-white/60 hover:bg-white/80 hover:scale-110'
+                    ? 'bg-white scale-125'
+                    : 'bg-white/50 hover:bg-white/70'
                 }`}
               />
             ))}
@@ -148,12 +148,12 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
       </div>
       
       {/* زر إعادة التعيين */}
-      <div className="absolute bottom-6 right-6 z-20">
+      <div className="absolute bottom-4 right-4 z-20">
         <button
           onClick={resetSlider}
-          className="bg-black/30 backdrop-blur-lg text-white p-2.5 rounded-full hover:bg-black/40 transition-all duration-300 hover:scale-110 shadow-lg"
+          className="bg-black/20 backdrop-blur-md text-white p-2 rounded-full hover:bg-black/30 transition-all duration-300 shadow-md"
         >
-          <RotateCcw className="w-4 h-4" />
+          <RotateCcw className="w-3 h-3" />
         </button>
       </div>
 
