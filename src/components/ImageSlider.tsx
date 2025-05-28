@@ -16,21 +16,14 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   }, [currentIndex]);
 
   useEffect(() => {
-    // تأخير بسيط لظهور الزر بتأثير
     const timer = setTimeout(() => setButtonLoaded(true), 200);
-    return () => clearTimeout(timer); // تنظيف التايمر عند إلغاء تحميل المكون
+    return () => clearTimeout(timer);
   }, []);
-
-  // لم نعد بحاجة لهذه الدالة بعد إزالة النقاط
-  // const handleDotClick = (index: number) => {
-  //   setActiveIndex(index);
-  // };
 
   const resetSlider = () => {
     setActiveIndex(0);
   };
 
-  // Touch/swipe functionality for mobile
   const [touchStart, setTouchStart] = useState<number | null>(null);
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
@@ -47,12 +40,12 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
     if (!touchStart || !touchEnd) return;
     
     const distance = touchStart - touchEnd;
-    const minSwipeDistance = 50; // أقل مسافة تعتبر سحب
+    const minSwipeDistance = 50;
 
-    if (distance > minSwipeDistance) { // سحب لليسار
+    if (distance > minSwipeDistance) {
       setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
     }
-    if (distance < -minSwipeDistance) { // سحب لليمين
+    if (distance < -minSwipeDistance) {
       setActiveIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
     }
   };
@@ -72,7 +65,6 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* الصور مع التركيز على إظهارها كاملة وبدون فراغات */}
       {images.map((image, index) => (
         <div
           key={index}
@@ -83,36 +75,37 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
           <img
             src={image}
             alt={`صورة السلايدر ${index + 1}`}
-            // w-full و h-full لجعل الصورة تملأ الـ div الأب
-            // object-cover لجعل الصورة تغطي المساحة مع الحفاظ على الأبعاد (قد يقص أجزاء)
-            className="w-full h-full object-cover" 
-            loading={index === 0 ? 'eager' : 'lazy'} // تحميل أول صورة بشكل فوري والباقي عند الحاجة
+            className="w-full h-full object-contain" // كما طلبت، الصورة كاملة بدون قص
+            loading={index === 0 ? 'eager' : 'lazy'}
           />
         </div>
       ))}
 
-      {/* زر استكشف منتجاتنا في المنتصف */}
-      <div className="absolute inset-0 flex items-center justify-center z-20 pointer-events-none">
+      {/* زر استكشف منتجاتنا بحجم وموضع جديد */}
+      <div className="absolute inset-0 flex justify-center items-end pb-8 z-20 pointer-events-none">
+        {/* items-end: لمحاذاة العنصر لأسفل الحاوية
+          pb-8: لتركه مسافة 32px من الحافة السفلية (لتحريكه "تحت شوية" ولكن ليس في الأسفل تمامًا)
+        */}
         <a
-          href="/products" // يمكنك تغيير الرابط حسب الحاجة
-          className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-full shadow-xl transition-all duration-300 transform ${
-            buttonLoaded ? 'scale-100 opacity-95' : 'scale-75 opacity-0'
-          } hover:scale-105 hover:shadow-2xl hover:from-pink-600 hover:to-rose-600 focus:outline-none focus:ring-4 focus:ring-pink-300`}
+          href="/products"
+          className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 
+                     px-6 py-3 rounded-full shadow-lg  /* Padding أقل، ظل أقل */
+                     transition-all duration-300 transform 
+                     ${buttonLoaded ? 'scale-100 opacity-90' : 'scale-75 opacity-0'} /* شفافية أقل بقليل */
+                     hover:scale-105 hover:shadow-xl /* ظل أقل عند المرور */
+                     focus:outline-none focus:ring-4 focus:ring-pink-300`}
         >
-          <div className="flex items-center gap-2">
-            <span className="text-lg">✨</span>
-            <span className="font-bold text-lg">استكشف منتجاتنا</span>
-            {/* الأيقونة مناسبة للسياق العربي (السهم يشير إلى اليسار عادةً للانتقال) */}
-            <ChevronLeft className="w-5 h-5 group-hover:-translate-x-1 transition-transform duration-300" />
+          <div className="flex items-center gap-1.5"> {/* تقليل المسافة بين الأيقونات والنص */}
+            <span className="text-base">✨</span> {/* تصغير حجم الإيموجي */}
+            <span className="font-semibold text-base">استكشف منتجاتنا</span> {/* تصغير حجم الخط وتقليل سمكه قليلاً */}
+            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-300" /> {/* تصغير الأيقونة وتقليل حركة التحريك */}
           </div>
         </a>
       </div>
-
-      {/* تم إزالة نقاط التنقل من هنا */}
-
-      {/* زر إعادة التعيين (الرجوع لأول صورة) */}
-      {images.length > 1 && ( // إظهار الزر فقط لو فيه أكتر من صورة
-        <div className="absolute top-4 left-4 z-30"> {/* زيادة z-index ليكون فوق كل شيء */}
+      
+      {/* زر إعادة التعيين */}
+      {images.length > 1 && (
+        <div className="absolute top-4 left-4 z-30">
           <button
             onClick={resetSlider}
             aria-label="إعادة عرض الصور من البداية"
@@ -122,25 +115,29 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
           </button>
         </div>
       )}
-      
 
-      {/* أسهم التنقل الجانبية */}
-      {images.length > 1 && ( // إظهار الأسهم فقط لو فيه أكتر من صورة
+      {/* أسهم التنقل الجانبية (بدون خلفية بينك) */}
+      {images.length > 1 && (
         <>
           {/* السهم الأيمن (السابق) */}
           <button
             onClick={() => setActiveIndex((prev) => (prev - 1 + images.length) % images.length)}
             aria-label="الصورة السابقة"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 z-30 bg-black/40 text-white p-2.5 rounded-full hover:bg-black/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="absolute right-3 top-1/2 transform -translate-y-1/2 z-30 
+                       bg-black/40 text-white p-2.5 rounded-full /* خلفية سوداء شفافة */
+                       hover:bg-black/50 transition-all duration-300 
+                       focus:outline-none focus:ring-2 focus:ring-white/50"
           >
-            {/* ChevronLeft مع rotate-180 ليصبح سهم يشير لليمين */}
             <ChevronLeft className="w-5 h-5 rotate-180" />
           </button>
           {/* السهم الأيسر (التالي) */}
           <button
             onClick={() => setActiveIndex((prev) => (prev + 1) % images.length)}
             aria-label="الصورة التالية"
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 z-30 bg-black/40 text-white p-2.5 rounded-full hover:bg-black/50 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="absolute left-3 top-1/2 transform -translate-y-1/2 z-30 
+                       bg-black/40 text-white p-2.5 rounded-full /* خلفية سوداء شفافة */
+                       hover:bg-black/50 transition-all duration-300 
+                       focus:outline-none focus:ring-2 focus:ring-white/50"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
