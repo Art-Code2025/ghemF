@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
@@ -9,7 +9,7 @@ import ImageSlider from './components/ImageSlider';
 import ProductCard from './components/ProductCard';
 import WhatsAppButton from './components/WhatsAppButton';
 import cover1 from './assets/cover1.jpg';
-import { createCategorySlug } from './utils/slugify';
+import { createCategorySlug, createProductSlug } from './utils/slugify';
 import cover2 from './assets/cover2.jpg';
 import cover3 from './assets/cover3.jpg';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from './config/api';
@@ -136,7 +136,52 @@ const App: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden" dir="rtl">
-
+      <style>
+        {`
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+          }
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          .line-clamp-2 {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          }
+          .snap-x {
+            scroll-snap-type: x mandatory;
+          }
+          .snap-start {
+            scroll-snap-align: start;
+          }
+          .snap-mandatory {
+            scroll-snap-type: x mandatory;
+          }
+          
+          /* Smooth scrolling for mobile */
+          @media (max-width: 640px) {
+            .mobile-scroll {
+              scroll-behavior: smooth;
+              -webkit-overflow-scrolling: touch;
+            }
+          }
+          
+          /* Enhanced mobile card animations */
+          @media (max-width: 640px) {
+            .mobile-card {
+              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            }
+            .mobile-card:hover {
+              transform: translateY(-4px) scale(1.02);
+              box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+            }
+          }
+        `}
+      </style>
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
       
       {/* Premium Hero Slider - أبعاد مضبوطة بدون فراغات */}
       <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
@@ -302,7 +347,108 @@ const App: React.FC = () => {
           
           {/* Products Container */}
           <div className="relative py-2 sm:py-3 lg:py-4 px-2 sm:px-4 lg:px-8">
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 justify-items-center">
+            {/* Mobile: Horizontal Scroll, Desktop: Grid */}
+            <div className="block sm:hidden">
+              {/* Mobile Horizontal Scroll */}
+              <div className="flex gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide snap-x snap-mandatory mobile-scroll">
+                {categoryProduct.products.map((product, idx) => (
+                  <div
+                    key={product.id}
+                    className="flex-shrink-0 w-64 snap-start"
+                  >
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:scale-105 h-full mobile-card">
+                      {/* Product Image - Compact for Mobile */}
+                      <div className="relative h-40 overflow-hidden">
+                        <img
+                          src={buildImageUrl(product.mainImage)}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-all duration-500 hover:scale-110"
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder-image.png';
+                          }}
+                        />
+                        {/* Price Badge */}
+                        <div className="absolute top-2 right-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                          {product.price.toFixed(0)} ر.س
+                        </div>
+                        {/* Product Type Badge */}
+                        {product.productType && (
+                          <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+                            {product.productType}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Product Info - Compact */}
+                      <div className="p-3">
+                        <h3 className="text-sm font-bold text-gray-800 mb-2 line-clamp-2 leading-tight">
+                          {product.name}
+                        </h3>
+                        
+                        {/* Price Section */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex flex-col">
+                            {product.originalPrice && product.originalPrice > product.price ? (
+                              <>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-gray-400 line-through">
+                                    {product.originalPrice.toFixed(0)}
+                                  </span>
+                                  <span className="bg-red-500 text-white px-1 py-0.5 rounded text-xs font-bold">
+                                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                                  </span>
+                                </div>
+                                <span className="text-sm font-bold text-pink-600">{product.price.toFixed(0)} ر.س</span>
+                              </>
+                            ) : (
+                              <span className="text-sm font-bold text-pink-600">{product.price.toFixed(0)} ر.س</span>
+                            )}
+                          </div>
+                          
+                          {/* Stock Indicator */}
+                          <div className="text-xs text-gray-500">
+                            {product.stock > 0 ? (
+                              <span className="text-green-600 font-medium">متوفر</span>
+                            ) : (
+                              <span className="text-red-600 font-medium">نفذ</span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Action Button */}
+                        <Link
+                          to={`/product/${createProductSlug(product.id, product.name)}`}
+                          className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-2 px-3 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-xs font-semibold text-center block"
+                        >
+                          عرض التفاصيل
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Scroll Indicator */}
+              <div className="flex justify-center mt-2">
+                <div className="flex gap-1">
+                  {categoryProduct.products.map((_, idx) => (
+                    <div key={idx} className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-pink-500"></div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Mobile Scroll Hint */}
+              <div className="flex justify-center mt-2">
+                <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                  <span>👈</span>
+                  <span>اسحب لرؤية المزيد</span>
+                  <span>👉</span>
+                </div>
+              </div>
+            </div>
+            
+            {/* Desktop Grid */}
+            <div className="hidden sm:grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 justify-items-center">
               {categoryProduct.products.map((product, idx) => (
                 <div
                   key={product.id}

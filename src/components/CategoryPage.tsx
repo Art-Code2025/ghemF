@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ArrowRight, Package, Filter, Grid, List } from 'lucide-react';
+import { ArrowRight, Package, Filter, Grid, List, RefreshCw } from 'lucide-react';
 import ProductCard from './ProductCard';
 import WhatsAppButton from './WhatsAppButton';
 import { extractIdFromSlug, isValidSlug } from '../utils/slugify';
@@ -116,13 +116,9 @@ const CategoryPage: React.FC = () => {
     return (
       <div className="min-h-screen bg-f8f5f0 flex items-center justify-center px-4">
         <div className="text-center max-w-md mx-auto">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">التصنيف غير موجود</h2>
-          <Link 
-            to="/" 
-            className="inline-block bg-gold-600 text-cream-50 px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg hover:bg-gold-700 transition-all duration-300 text-sm sm:text-base"
-          >
-            العودة للرئيسية
-          </Link>
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-gold-600 mb-4" />
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">جاري التحميل...</h2>
+          <p className="text-gray-600 text-sm">يتم تحميل بيانات التصنيف</p>
         </div>
       </div>
     );

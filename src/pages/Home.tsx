@@ -8,6 +8,7 @@ import 'slick-carousel/slick/slick-theme.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
+import { createProductSlug } from '../utils/slugify';
 
 // Lazy load components that aren't immediately visible
 const ContactFooter = lazy(() => import('../components/ContactFooter'));
@@ -32,6 +33,23 @@ interface Service {
   detailedImages: string[];
   imageDetails: string[];
   features: string[];
+}
+
+// تعريف نوع المنتج
+interface Product {
+  id: number;
+  name: string;
+  description: string;
+  price: number;
+  originalPrice?: number;
+  stock: number;
+  categoryId: number | null;
+  productType?: string;
+  dynamicOptions?: any[];
+  mainImage: string;
+  detailedImages?: string[];
+  specifications?: { name: string; value: string }[];
+  createdAt?: string;
 }
 
 // تعريف المميزات ولماذا تختارنا
@@ -106,6 +124,7 @@ interface SectionRefs {
 
 function Home() {
   const [services, setServices] = useState<Service[]>([]);
+  const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [visibleSections, setVisibleSections] = useState({
@@ -117,9 +136,10 @@ function Home() {
   const [displayMode, setDisplayMode] = useState<'grid' | 'list' | 'carousel'>('grid');
   const [serverAvailable, setServerAvailable] = useState<boolean>(true);
 
-  // جلب الخدمات من الخادم
+  // جلب الخدمات والمنتجات من الخادم
   useEffect(() => {
     fetchServices();
+    fetchProducts();
     // استرجاع طريقة العرض من localStorage
     const savedMode = localStorage.getItem('displayMode') as 'grid' | 'list' | 'carousel';
     if (savedMode) {
@@ -133,6 +153,15 @@ function Home() {
       setServices(data);
     } catch (error) {
       console.error('Error fetching services:', error);
+    }
+  };
+
+  const fetchProducts = async () => {
+    try {
+      const data = await apiCall(API_ENDPOINTS.PRODUCTS);
+      setProducts(data.slice(0, 8)); // أخذ أول 8 منتجات فقط
+    } catch (error) {
+      console.error('Error fetching products:', error);
     }
   };
 
@@ -594,6 +623,209 @@ function Home() {
           </div>
         )}
       </div>
+
+      {/* قسم المنتجات المميزة */}
+      {products.length > 0 && (
+        <div className="bg-gradient-to-br from-gray-50 to-white py-24">
+          <div className="container mx-auto px-6">
+            <div className="text-center mb-20">
+              <h2 className="text-4xl md:text-6xl font-bold mb-6 text-gray-800 inline-block relative pulse-effect">
+                <span className="bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+                  منتجاتنا المميزة
+                </span>
+                <div className="h-1 w-32 bg-gradient-to-r from-pink-500 to-purple-500 mx-auto mt-4 rounded-full shimmer-effect"></div>
+              </h2>
+              <p className="text-lg md:text-xl text-gray-600 max-w-3xl mx-auto mt-6 leading-relaxed">
+                اكتشف مجموعتنا المختارة من أفضل المنتجات عالية الجودة
+              </p>
+            </div>
+
+            {/* Mobile: Horizontal Scroll */}
+            <div className="block sm:hidden">
+              <style>
+                {`
+                  .scrollbar-hide {
+                    -ms-overflow-style: none;
+                    scrollbar-width: none;
+                  }
+                  .scrollbar-hide::-webkit-scrollbar {
+                    display: none;
+                  }
+                  .line-clamp-2 {
+                    display: -webkit-box;
+                    -webkit-line-clamp: 2;
+                    -webkit-box-orient: vertical;
+                    overflow: hidden;
+                  }
+                  .mobile-card {
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                  }
+                  .mobile-card:hover {
+                    transform: translateY(-4px) scale(1.02);
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+                  }
+                `}
+              </style>
+              <div className="flex gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
+                {products.map((product, idx) => (
+                  <div
+                    key={product.id}
+                    className="flex-shrink-0 w-64 snap-start"
+                  >
+                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl h-full mobile-card">
+                      {/* Product Image */}
+                      <div className="relative h-40 overflow-hidden">
+                        <img
+                          src={buildImageUrl(product.mainImage)}
+                          alt={product.name}
+                          className="w-full h-full object-cover transition-all duration-500 hover:scale-110"
+                          onError={(e) => {
+                            e.currentTarget.src = '/placeholder-image.png';
+                          }}
+                        />
+                        {/* Price Badge */}
+                        <div className="absolute top-2 right-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                          {product.price.toFixed(0)} ر.س
+                        </div>
+                        {/* Product Type Badge */}
+                        {product.productType && (
+                          <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+                            {product.productType}
+                          </div>
+                        )}
+                      </div>
+                      
+                      {/* Product Info */}
+                      <div className="p-3">
+                        <h3 className="text-sm font-bold text-gray-800 mb-2 line-clamp-2 leading-tight">
+                          {product.name}
+                        </h3>
+                        
+                        {/* Price Section */}
+                        <div className="flex items-center justify-between mb-3">
+                          <div className="flex flex-col">
+                            {product.originalPrice && product.originalPrice > product.price ? (
+                              <>
+                                <div className="flex items-center gap-1">
+                                  <span className="text-xs text-gray-400 line-through">
+                                    {product.originalPrice.toFixed(0)}
+                                  </span>
+                                  <span className="bg-red-500 text-white px-1 py-0.5 rounded text-xs font-bold">
+                                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                                  </span>
+                                </div>
+                                <span className="text-sm font-bold text-pink-600">{product.price.toFixed(0)} ر.س</span>
+                              </>
+                            ) : (
+                              <span className="text-sm font-bold text-pink-600">{product.price.toFixed(0)} ر.س</span>
+                            )}
+                          </div>
+                          
+                          {/* Stock Indicator */}
+                          <div className="text-xs text-gray-500">
+                            {product.stock > 0 ? (
+                              <span className="text-green-600 font-medium">متوفر</span>
+                            ) : (
+                              <span className="text-red-600 font-medium">نفذ</span>
+                            )}
+                          </div>
+                        </div>
+                        
+                        {/* Action Button */}
+                        <Link
+                          to={`/product/${createProductSlug(product.id, product.name)}`}
+                          className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-2 px-3 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-xs font-semibold text-center block"
+                        >
+                          عرض التفاصيل
+                        </Link>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+              
+              {/* Scroll Indicators */}
+              <div className="flex justify-center mt-2">
+                <div className="flex gap-1">
+                  {products.map((_, idx) => (
+                    <div key={idx} className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-pink-500"></div>
+                  ))}
+                </div>
+              </div>
+              
+              {/* Mobile Scroll Hint */}
+              <div className="flex justify-center mt-2">
+                <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
+                  <span>👈</span>
+                  <span>اسحب لرؤية المزيد</span>
+                  <span>👉</span>
+                </div>
+              </div>
+            </div>
+
+            {/* Desktop: Grid */}
+            <div className="hidden sm:grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+              {products.map((product, index) => (
+                <div key={product.id} className="group relative bg-white rounded-2xl shadow-lg overflow-hidden transition-all duration-500 hover:shadow-2xl hover:scale-105 glass-effect border-2 border-transparent hover:border-pink-200 flex flex-col h-full animate-slide-in" style={{ animationDelay: `${index * 100}ms` }}>
+                  <div className="h-56 overflow-hidden relative bg-gradient-to-br from-pink-50 to-purple-50">
+                    <img
+                      src={buildImageUrl(product.mainImage)}
+                      alt={product.name}
+                      className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                      loading="lazy"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder-image.png';
+                      }}
+                    />
+                    <div className="absolute inset-0 opacity-0 group-hover:opacity-100 bg-gradient-to-br from-pink-600/30 to-purple-600/30 transition-all duration-500 shimmer-effect"></div>
+                    <div className="absolute top-4 right-4 w-8 h-8 bg-white/90 backdrop-blur-sm rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 shadow-lg">
+                      <Heart className="w-4 h-4 text-pink-500" />
+                    </div>
+                    <div className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                      {product.price.toFixed(0)} ر.س
+                    </div>
+                  </div>
+                  <div className="p-6 flex-grow">
+                    <div className="relative inline-block mb-4">
+                      <h3 className="text-xl font-bold text-gray-800 group-hover:text-pink-600 transition-colors duration-300 leading-tight">
+                        {product.name}
+                      </h3>
+                      <div className="absolute bottom-0 left-0 w-0 group-hover:w-full h-0.5 bg-gradient-to-r from-pink-500 to-purple-500 transition-all duration-500 shimmer-effect"></div>
+                    </div>
+                    <p className="text-gray-600 text-sm leading-relaxed line-clamp-3">{product.description}</p>
+                  </div>
+                  <div className="mt-auto">
+                    <Link
+                      to={`/product/${createProductSlug(product.id, product.name)}`}
+                      className="block bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 transition-all duration-300 relative overflow-hidden"
+                    >
+                      <div className="py-4 px-6 flex items-center justify-between relative z-10">
+                        <span className="font-semibold text-white text-base">عرض المنتج</span>
+                        <div className="w-8 h-8 rounded-full bg-white/20 backdrop-blur-sm shadow-md flex items-center justify-center transform group-hover:-translate-x-2 transition-all duration-300">
+                          <ArrowLeft className="w-4 h-4 text-white transform rotate-180 transition-transform duration-300 group-hover:rotate-90" />
+                        </div>
+                      </div>
+                      <span className="absolute inset-0 bg-white/10 transform translate-x-full group-hover:-translate-x-0 transition-transform duration-500 shimmer-effect"></span>
+                    </Link>
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* View All Products Button */}
+            <div className="text-center mt-12">
+              <Link
+                to="/products"
+                className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-600 hover:from-pink-600 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+              >
+                <Package className="w-6 h-6" />
+                <span>عرض جميع المنتجات</span>
+                <ArrowLeft className="w-5 h-5 transform rotate-180" />
+              </Link>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Why Choose Us section */}
       <div className="bg-gradient-to-br from-pink-600 to-purple-700 text-white py-24 relative overflow-hidden" ref={sectionsRef.whyChooseUs}>

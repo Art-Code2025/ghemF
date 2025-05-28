@@ -25,7 +25,8 @@ import {
   AlertCircle,
   Sparkles,
   Gift,
-  Clock
+  Clock,
+  RefreshCw
 } from 'lucide-react';
 import WhatsAppButton from './WhatsAppButton';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
@@ -159,7 +160,7 @@ const ProductDetail: React.FC = () => {
       const data = await apiCall(API_ENDPOINTS.PRODUCT_BY_ID(productId!));
       
       if (!data) {
-        throw new Error('المنتج غير موجود');
+        throw new Error('فشل في تحميل المنتج');
       }
       
       setProduct(data);
@@ -182,7 +183,7 @@ const ProductDetail: React.FC = () => {
       }
     } catch (error) {
       console.error('Error fetching product:', error);
-      setError('فشل في تحميل المنتج. يرجى المحاولة مرة أخرى.');
+      setError('فشل في تحميل المنتج');
     } finally {
       setLoading(false);
     }
@@ -430,31 +431,14 @@ const ProductDetail: React.FC = () => {
     );
   }
 
-  // حالة الخطأ
+  // حالة الخطأ أو عدم وجود المنتج
   if (error || !product) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 flex items-center justify-center px-4">
-        <div className="text-center max-w-md mx-auto">
-          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-            <X className="w-8 h-8 text-red-500" />
-          </div>
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
-            {error || 'المنتج غير موجود'}
-          </h2>
-          <div className="space-y-3">
-            <button 
-              onClick={() => window.location.reload()} 
-              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base mr-3"
-            >
-              إعادة المحاولة
-            </button>
-            <button 
-              onClick={() => navigate('/')} 
-              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm sm:text-base"
-            >
-              العودة للرئيسية
-            </button>
-          </div>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4" dir="rtl">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-red-600 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">جاري التحميل...</h1>
+          <p className="text-gray-600 mb-6">يتم تحميل بيانات المنتج</p>
         </div>
       </div>
     );

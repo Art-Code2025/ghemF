@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { apiCall, API_ENDPOINTS, buildApiUrl, buildImageUrl } from './config/api';
+import { RefreshCw } from 'lucide-react';
 
 interface Category {
   id: number;
@@ -117,10 +118,9 @@ const CategoryEdit: React.FC = () => {
     return (
       <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4" dir="rtl">
         <div className="text-center">
-          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">التصنيف غير موجود</h2>
-          <Link to="/admin?tab=categories" className="text-orange-600 hover:text-orange-700 text-sm sm:text-base">
-            العودة إلى التصنيفات
-          </Link>
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-orange-600 mb-3" />
+          <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">جاري التحميل...</h2>
+          <p className="text-gray-600 text-sm">يتم تحميل بيانات التصنيف</p>
         </div>
       </div>
     );

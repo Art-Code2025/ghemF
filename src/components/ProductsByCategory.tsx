@@ -63,12 +63,10 @@ const ProductsByCategory: React.FC = () => {
   });
   
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   // تحميل البيانات بشكل متوازي
   const fetchData = useCallback(async () => {
     if (!categoryId) {
-      setError('معرف التصنيف غير صحيح');
       setLoading(false);
       return;
     }
@@ -122,7 +120,6 @@ const ProductsByCategory: React.FC = () => {
             })
             .catch(err => {
               console.error('Error fetching products:', err);
-              setError('فشل في تحميل المنتجات');
               return [];
             })
         );
@@ -135,10 +132,8 @@ const ProductsByCategory: React.FC = () => {
         await Promise.allSettled(promises);
       }
       
-      setError(null);
     } catch (error) {
       console.error('Error fetching data:', error);
-      setError('فشل في تحميل البيانات');
     } finally {
       setLoading(false);
     }

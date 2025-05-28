@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { ArrowRight, Calendar, User, Eye, Star, Heart, Share2 } from 'lucide-react';
+import { ArrowRight, Calendar, User, Eye, Star, Heart, Share2, RefreshCw } from 'lucide-react';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 import ContactFooter from '../components/ContactFooter';
 
@@ -39,10 +39,11 @@ function ServiceDetail() {
       if (foundService) {
         setService(foundService);
       } else {
-        setError('الخدمة غير موجودة');
+        setError('فشل في تحميل الخدمة');
       }
     } catch (error) {
-      setError('حدث خطأ أثناء جلب تفاصيل الخدمة');
+      console.error('Error fetching service:', error);
+      setError('فشل في تحميل الخدمة');
     } finally {
       setLoading(false);
     }
@@ -63,21 +64,14 @@ function ServiceDetail() {
   };
 
   // التحقق من الحالات المختلفة قبل عرض محتوى الخدمة
-  if (loading) {
-    return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-4xl font-bold mb-4">جاري التحميل...</h1>
-      </div>
-    );
-  }
-
   if (error) {
     return (
-      <div className="container mx-auto px-4 py-16 text-center">
-        <h1 className="text-4xl font-bold mb-4 text-red-600">{error}</h1>
-        <Link to="/" className="text-green-600 hover:underline">
-          العودة إلى الصفحة الرئيسية
-        </Link>
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4" dir="rtl">
+        <div className="text-center">
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-blue-600 mb-4" />
+          <h1 className="text-2xl font-bold text-gray-900 mb-4">جاري التحميل...</h1>
+          <p className="text-gray-600 mb-6">يتم تحميل بيانات الخدمة</p>
+        </div>
       </div>
     );
   }
