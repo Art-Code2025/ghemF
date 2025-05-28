@@ -98,7 +98,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
           <div className="flex items-center gap-1.5"> {/* تقليل المسافة بين الأيقونات والنص */}
             <span className="text-base">✨</span> {/* تصغير حجم الإيموجي */}
             <span className="font-semibold text-base">استكشف منتجاتنا</span> {/* تصغير حجم الخط وتقليل سمكه قليلاً */}
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-300" /> {/* تصغير الأيقونة وتقليل حركة التحريك */}
+            <ChevronLeft className="w-1 h-1 group-hover:-translate-x-0.5 transition-transform duration-300" /> {/* تصغير الأيقونة وتقليل حركة التحريك */}
           </div>
         </a>
       </div>
