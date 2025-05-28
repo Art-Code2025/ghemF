@@ -86,8 +86,8 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       ))}
 
-      {/* زر "استكشف منتجاتنا" محسن - لون بينك احترافي */}
-      <div className="absolute inset-0 flex justify-center items-end pb-6 sm:pb-8 z-20 pointer-events-none">
+      {/* زر "استكشف منتجاتنا" في منتصف الصورة */}
+      <div className="absolute inset-0 flex justify-center items-center z-20 pointer-events-none">
         <a
           href="/products"
           className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 

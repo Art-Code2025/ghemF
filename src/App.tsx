@@ -130,8 +130,8 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden" dir="rtl">
 
       
-      {/* Premium Hero Slider - أبعاد محسنة */}
-      <section className="relative h-[400px] sm:h-[450px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden">
+      {/* Premium Hero Slider - أبعاد مضبوطة بدون فراغات */}
+      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
         <div className="absolute inset-0">
           <ImageSlider images={heroImages} currentIndex={currentSlide} />
         </div>
@@ -139,20 +139,20 @@ const App: React.FC = () => {
         {/* Modern Navigation Buttons - لون موحد رمادي */}
         <button
           onClick={prevSlide}
-          className="absolute right-4 sm:right-6 lg:right-8 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
+          className="absolute right-3 sm:right-4 lg:right-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
         >
-          <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
         </button>
         <button
           onClick={nextSlide}
-          className="absolute left-4 sm:left-6 lg:left-8 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
+          className="absolute left-3 sm:left-4 lg:left-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
         >
-          <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
+          <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
         </button>
       </section>
       
-      {/* Premium Collection Section - تقليل الفراغات */}
-      <section className="relative py-6 sm:py-8 lg:py-10 overflow-hidden">
+      {/* Premium Collection Section - بدون فراغات */}
+      <section className="relative py-4 sm:py-6 lg:py-8 overflow-hidden">
         {/* Premium Background Effects - ألوان متناسقة */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50/60 via-white/80 to-gray-100/60" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/20 rounded-full blur-3xl" />
@@ -160,16 +160,16 @@ const App: React.FC = () => {
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Premium Header with Icons - تقليل الهوامش */}
-          <div className="text-center mb-6 sm:mb-8 lg:mb-10">
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+          <div className="text-center mb-4 sm:mb-6 lg:mb-8">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-2 sm:mb-3">
               <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600 animate-pulse" />
               <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black bg-gradient-to-r from-gray-700 via-gray-800 to-gray-700 bg-clip-text text-transparent drop-shadow-sm">
                 مجموعاتنا المميزة
               </h2>
               <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600 animate-pulse" />
             </div>
-            <div className="h-1.5 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-3 sm:mb-4 mx-auto w-24 sm:w-32 lg:w-40 shadow-lg" />
-            <p className="text-xs sm:text-sm lg:text-base text-gray-700 font-medium max-w-2xl mx-auto leading-relaxed px-4 mb-3">
+            <div className="h-1.5 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-2 sm:mb-3 mx-auto w-24 sm:w-32 lg:w-40 shadow-lg" />
+            <p className="text-xs sm:text-sm lg:text-base text-gray-700 font-medium max-w-2xl mx-auto leading-relaxed px-4 mb-2">
               اكتشف تشكيلة متنوعة من المجموعات الحصرية المصممة خصيصاً لتناسب جميع أذواقكم الرفيعة
             </p>
             <div className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-white/90 to-gray-50/90 backdrop-blur-xl border border-gray-200/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
@@ -248,7 +248,7 @@ const App: React.FC = () => {
       </section>
 
       {/* Premium Products Section */}
-      <main className="relative container-responsive py-8 sm:py-10 lg:py-12">
+      <main className="relative container-responsive py-4 sm:py-6 lg:py-8">
         {/* Premium Background Effects - ألوان متناسقة */}
         <div className="absolute inset-0 bg-gradient-to-t from-gray-50/40 via-transparent to-gray-100/40" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 bg-gray-200/20 rounded-full blur-3xl" />
@@ -256,15 +256,15 @@ const App: React.FC = () => {
         
         {/* عرض Products فوراً بدون شرط */}
         {categoryProducts.length > 0 && (
-  <div className="relative space-y-12 sm:space-y-16 lg:space-y-20">
+  <div className="relative space-y-8 sm:space-y-10 lg:space-y-12">
     {categoryProducts.map((categoryProduct, sectionIndex) => (
-      <section key={categoryProduct.category.id} className="relative py-6 sm:py-8 lg:py-10">
+      <section key={categoryProduct.category.id} className="relative py-4 sm:py-6 lg:py-8">
         {/* Section Background - ألوان متناسقة */}
         <div className="absolute inset-0 -mx-4 sm:-mx-6 lg:-mx-8 bg-gradient-to-br from-white/70 via-gray-50/40 to-white/70 rounded-2xl sm:rounded-3xl backdrop-blur-sm border border-gray-100/50 shadow-lg" />
         
         <div className="relative z-10">
-          <div className="mb-8 sm:mb-10 lg:mb-12 text-center">
-            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-3 sm:mb-4 lg:mb-5">
+          <div className="mb-6 sm:mb-8 lg:mb-10 text-center">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-2 sm:mb-3 lg:mb-4">
               <div className="h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent w-16 sm:w-24 lg:w-32" />
               <h2 className="text-responsive-3xl font-black bg-gradient-to-r from-gray-700 via-gray-800 to-gray-700 bg-clip-text text-transparent drop-shadow-sm px-3 sm:px-4 lg:px-6 py-1 sm:py-2">
                 {categoryProduct.category.name}
@@ -272,8 +272,8 @@ const App: React.FC = () => {
               <div className="h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent w-16 sm:w-24 lg:w-32" />
             </div>
             
-            <div className="h-1 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-4 sm:mb-5 lg:mb-6 mx-auto w-20 sm:w-24 lg:w-32 shadow-lg" />
-            <p className="text-responsive-base text-gray-700 mb-5 sm:mb-6 lg:mb-8 max-w-2xl mx-auto leading-relaxed font-medium px-4">
+            <div className="h-1 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-3 sm:mb-4 lg:mb-5 mx-auto w-20 sm:w-24 lg:w-32 shadow-lg" />
+            <p className="text-responsive-base text-gray-700 mb-4 sm:mb-5 lg:mb-6 max-w-2xl mx-auto leading-relaxed font-medium px-4">
               {categoryProduct.category.description || 'مجموعة مختارة من أفضل المنتجات المصنوعة بعناية فائقة'}
             </p>
             <Link 
@@ -286,7 +286,7 @@ const App: React.FC = () => {
           </div>
           
           {/* Products Container */}
-          <div className="relative py-2 sm:py-4 lg:py-6 px-2 sm:px-4 lg:px-8">
+          <div className="relative py-2 sm:py-3 lg:py-4 px-2 sm:px-4 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 justify-items-center">
               {categoryProduct.products.map((product, idx) => (
                 <div
