@@ -92,6 +92,11 @@ const Dashboard: React.FC = () => {
   });
   
   const [loading, setLoading] = useState(false);
+  const [loadingCategories, setLoadingCategories] = useState(true);
+  const [loadingCustomers, setLoadingCustomers] = useState(true);
+  const [loadingOrders, setLoadingOrders] = useState(true);
+  const [loadingCoupons, setLoadingCoupons] = useState(true);
+  const [loadingStats, setLoadingStats] = useState(true);
   const [showAddModal, setShowAddModal] = useState(false);
   const [showEditModal, setShowEditModal] = useState(false);
   const [showAddCategoryModal, setShowAddCategoryModal] = useState(false);
@@ -143,51 +148,66 @@ const Dashboard: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
+      setLoadingCategories(true);
       const data = await apiCall(API_ENDPOINTS.CATEGORIES);
       setCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);
       toast.error('خطأ في تحميل الفئات');
+    } finally {
+      setLoadingCategories(false);
     }
   };
 
   const fetchCustomers = async () => {
     try {
+      setLoadingCustomers(true);
       const data = await apiCall(API_ENDPOINTS.CUSTOMERS);
       setCustomers(data);
     } catch (error) {
       console.error('Error fetching customers:', error);
       toast.error('خطأ في تحميل العملاء');
+    } finally {
+      setLoadingCustomers(false);
     }
   };
 
   const fetchOrders = async () => {
     try {
+      setLoadingOrders(true);
       const data = await apiCall(API_ENDPOINTS.ORDERS);
       setOrders(data);
     } catch (error) {
       console.error('Error fetching orders:', error);
       toast.error('خطأ في تحميل الطلبات');
+    } finally {
+      setLoadingOrders(false);
     }
   };
 
   const fetchCoupons = async () => {
     try {
+      setLoadingCoupons(true);
       const data = await apiCall(API_ENDPOINTS.COUPONS);
       setCoupons(data);
     } catch (error) {
       console.error('Error fetching coupons:', error);
       toast.error('خطأ في تحميل الكوبونات');
+    } finally {
+      setLoadingCoupons(false);
     }
   };
 
   const fetchStats = async () => {
     try {
+      setLoadingStats(true);
       const data = await apiCall(API_ENDPOINTS.CUSTOMER_STATS);
       setStats(data);
     } catch (error) {
       console.error('Error fetching stats:', error);
       toast.error('خطأ في تحميل الإحصائيات');
+    } finally {
+      setLoadingStats(false);
     }
   };
 
@@ -436,7 +456,14 @@ const Dashboard: React.FC = () => {
               <Package className="h-8 w-8 text-blue-600" />
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">إجمالي المنتجات</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
+                {loadingStats ? (
+                  <div className="flex items-center">
+                    <RefreshCw className="h-4 w-4 animate-spin text-gray-400 ml-2" />
+                    <span className="text-gray-400">جاري التحميل...</span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalProducts}</p>
+                )}
               </div>
             </div>
           </div>
@@ -446,7 +473,14 @@ const Dashboard: React.FC = () => {
               <Users className="h-8 w-8 text-green-600" />
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">إجمالي العملاء</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalCustomers}</p>
+                {loadingStats ? (
+                  <div className="flex items-center">
+                    <RefreshCw className="h-4 w-4 animate-spin text-gray-400 ml-2" />
+                    <span className="text-gray-400">جاري التحميل...</span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalCustomers}</p>
+                )}
               </div>
             </div>
           </div>
@@ -456,7 +490,14 @@ const Dashboard: React.FC = () => {
               <ShoppingCart className="h-8 w-8 text-purple-600" />
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">إجمالي الطلبات</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
+                {loadingStats ? (
+                  <div className="flex items-center">
+                    <RefreshCw className="h-4 w-4 animate-spin text-gray-400 ml-2" />
+                    <span className="text-gray-400">جاري التحميل...</span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalOrders}</p>
+                )}
               </div>
             </div>
           </div>
@@ -466,7 +507,14 @@ const Dashboard: React.FC = () => {
               <DollarSign className="h-8 w-8 text-yellow-600" />
               <div className="mr-4">
                 <p className="text-sm font-medium text-gray-600">إجمالي الإيرادات</p>
-                <p className="text-2xl font-bold text-gray-900">{stats.totalRevenue} ر.س</p>
+                {loadingStats ? (
+                  <div className="flex items-center">
+                    <RefreshCw className="h-4 w-4 animate-spin text-gray-400 ml-2" />
+                    <span className="text-gray-400">جاري التحميل...</span>
+                  </div>
+                ) : (
+                  <p className="text-2xl font-bold text-gray-900">{stats.totalRevenue} ر.س</p>
+                )}
               </div>
             </div>
           </div>
@@ -576,27 +624,314 @@ const Dashboard: React.FC = () => {
           </div>
           
           <div className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-              {categories.map((category) => (
-                <div key={category.id} className="border rounded-lg p-4">
-                  <img
-                    src={buildImageUrl(category.image)}
-                    alt={category.name}
-                    className="w-full h-32 object-cover rounded-lg mb-2"
-                  />
-                  <h3 className="font-semibold text-gray-900">{category.name}</h3>
-                  <p className="text-sm text-gray-600 mb-2">{category.description}</p>
-                  <div className="flex justify-end space-x-2">
-                    <button
-                      onClick={() => handleDeleteCategory(category.id)}
-                      className="text-red-600 hover:text-red-900"
-                    >
-                      <Trash2 className="h-4 w-4" />
-                    </button>
+            {loadingCategories ? (
+              <div className="text-center py-8">
+                <RefreshCw className="h-8 w-8 animate-spin mx-auto text-gray-400" />
+                <p className="text-gray-500 mt-2">جاري تحميل الفئات...</p>
+              </div>
+            ) : categories.length === 0 ? (
+              <div className="text-center py-8">
+                <Package className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">لا توجد فئات متاحة</p>
+                <button
+                  onClick={() => setShowAddCategoryModal(true)}
+                  className="mt-4 bg-green-600 text-white px-4 py-2 rounded-lg hover:bg-green-700"
+                >
+                  إضافة فئة جديدة
+                </button>
+              </div>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {categories.map((category) => (
+                  <div key={category.id} className="border rounded-lg p-4">
+                    <img
+                      src={buildImageUrl(category.image)}
+                      alt={category.name}
+                      className="w-full h-32 object-cover rounded-lg mb-2"
+                    />
+                    <h3 className="font-semibold text-gray-900">{category.name}</h3>
+                    <p className="text-sm text-gray-600 mb-2">{category.description}</p>
+                    <div className="flex justify-end space-x-2">
+                      <button
+                        onClick={() => handleDeleteCategory(category.id)}
+                        className="text-red-600 hover:text-red-900"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </button>
+                    </div>
                   </div>
-                </div>
-              ))}
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Customers Section */}
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">العملاء</h2>
+          </div>
+          
+          <div className="p-6">
+            {loadingCustomers ? (
+              <div className="text-center py-8">
+                <RefreshCw className="h-8 w-8 animate-spin mx-auto text-gray-400" />
+                <p className="text-gray-500 mt-2">جاري تحميل العملاء...</p>
+              </div>
+            ) : customers.length === 0 ? (
+              <div className="text-center py-8">
+                <Users className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">لا يوجد عملاء مسجلين</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الاسم
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        البريد الإلكتروني
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الهاتف
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        تاريخ التسجيل
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الإجراءات
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {customers.map((customer) => (
+                      <tr key={customer.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{customer.name}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{customer.email}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{customer.phone}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {new Date(customer.createdAt).toLocaleDateString('ar-SA')}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleDeleteCustomer(customer.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Orders Section */}
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <h2 className="text-xl font-semibold text-gray-900">الطلبات</h2>
+          </div>
+          
+          <div className="p-6">
+            {loadingOrders ? (
+              <div className="text-center py-8">
+                <RefreshCw className="h-8 w-8 animate-spin mx-auto text-gray-400" />
+                <p className="text-gray-500 mt-2">جاري تحميل الطلبات...</p>
+              </div>
+            ) : orders.length === 0 ? (
+              <div className="text-center py-8">
+                <ShoppingCart className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">لا توجد طلبات</p>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        رقم الطلب
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        اسم العميل
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        المجموع
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الحالة
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        التاريخ
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الإجراءات
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {orders.map((order) => (
+                      <tr key={order.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">#{order.id}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{order.customerName}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{order.total} ر.س</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <select
+                            value={order.status}
+                            onChange={(e) => handleUpdateOrderStatus(order.id, e.target.value)}
+                            className="text-sm border rounded px-2 py-1"
+                          >
+                            <option value="pending">قيد الانتظار</option>
+                            <option value="processing">قيد المعالجة</option>
+                            <option value="shipped">تم الشحن</option>
+                            <option value="delivered">تم التسليم</option>
+                            <option value="cancelled">ملغي</option>
+                          </select>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {new Date(order.createdAt).toLocaleDateString('ar-SA')}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button className="text-blue-600 hover:text-blue-900 ml-2">
+                            <Eye className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Coupons Section */}
+        <div className="bg-white rounded-lg shadow mb-8">
+          <div className="px-6 py-4 border-b border-gray-200">
+            <div className="flex justify-between items-center">
+              <h2 className="text-xl font-semibold text-gray-900">الكوبونات</h2>
+              <button
+                onClick={() => setShowAddCouponModal(true)}
+                className="bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700 flex items-center"
+              >
+                <Plus className="h-4 w-4 ml-2" />
+                إضافة كوبون
+              </button>
             </div>
+          </div>
+          
+          <div className="p-6">
+            {loadingCoupons ? (
+              <div className="text-center py-8">
+                <RefreshCw className="h-8 w-8 animate-spin mx-auto text-gray-400" />
+                <p className="text-gray-500 mt-2">جاري تحميل الكوبونات...</p>
+              </div>
+            ) : coupons.length === 0 ? (
+              <div className="text-center py-8">
+                <Star className="h-12 w-12 mx-auto text-gray-400 mb-4" />
+                <p className="text-gray-500">لا توجد كوبونات متاحة</p>
+                <button
+                  onClick={() => setShowAddCouponModal(true)}
+                  className="mt-4 bg-purple-600 text-white px-4 py-2 rounded-lg hover:bg-purple-700"
+                >
+                  إضافة كوبون جديد
+                </button>
+              </div>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="min-w-full divide-y divide-gray-200">
+                  <thead className="bg-gray-50">
+                    <tr>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الكود
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        نوع الخصم
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        قيمة الخصم
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الحد الأدنى
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        تاريخ الانتهاء
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الحالة
+                      </th>
+                      <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        الإجراءات
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody className="bg-white divide-y divide-gray-200">
+                    {coupons.map((coupon) => (
+                      <tr key={coupon.id}>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm font-medium text-gray-900">{coupon.code}</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {coupon.discountType === 'percentage' ? 'نسبة مئوية' : 'مبلغ ثابت'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {coupon.discountValue}{coupon.discountType === 'percentage' ? '%' : ' ر.س'}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">{coupon.minOrderAmount} ر.س</div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div className="text-sm text-gray-900">
+                            {new Date(coupon.expiryDate).toLocaleDateString('ar-SA')}
+                          </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            coupon.isActive 
+                              ? 'bg-green-100 text-green-800' 
+                              : 'bg-red-100 text-red-800'
+                          }`}>
+                            {coupon.isActive ? 'نشط' : 'غير نشط'}
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+                          <button
+                            onClick={() => handleDeleteCoupon(coupon.id)}
+                            className="text-red-600 hover:text-red-900"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
         </div>
       </div>
