@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { apiCall, API_ENDPOINTS, buildApiUrl, buildImageUrl } from './config/api';
 
 interface Category {
   id: number;
@@ -27,12 +28,11 @@ const CategoryEdit: React.FC = () => {
   }, [id]);
 
   const fetchCategory = async () => {
+    if (!id) return;
+    
     try {
-      const response = await fetch(`http://localhost:3001/api/categories/${id}`);
-      if (!response.ok) {
-        throw new Error('فشل في جلب بيانات التصنيف');
-      }
-      const data = await response.json();
+      setFetchLoading(true);
+      const data = await apiCall(API_ENDPOINTS.CATEGORY_BY_ID(id));
       setCategory(data);
       setFormData({
         name: data.name,
@@ -53,16 +53,17 @@ const CategoryEdit: React.FC = () => {
     setLoading(true);
 
     try {
-      const formDataToSend = new FormData();
-      formDataToSend.append('name', formData.name);
-      formDataToSend.append('description', formData.description);
+      const submitData = new FormData();
+      submitData.append('name', formData.name);
+      submitData.append('description', formData.description);
+      
       if (formData.image) {
-        formDataToSend.append('mainImage', formData.image);
+        submitData.append('mainImage', formData.image);
       }
 
-      const response = await fetch(`http://localhost:3001/api/categories/${id}`, {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CATEGORY_BY_ID(id!)), {
         method: 'PUT',
-        body: formDataToSend,
+        body: submitData
       });
 
       if (!response.ok) {
@@ -258,7 +259,7 @@ const CategoryEdit: React.FC = () => {
                     <h4 className="text-sm font-semibold text-gray-700 mb-3">الصورة الحالية</h4>
                     <div className="relative">
                       <img
-                        src={`http://localhost:3001${category.image}`}
+                        src={buildImageUrl(category.image)}
                         alt={category.name}
                         className="w-full h-48 object-cover rounded-xl shadow-md border border-gray-200"
                       />

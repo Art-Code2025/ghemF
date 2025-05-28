@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { apiCall, API_ENDPOINTS, buildApiUrl, buildImageUrl } from '../config/api';
 
 // تعريف نوع التصنيف
 interface Category {
@@ -30,22 +31,16 @@ const CategoryForm: React.FC = () => {
   useEffect(() => {
     if (isEditing) {
       setLoading(true);
-      fetch(`http://localhost:3001/api/categories/${id}`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('فشل في جلب التصنيف');
-          }
-          return response.json();
-        })
+      apiCall(API_ENDPOINTS.CATEGORY_BY_ID(id!))
         .then(data => {
           setCategory(data);
           setLoading(false);
         })
         .catch(error => {
           console.error('Error fetching category:', error);
-          toast.error(error.message);
+          toast.error('فشل في جلب التصنيف');
           setLoading(false);
-          navigate('/admin');
+          navigate('/admin?tab=categories');
         });
     }
   }, [id, isEditing, navigate]);
@@ -74,12 +69,12 @@ const CategoryForm: React.FC = () => {
         formData.append('mainImage', imageFile);
       }
 
-      const url = isEditing
-        ? `http://localhost:3001/api/categories/${id}`
-        : 'http://localhost:3001/api/categories';
+      const endpoint = isEditing
+        ? API_ENDPOINTS.CATEGORY_BY_ID(id!)
+        : API_ENDPOINTS.CATEGORIES;
       const method = isEditing ? 'PUT' : 'POST';
 
-      const response = await fetch(url, {
+      const response = await fetch(buildApiUrl(endpoint), {
         method,
         body: formData
       });
@@ -141,7 +136,7 @@ const CategoryForm: React.FC = () => {
             {category.image && (
               <div className="mb-2">
                 <img 
-                  src={`http://localhost:3001${category.image}`} 
+                  src={buildImageUrl(category.image)} 
                   alt="صورة التصنيف" 
                   className="w-24 h-24 sm:w-32 sm:h-32 object-cover border border-gray-300 rounded" 
                 />

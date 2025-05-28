@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { apiCall, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 interface Coupon {
   id?: number;
@@ -47,13 +48,7 @@ const CouponForm: React.FC = () => {
   const fetchCoupon = async () => {
     try {
       setLoading(true);
-      const response = await fetch(`http://localhost:3001/api/coupons/${id}`);
-      
-      if (!response.ok) {
-        throw new Error('فشل في جلب بيانات الكوبون');
-      }
-      
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.COUPON_BY_ID(id!));
       
       // تنسيق التاريخ للعرض في input
       if (data.expiryDate) {
@@ -110,13 +105,13 @@ const CouponForm: React.FC = () => {
         expiryDate: coupon.expiryDate ? new Date(coupon.expiryDate).toISOString() : undefined
       };
 
-      const url = isEdit 
-        ? `http://localhost:3001/api/coupons/${id}`
-        : 'http://localhost:3001/api/coupons';
+      const endpoint = isEdit 
+        ? API_ENDPOINTS.COUPON_BY_ID(id!)
+        : API_ENDPOINTS.COUPONS;
       
       const method = isEdit ? 'PUT' : 'POST';
       
-      const response = await fetch(url, {
+      const response = await fetch(buildApiUrl(endpoint), {
         method,
         headers: {
           'Content-Type': 'application/json'

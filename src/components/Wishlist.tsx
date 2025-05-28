@@ -36,22 +36,23 @@ const Wishlist: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (user.id) {
-      fetchWishlist(user.id);
-    }
+    fetchWishlist();
   }, []);
 
-  const fetchWishlist = async (userId: number) => {
+  const fetchWishlist = async () => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) {
+      setLoading(false);
+      return;
+    }
+
     try {
       setLoading(true);
-      const data = await apiCall(API_ENDPOINTS.USER_WISHLIST(userId));
+      const data = await apiCall(API_ENDPOINTS.USER_WISHLIST(user.id));
       setWishlistItems(data);
-      // حفظ في localStorage لتجنب الفلاش في المرة القادمة
-      localStorage.setItem('cachedWishlistItems', JSON.stringify(data));
     } catch (error) {
       console.error('Error fetching wishlist:', error);
-      toast.error('فشل في تحميل قائمة الأمنيات');
+      toast.error('فشل في جلب قائمة الأمنيات');
     } finally {
       setLoading(false);
     }
@@ -59,17 +60,14 @@ const Wishlist: React.FC = () => {
 
   const removeFromWishlist = async (productId: number) => {
     const user = JSON.parse(localStorage.getItem('user') || '{}');
-    if (!user.id) {
-      toast.error('يرجى تسجيل الدخول أولاً');
-      return;
-    }
+    if (!user.id) return;
 
     try {
       await apiCall(API_ENDPOINTS.WISHLIST_PRODUCT(user.id, productId), {
         method: 'DELETE',
       });
-      
-      setWishlistItems(prev => prev.filter(item => item.productId !== productId));
+
+      setWishlistItems(prev => prev.filter(item => item.product.id !== productId));
       toast.success('تم إزالة المنتج من قائمة الأمنيات');
     } catch (error) {
       console.error('Error removing from wishlist:', error);
