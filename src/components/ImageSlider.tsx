@@ -177,11 +177,11 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
       ))}
 
       {/* Refined CTA Section - Responsive sizing */}
-      <div className="absolute inset-0 flex items-center justify-center z-20 px-4">
-        <div className="text-center space-y-6 sm:space-y-8 lg:space-y-10">
+      <div className="absolute inset-0 flex items-end justify-center z-20 px-4 pb-16 sm:pb-20 md:pb-24">
+        <div className="text-center space-y-4 sm:space-y-5 lg:space-y-6">
           {/* Elegant Heading - Better mobile sizing */}
-          <div className="space-y-4 sm:space-y-5">
-            <h1 className="text-4xl sm:text-5xl md:text-6xl lg:text-7xl xl:text-8xl font-bold text-white leading-tight tracking-wide drop-shadow-2xl">
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight tracking-wide drop-shadow-2xl">
               <span className="bg-gradient-to-r from-white via-pink-100 to-white bg-clip-text text-transparent">
                 مجموعة
               </span>
@@ -190,16 +190,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
                 استثنائية
               </span>
             </h1>
-            <div className="h-1.5 bg-gradient-to-r from-transparent via-white/70 to-transparent w-20 sm:w-24 lg:w-28 xl:w-32 mx-auto rounded-full" />
+            <div className="h-1 bg-gradient-to-r from-transparent via-white/70 to-transparent w-16 sm:w-20 lg:w-24 xl:w-28 mx-auto rounded-full" />
           </div>
 
           {/* Sophisticated CTA Button - Better mobile sizing */}
           <div className="relative">
             <a
               href="/products"
-              className={`group relative inline-flex items-center gap-3 sm:gap-4 lg:gap-5 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-8 sm:px-10 lg:px-12 xl:px-14 py-4 sm:py-5 lg:py-6 xl:py-7 rounded-2xl border-2 border-pink-400/60 hover:border-pink-300/80 transition-all duration-500 transform ${
+              className={`group relative inline-flex items-center gap-2 sm:gap-3 lg:gap-4 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-4 sm:px-6 lg:px-8 xl:px-10 py-2 sm:py-3 lg:py-4 xl:py-5 rounded-xl border-2 border-pink-400/60 hover:border-pink-300/80 transition-all duration-500 transform ${
                 buttonLoaded ? 'translate-x-0 opacity-100' : '-translate-x-[150px] opacity-0'
-              } hover:scale-110 hover:shadow-2xl hover:shadow-pink-500/40 text-base sm:text-lg lg:text-xl xl:text-2xl font-semibold shadow-2xl overflow-hidden ease-[cubic-bezier(0.4,0,0.2,1)]`}
+              } hover:scale-110 hover:shadow-2xl hover:shadow-pink-500/40 text-sm sm:text-base lg:text-lg xl:text-xl font-semibold shadow-2xl overflow-hidden ease-[cubic-bezier(0.4,0,0.2,1)]`}
             >
               {/* Pink Shimmer Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-300/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1500 ease-out" />
@@ -207,9 +207,9 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
               {/* Floating Animation */}
               <div className="absolute inset-0 bg-pink-400/20 rounded-full scale-0 group-hover:scale-110 transition-transform duration-500 ease-out" />
               
-              <span className="relative z-10 text-xl sm:text-2xl opacity-95">✨</span>
+              <span className="relative z-10 text-sm sm:text-base opacity-95">✨</span>
               <span className="relative z-10 tracking-wide font-semibold"> استكشف منتجاتنا </span>
-              <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
+              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
             </a>
           </div>
         </div>
