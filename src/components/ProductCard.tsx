@@ -258,13 +258,13 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
       {/* Gradient Border Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
       
-      {/* Product Image - Full Aspect Ratio */}
+      {/* Product Image - Natural Aspect Ratio */}
       <div className="relative h-64 sm:h-72 md:h-80 lg:h-72 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
         <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
           <img
             src={buildImageUrl(product.mainImage)}
             alt={product.name}
-            className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 p-4"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
             onError={(e) => {
               e.currentTarget.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3';
             }}
