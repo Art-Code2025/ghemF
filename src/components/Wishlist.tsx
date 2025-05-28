@@ -1,6 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
+import { apiCall, API_ENDPOINTS } from '../config/api';
 
 import { addToCartUnified } from '../utils/cartUtils';
 
@@ -31,70 +33,47 @@ const Wishlist: React.FC = () => {
   });
   // No loading state - instant display
   const [removing, setRemoving] = useState<number | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    fetchWishlist();
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user.id) {
+      fetchWishlist(user.id);
+    }
   }, []);
 
-  const fetchWishlist = async () => {
+  const fetchWishlist = async (userId: number) => {
     try {
-      const userData = localStorage.getItem('user');
-      if (!userData) {
-        setWishlistItems([]);
-        return;
-      }
-      const user = JSON.parse(userData);
-      if (!user?.id) {
-        setWishlistItems([]);
-        return;
-      }
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/wishlist`);
-      const data = await response.json();
+      setLoading(true);
+      const data = await apiCall(API_ENDPOINTS.USER_WISHLIST(userId));
       setWishlistItems(data);
       // حفظ في localStorage لتجنب الفلاش في المرة القادمة
       localStorage.setItem('cachedWishlistItems', JSON.stringify(data));
     } catch (error) {
       console.error('Error fetching wishlist:', error);
-      setWishlistItems([]);
+      toast.error('فشل في تحميل قائمة الأمنيات');
+    } finally {
+      setLoading(false);
     }
   };
 
-  const removeFromWishlist = async (itemId: number, productName: string) => {
+  const removeFromWishlist = async (productId: number) => {
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (!user.id) {
+      toast.error('يرجى تسجيل الدخول أولاً');
+      return;
+    }
+
     try {
-      setRemoving(itemId);
-      const userData = localStorage.getItem('user');
-      if (!userData) {
-        toast.error('يجب تسجيل الدخول أولاً');
-        setRemoving(null);
-        return;
-      }
-      const user = JSON.parse(userData);
-      if (!user || !user.id) {
-        toast.error('يجب تسجيل الدخول أولاً');
-        setRemoving(null);
-        return;
-      }
-      const wishlistItem = wishlistItems.find(item => item.id === itemId);
-      if (!wishlistItem) {
-        toast.error('المنتج غير موجود في قائمة الأمنيات');
-        setRemoving(null);
-        return;
-      }
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/wishlist/product/${wishlistItem.product.id}`, {
-        method: 'DELETE'
+      await apiCall(API_ENDPOINTS.WISHLIST_PRODUCT(user.id, productId), {
+        method: 'DELETE',
       });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'فشل في حذف المنتج من قائمة الأمنيات');
-      }
-      toast.success(`تم حذف "${productName}" من قائمة الأمنيات`);
-      window.dispatchEvent(new Event('wishlistUpdated'));
-      await fetchWishlist();
+      
+      setWishlistItems(prev => prev.filter(item => item.productId !== productId));
+      toast.success('تم إزالة المنتج من قائمة الأمنيات');
     } catch (error) {
       console.error('Error removing from wishlist:', error);
-      toast.error(error instanceof Error ? error.message : 'فشل في حذف المنتج من قائمة الأمنيات');
-    } finally {
-      setRemoving(null);
+      toast.error('فشل في إزالة المنتج من قائمة الأمنيات');
     }
   };
 
@@ -123,10 +102,9 @@ const Wishlist: React.FC = () => {
         return;
       }
       for (const item of wishlistItems) {
-        await fetch(`http://localhost:3001/api/user/${user.id}/wishlist/product/${item.product.id}`, { method: 'DELETE' });
+        await apiCall(API_ENDPOINTS.WISHLIST_PRODUCT(user.id, item.productId), { method: 'DELETE' });
       }
       toast.success('تم إفراغ قائمة الأمنيات');
-      window.dispatchEvent(new Event('wishlistUpdated'));
       setWishlistItems([]);
     } catch (error) {
       console.error('Error clearing wishlist:', error);
@@ -297,7 +275,7 @@ const Wishlist: React.FC = () => {
                 
                 {/* Remove Button */}
                 <button
-                  onClick={() => removeFromWishlist(item.id, item.product.name)}
+                  onClick={() => removeFromWishlist(item.productId)}
                   disabled={removing === item.id}
                   className="absolute top-4 left-4 w-12 h-12 bg-red-100/80 backdrop-blur-xl border border-red-300/50 text-red-600 rounded-2xl hover:bg-red-200/80 transition-all duration-300 flex items-center justify-center group/btn shadow-lg"
                   title="حذف من قائمة الأمنيات"

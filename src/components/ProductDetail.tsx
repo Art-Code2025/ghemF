@@ -2,9 +2,25 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { extractIdFromSlug, isValidSlug, createProductSlug } from '../utils/slugify';
-import { ArrowLeft, Star, Heart, ShoppingCart, Minus, Plus, Package, Shield, Truck, Award, Check } from 'lucide-react';
+import { 
+  Heart, 
+  ShoppingCart, 
+  Star, 
+  ArrowRight, 
+  Plus, 
+  Minus, 
+  Share2, 
+  Truck, 
+  Shield, 
+  RotateCcw,
+  ChevronLeft,
+  ChevronRight,
+  Upload,
+  X,
+  Check
+} from 'lucide-react';
 import WhatsAppButton from './WhatsAppButton';
-
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 import { addToCartUnified, addToWishlistUnified } from '../utils/cartUtils';
 
 interface Product {
@@ -56,38 +72,14 @@ interface Review {
   createdAt: string;
 }
 
-  const ProductDetail: React.FC = () => {
+const ProductDetail: React.FC = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
-  // تحميل البيانات فوراً من localStorage لتجنب الفلاش
-  const [product, setProduct] = useState<Product | null>(() => {
-    const currentId = slug ? extractIdFromSlug(slug).toString() : id;
-    if (currentId) {
-      const saved = localStorage.getItem(`cachedProduct_${currentId}`);
-      try {
-        return saved ? JSON.parse(saved) : null;
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
-  const [category, setCategory] = useState<Category | null>(() => {
-    const currentId = slug ? extractIdFromSlug(slug).toString() : id;
-    if (currentId) {
-      const saved = localStorage.getItem(`cachedProductCategory_${currentId}`);
-      try {
-        return saved ? JSON.parse(saved) : null;
-      } catch {
-        return null;
-      }
-    }
-    return null;
-  });
+  const [product, setProduct] = useState<Product | null>(null);
+  const [category, setCategory] = useState<Category | null>(null);
   const [reviews, setReviews] = useState<Review[]>([]);
   const [newReview, setNewReview] = useState({ comment: '' });
   const [submittingReview, setSubmittingReview] = useState(false);
-  // No loading state needed
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
@@ -102,8 +94,9 @@ interface Review {
     images: [],
     text: ''
   });
+  const [loading, setLoading] = useState(false);
+  const [defaultOptions, setDefaultOptions] = useState<any[]>([]);
 
-  // دالة لتحديد صورة المقاس المناسبة من assets
   const getSizeGuideImage = (productType: string): string => {
     const sizeGuideImages = {
       'جاكيت': '/src/assets/size1.png',
@@ -114,16 +107,13 @@ interface Review {
   };
 
   useEffect(() => {
-    const currentId = slug ? extractIdFromSlug(slug).toString() : id;
-    if (currentId && (!product || product.id !== parseInt(currentId))) {
+    if (id) {
       fetchProduct();
-      // Scroll to top when product changes
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      fetchDefaultOptions();
     }
-  }, [id, slug]);
+  }, [id]);
 
   useEffect(() => {
-    // مستمع لتحديث الخيارات من الكارت
     const handleOptionsUpdate = (event: CustomEvent) => {
       const { productId, options, source } = event.detail;
       if (product && productId === product.id && source === 'cart') {
@@ -147,62 +137,39 @@ interface Review {
   }, [product, selectedOptions]);
 
   const fetchProduct = async () => {
-    // تحديد الـ ID من slug أو id
-    let productId: string | undefined;
-    
-    if (slug) {
-      // إذا كان slug موجود، استخرج الـ ID منه
-      if (isValidSlug(slug)) {
-        productId = extractIdFromSlug(slug).toString();
-      } else {
-        navigate('/');
-        return;
-      }
-    } else if (id) {
-      // إذا كان id موجود مباشرة
-      productId = id;
-    } else {
-      navigate('/');
-      return;
-    }
-    
     try {
-      console.log(`🔍 Fetching product with ID: ${productId}`);
-      const response = await fetch(`http://localhost:3001/api/products/${productId}`);
-      const data = await response.json();
-      console.log(`✅ Product loaded:`, data);
+      setLoading(true);
+      const data = await apiCall(API_ENDPOINTS.PRODUCT_BY_ID(id!));
       setProduct(data);
       setSelectedImage(data.mainImage);
-      // حفظ في localStorage لتجنب الفلاش في المرة القادمة
-      localStorage.setItem(`cachedProduct_${productId}`, JSON.stringify(data));
       
-      if (data.dynamicOptions) {
-        // تحميل الخيارات المحفوظة من localStorage أولاً
-        const savedOptions = localStorage.getItem(`productOptions_${data.id}`);
-        let initialOptions: Record<string, string> = {};
-        
-        if (savedOptions) {
-          try {
-            initialOptions = JSON.parse(savedOptions);
-          } catch (error) {
-            console.error('Error parsing saved options:', error);
+      if (data.dynamicOptions && data.dynamicOptions.length > 0) {
+        const initialOptions: { [key: string]: string } = {};
+        data.dynamicOptions.forEach((option: any) => {
+          if (option.values && option.values.length > 0) {
+            initialOptions[option.name] = option.values[0];
           }
-        }
-        
-        // لا نضع قيم افتراضية - نترك الخيارات فارغة ليختار المستخدم
-        // data.dynamicOptions.forEach((option: ProductOption) => {
-        //   if (!initialOptions[option.optionName] && option.options && option.options.length > 0) {
-        //     initialOptions[option.optionName] = option.options[0].value;
-        //   }
-        // });
-        
+        });
         setSelectedOptions(initialOptions);
       }
       
       if (data.categoryId) fetchCategory(data.categoryId);
     } catch (error) {
       console.error('Error fetching product:', error);
-      navigate('/');
+      toast.error('فشل في تحميل المنتج');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const fetchDefaultOptions = async () => {
+    if (!product?.productType) return;
+    
+    try {
+      const data = await apiCall(API_ENDPOINTS.PRODUCT_DEFAULT_OPTIONS(product.productType));
+      setDefaultOptions(data);
+    } catch (error) {
+      console.error('Error fetching default options:', error);
     }
   };
 
@@ -211,11 +178,6 @@ interface Review {
       const response = await fetch(`http://localhost:3001/api/categories/${categoryId}`);
       const data = await response.json();
       setCategory(data);
-      // حفظ في localStorage لتجنب الفلاش في المرة القادمة
-      const currentId = slug ? extractIdFromSlug(slug).toString() : id;
-      if (currentId) {
-        localStorage.setItem(`cachedProductCategory_${currentId}`, JSON.stringify(data));
-      }
     } catch (error) {
       console.error('Error fetching category:', error);
     }
@@ -303,7 +265,6 @@ interface Review {
   const calculatePrice = () => {
     if (!product) return;
     
-    // السعر الثابت بدون أسعار إضافية
     setCalculatedPrice(product.price);
   };
 
@@ -315,11 +276,9 @@ interface Review {
     
     setSelectedOptions(newOptions);
     
-    // حفظ الخيارات في localStorage للمشاركة مع الكارت
     if (product) {
       localStorage.setItem(`productOptions_${product.id}`, JSON.stringify(newOptions));
       
-      // إرسال إشعار للصفحات الأخرى بتحديث الخيارات
       window.dispatchEvent(new CustomEvent('productOptionsUpdated', {
         detail: { 
           productId: product.id, 
@@ -397,7 +356,6 @@ interface Review {
       return;
     }
 
-    // التحقق من صحة البيانات المطلوبة
     if (!validateForm()) {
       toast.error('يرجى إكمال جميع البيانات المطلوبة قبل الإضافة للسلة');
       return;
@@ -445,8 +403,6 @@ interface Review {
     }
   };
 
-  // No loading screen - instant display
-
   if (!product) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 flex items-center justify-center px-4">
@@ -470,18 +426,17 @@ interface Review {
           <button onClick={() => navigate('/')} className="text-gray-600 hover:text-gray-800 transition-colors whitespace-nowrap">
             الرئيسية
           </button>
-          <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
+          <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
           {category && (
             <>
               <span className="text-gray-600 whitespace-nowrap">{category.name}</span>
-              <ArrowLeft className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
+              <ArrowRight className="w-3 h-3 sm:w-4 sm:h-4 text-gray-400 flex-shrink-0" />
             </>
           )}
           <span className="text-gray-800 font-medium truncate">{product.name}</span>
         </nav>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
-          {/* Product Images */}
           <div className="space-y-4 sm:space-y-6">
             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 border border-gray-200">
               <div className="aspect-square overflow-hidden rounded-xl sm:rounded-2xl mb-4 sm:mb-6">
@@ -526,7 +481,6 @@ interface Review {
             </div>
           </div>
 
-          {/* Product Info */}
           <div className="space-y-6 sm:space-y-8">
             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 border border-gray-200">
               <div className="mb-4 sm:mb-6">
@@ -566,7 +520,6 @@ interface Review {
                 <p className="text-sm sm:text-base text-gray-600 leading-relaxed mb-4 sm:mb-6">{product.description}</p>
               </div>
 
-              {/* Dynamic Options */}
               {product.dynamicOptions && product.dynamicOptions.length > 0 && (
                 <div className="space-y-6 mb-8">
                   <h3 className="text-2xl font-bold text-gray-800 mb-4">خيارات المنتج</h3>
@@ -611,7 +564,6 @@ interface Review {
                         <p className="text-red-500 text-sm">{formErrors[option.optionName]}</p>
                       )}
                       
-                      {/* Size Guide Link - Only for size option and specific product types */}
                       {option.optionName === 'size' && 
                        (product.productType === 'جاكيت' || product.productType === 'عباية تخرج' || product.productType === 'مريول مدرسي') && (
                         <div className="mt-3">
@@ -628,14 +580,11 @@ interface Review {
                               </div>
                             </div>
                             
-                            {/* Animated shine effect */}
                             <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-transparent via-white to-transparent opacity-0 group-hover:opacity-20 transform -skew-x-12 group-hover:animate-pulse"></div>
                             
-                            {/* Subtle glow */}
                             <div className="absolute inset-0 rounded-xl bg-blue-400 opacity-0 group-hover:opacity-20 blur-sm transition-opacity duration-300"></div>
                           </button>
                           
-                          {/* Helper text */}
                           <p className="text-xs text-gray-500 mt-1 flex items-center gap-1">
                             <span>💡</span>
                             <span>اضغط لمشاهدة جدول المقاسات</span>
@@ -647,7 +596,6 @@ interface Review {
                 </div>
               )}
 
-              {/* Attachments Section - مصغر */}
               <div className="space-y-4 mb-6">
                 <div className="bg-gray-50 rounded-xl p-4 border border-gray-200">
                   <h3 className="text-sm font-bold text-gray-800 mb-3 flex items-center">
@@ -711,7 +659,6 @@ interface Review {
                 </div>
               </div>
 
-              {/* Quantity and Actions */}
               <div className="space-y-6">
                 <div className="flex items-center space-x-4">
                   <label className="text-lg font-semibold text-gray-800">الكمية:</label>
@@ -764,7 +711,6 @@ interface Review {
               </div>
             </div>
 
-            {/* Comments Section */}
             <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
               <div className="flex items-center justify-between mb-6">
                 <h3 className="text-xl font-bold text-gray-800 flex items-center">
@@ -773,7 +719,6 @@ interface Review {
                 </h3>
               </div>
 
-              {/* Add Comment Form */}
               <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-6">
                 <h4 className="text-md font-bold text-gray-800 mb-3 flex items-center">
                   <span className="w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center text-white text-xs mr-2">✍️</span>
@@ -799,7 +744,6 @@ interface Review {
                 </button>
               </div>
 
-              {/* Comments List */}
               <div className="space-y-4">
                 {reviews.length > 0 ? (
                   reviews.map((review) => (
@@ -832,11 +776,9 @@ interface Review {
           </div>
         </div>
 
-        {/* Related Products Section */}
         <RelatedProducts currentProductId={product.id} categoryId={product.categoryId} />
       </div>
 
-      {/* Size Guide Modal */}
       {showSizeGuide && product && (product.productType === 'جاكيت' || product.productType === 'عباية تخرج' || product.productType === 'مريول مدرسي') && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-75 flex items-center justify-center z-50 p-4"
@@ -871,13 +813,11 @@ interface Review {
         </div>
       )}
 
-      {/* WhatsApp Button */}
       <WhatsAppButton />
     </div>
   );
 };
 
-// Related Products Component
 const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number | null }> = ({ 
   currentProductId, 
   categoryId 
@@ -891,21 +831,16 @@ const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number |
 
   const fetchRelatedProducts = async () => {
     try {
-      // Get all products from all categories
       const response = await fetch('http://localhost:3001/api/products');
       if (response.ok) {
         const data = await response.json();
         
-        // Filter out only the current product (keep products from same category)
-        // Convert both to numbers to ensure proper comparison
         const filtered = data.filter((product: Product) => 
           Number(product.id) !== Number(currentProductId)
         );
         
-        // Shuffle the array to get random products each time
         const shuffled = filtered.sort(() => Math.random() - 0.5);
         
-        // Take first 4 products
         setRelatedProducts(shuffled.slice(0, 4));
       }
     } catch (error) {

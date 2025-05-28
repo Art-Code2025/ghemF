@@ -6,12 +6,18 @@ export const API_CONFIG = {
   },
   // للإنتاج
   production: {
-    baseURL: 'https://your-backend-domain.com', // غير هذا إلى رابط السيرفر الحقيقي
+    baseURL: 'https://ghemb.onrender.com', // رابط الباك إند على Render
   }
 };
 
 // الحصول على الـ base URL حسب البيئة
 export const getApiBaseUrl = (): string => {
+  // أولاً: تحقق من Environment Variable
+  if (import.meta.env.VITE_API_BASE_URL) {
+    return import.meta.env.VITE_API_BASE_URL;
+  }
+  
+  // ثانياً: تحقق من البيئة
   const isDevelopment = import.meta.env.DEV;
   return isDevelopment ? API_CONFIG.development.baseURL : API_CONFIG.production.baseURL;
 };
@@ -21,7 +27,9 @@ export const buildApiUrl = (endpoint: string): string => {
   const baseUrl = getApiBaseUrl();
   // إزالة الـ slash الأول من endpoint إذا كان موجود
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  return `${baseUrl}/${cleanEndpoint}`;
+  // إزالة api/ إذا كانت موجودة في endpoint لأنها ستضاف تلقائياً
+  const finalEndpoint = cleanEndpoint.startsWith('api/') ? cleanEndpoint.slice(4) : cleanEndpoint;
+  return `${baseUrl}/api/${finalEndpoint}`;
 };
 
 // دالة مساعدة لبناء URL الصور
@@ -35,54 +43,78 @@ export const buildImageUrl = (imagePath: string): string => {
   return `${baseUrl}${cleanPath}`;
 };
 
+// دالة مركزية لجميع API calls
+export const apiCall = async (endpoint: string, options: RequestInit = {}) => {
+  const url = buildApiUrl(endpoint);
+  
+  try {
+    const response = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...options.headers,
+      },
+    });
+    
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    
+    return await response.json();
+  } catch (error) {
+    console.error('API Error:', error);
+    throw error;
+  }
+};
+
 // تصدير الثوابت المفيدة
 export const API_ENDPOINTS = {
   // Products
-  PRODUCTS: 'api/products',
-  PRODUCT_BY_ID: (id: string | number) => `api/products/${id}`,
-  PRODUCTS_BY_CATEGORY: (categoryId: string | number) => `api/products/category/${categoryId}`,
-  PRODUCT_REVIEWS: (id: string | number) => `api/products/${id}/reviews`,
-  PRODUCT_DEFAULT_OPTIONS: (productType: string) => `api/products/default-options/${encodeURIComponent(productType)}`,
+  PRODUCTS: 'products',
+  PRODUCT_BY_ID: (id: string | number) => `products/${id}`,
+  PRODUCTS_BY_CATEGORY: (categoryId: string | number) => `products/category/${categoryId}`,
+  PRODUCT_REVIEWS: (id: string | number) => `products/${id}/reviews`,
+  PRODUCT_DEFAULT_OPTIONS: (productType: string) => `products/default-options/${encodeURIComponent(productType)}`,
   
   // Categories
-  CATEGORIES: 'api/categories',
-  CATEGORY_BY_ID: (id: string | number) => `api/categories/${id}`,
+  CATEGORIES: 'categories',
+  CATEGORY_BY_ID: (id: string | number) => `categories/${id}`,
   
   // Cart
-  USER_CART: (userId: string | number) => `api/user/${userId}/cart`,
-  CART_UPDATE_OPTIONS: (userId: string | number) => `api/user/${userId}/cart/update-options`,
-  CART_PRODUCT: (userId: string | number, productId: string | number) => `api/user/${userId}/cart/product/${productId}`,
+  USER_CART: (userId: string | number) => `user/${userId}/cart`,
+  CART_UPDATE_OPTIONS: (userId: string | number) => `user/${userId}/cart/update-options`,
+  CART_PRODUCT: (userId: string | number, productId: string | number) => `user/${userId}/cart/product/${productId}`,
   
   // Wishlist
-  USER_WISHLIST: (userId: string | number) => `api/user/${userId}/wishlist`,
-  WISHLIST_CHECK: (userId: string | number, productId: string | number) => `api/user/${userId}/wishlist/check/${productId}`,
-  WISHLIST_PRODUCT: (userId: string | number, productId: string | number) => `api/user/${userId}/wishlist/product/${productId}`,
+  USER_WISHLIST: (userId: string | number) => `user/${userId}/wishlist`,
+  WISHLIST_CHECK: (userId: string | number, productId: string | number) => `user/${userId}/wishlist/check/${productId}`,
+  WISHLIST_PRODUCT: (userId: string | number, productId: string | number) => `user/${userId}/wishlist/product/${productId}`,
   
   // Orders
-  CHECKOUT: 'api/checkout',
-  ORDERS: 'api/orders',
-  ORDER_BY_ID: (id: string | number) => `api/orders/${id}`,
-  ORDER_STATUS: (id: string | number) => `api/orders/${id}/status`,
+  CHECKOUT: 'checkout',
+  ORDERS: 'orders',
+  ORDER_BY_ID: (id: string | number) => `orders/${id}`,
+  ORDER_STATUS: (id: string | number) => `orders/${id}/status`,
   
   // Auth
-  SEND_OTP: 'api/auth/send-otp',
-  VERIFY_OTP: 'api/auth/verify-otp',
-  COMPLETE_REGISTRATION: 'api/auth/complete-registration',
+  SEND_OTP: 'auth/send-otp',
+  VERIFY_OTP: 'auth/verify-otp',
+  COMPLETE_REGISTRATION: 'auth/complete-registration',
   
   // Coupons
-  COUPONS: 'api/coupons',
-  VALIDATE_COUPON: 'api/coupons/validate',
-  COUPON_BY_ID: (id: string | number) => `api/coupons/${id}`,
+  COUPONS: 'coupons',
+  VALIDATE_COUPON: 'coupons/validate',
+  COUPON_BY_ID: (id: string | number) => `coupons/${id}`,
   
   // Customers
-  CUSTOMERS: 'api/customers',
-  CUSTOMER_STATS: 'api/customers/stats',
-  CUSTOMER_BY_ID: (id: string | number) => `api/customers/${id}`,
+  CUSTOMERS: 'customers',
+  CUSTOMER_STATS: 'customers/stats',
+  CUSTOMER_BY_ID: (id: string | number) => `customers/${id}`,
   
   // Health Check
-  HEALTH: 'api/health',
+  HEALTH: 'health',
   
   // Services (if needed)
-  SERVICES: 'api/services',
-  SERVICE_BY_ID: (id: string | number) => `api/services/${id}`,
+  SERVICES: 'services',
+  SERVICE_BY_ID: (id: string | number) => `services/${id}`,
 }; 

@@ -12,6 +12,7 @@ import cover1 from './assets/cover1.jpg';
 import { createCategorySlug } from './utils/slugify';
 import cover2 from './assets/cover2.jpg';
 import cover3 from './assets/cover3.jpg';
+import { apiCall, API_ENDPOINTS } from './config/api';
 
 interface Product {
   id: number;
@@ -94,14 +95,11 @@ const App: React.FC = () => {
 
   const fetchCategoriesWithProducts = async () => {
     try {
-      // Use normal fetch instead of fastGet
-      const [categoriesResponse, productsResponse] = await Promise.all([
-        fetch('http://localhost:3001/api/categories'),
-        fetch('http://localhost:3001/api/products')
+      // استخدام النظام الجديد للـ API calls
+      const [categoriesData, products] = await Promise.all([
+        apiCall(API_ENDPOINTS.CATEGORIES),
+        apiCall(API_ENDPOINTS.PRODUCTS)
       ]);
-      
-      const categoriesData = await categoriesResponse.json();
-      const products = await productsResponse.json();
       
       setCategories(categoriesData);
       
@@ -118,8 +116,6 @@ const App: React.FC = () => {
       console.error('Error fetching data:', error);
     }
   };
-
-
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % heroImages.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);

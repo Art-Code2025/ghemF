@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ShoppingCart, Heart, User, LogOut } from 'lucide-react';
+import { Menu, X, ShoppingCart, Heart, User, LogOut, Search, Package, Settings, Phone, Mail, MapPin, Clock, ChevronDown, Home, Grid3X3, Star, Award, Truck, Shield } from 'lucide-react';
 import logo from '../assets/logo.png';
 import AuthModal from './AuthModal';
 import { createCategorySlug } from '../utils/slugify';
-
+import { apiCall, API_ENDPOINTS } from '../config/api';
 
 interface CartItem {
   id: number;
@@ -22,7 +22,6 @@ interface Category {
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  // تحميل البيانات فوراً من localStorage لتجنب الفلاش
   const [cartItemsCount, setCartItemsCount] = useState<number>(() => {
     const saved = localStorage.getItem('lastCartCount');
     return saved ? parseInt(saved) : 0;
@@ -79,185 +78,64 @@ function Navbar() {
   }, []);
 
   useEffect(() => {
-    fetchCart();
-    fetchWishlist();
+    fetchCartCount();
+    fetchWishlistCount();
+    fetchCategories();
     
-    // إضافة مستمعين للأحداث المختلفة
-    const handleCartUpdate = () => {
-      console.log('🔄 Cart update event received in Navbar');
-      
-      // تحديث فوري من localStorage إذا متوفر
-      const savedCartCount = localStorage.getItem('lastCartCount');
-      if (savedCartCount) {
-        const count = parseInt(savedCartCount);
-        console.log('🔄 Setting cart count immediately from localStorage:', count);
-        setCartItemsCount(count);
-      }
-      
-      // تحديث فوري من الـ API أيضاً
-          // ثم جلب البيانات الحديثة من الـ API
-          setTimeout(() => fetchCart(), 50);
-        };
+    const handleCartUpdate = () => fetchCartCount();
+    const handleWishlistUpdate = () => fetchWishlistCount();
+    const handleCategoriesUpdate = () => fetchCategories();
     
-    
-        const handleWishlistUpdate = () => {
-          console.log('🔄 Wishlist update event received in Navbar');
-      
-      // تحديث فوري من localStorage إذا متوفر
-      const savedWishlistCount = localStorage.getItem('lastWishlistCount');
-      if (savedWishlistCount) {
-        const count = parseInt(savedWishlistCount);
-        console.log('🔄 Setting wishlist count immediately from localStorage:', count);
-        setWishlistItemsCount(count);
-      }
-      
-           // ثم جلب البيانات الحديثة من الـ API
-           setTimeout(() => fetchWishlist(), 50);
-          };
-      
-    
-    const handleStorageChange = (e: StorageEvent) => {
-      if (e.key === 'cartUpdated' || e.key === 'lastCartUpdate') {
-        console.log('🔄 Storage change detected for cart');
-        fetchCart();
-      }
-      if (e.key === 'wishlistUpdated' || e.key === 'lastWishlistUpdate') {
-        console.log('🔄 Storage change detected for wishlist');
-        fetchWishlist();
-      }
-    };
-    
-    // إضافة مستمعين للأحداث المتعددة
-    const cartEvents = [
-      'cartUpdated', 
-      'productAddedToCart', 
-      'cartCountChanged', 
-      'forceCartUpdate'
-    ];
-    
-    const wishlistEvents = [
-      'wishlistUpdated', 
-      'productAddedToWishlist', 
-      'productRemovedFromWishlist'
-    ];
-    
-    cartEvents.forEach(eventName => {
-      window.addEventListener(eventName, handleCartUpdate);
-    });
-    
-    wishlistEvents.forEach(eventName => {
-      window.addEventListener(eventName, handleWishlistUpdate);
-    });
-    
-    window.addEventListener('storage', handleStorageChange);
-    
-    // إضافة مستمع للـ focus للتحديث عند العودة للتاب
-    const handleFocus = () => {
-      console.log('🔄 Window focused, refreshing counters');
-      fetchCart();
-      fetchWishlist();
-    };
-    window.addEventListener('focus', handleFocus);
-    
-    // تحديث دوري كل ثانية واحدة للتأكد من التزامن الفوري
-    const interval = setInterval(() => {
-      const lastCartUpdate = localStorage.getItem('cartUpdated');
-      const lastWishlistUpdate = localStorage.getItem('wishlistUpdated');
-      
-      if (lastCartUpdate) {
-        const timeDiff = Date.now() - parseInt(lastCartUpdate);
-        if (timeDiff < 2000) { // إذا كان التحديث خلال آخر ثانيتين
-          console.log('🔄 Auto-refreshing cart due to recent update');
-          fetchCart();
-        }
-      }
-      
-      if (lastWishlistUpdate) {
-        const timeDiff = Date.now() - parseInt(lastWishlistUpdate);
-        if (timeDiff < 2000) { // إذا كان التحديث خلال آخر ثانيتين
-          console.log('🔄 Auto-refreshing wishlist due to recent update');
-          fetchWishlist();
-        }
-      }
-    }, 1000); // كل ثانية واحدة
+    window.addEventListener('cartUpdated', handleCartUpdate);
+    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
     
     return () => {
-      cartEvents.forEach(eventName => {
-        window.removeEventListener(eventName, handleCartUpdate);
-      });
-      
-      wishlistEvents.forEach(eventName => {
-        window.removeEventListener(eventName, handleWishlistUpdate);
-      });
-      
-      window.removeEventListener('storage', handleStorageChange);
-      window.removeEventListener('focus', handleFocus);
-      clearInterval(interval);
+      window.removeEventListener('cartUpdated', handleCartUpdate);
+      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+      window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
     };
-  }, [user]);
-
-  useEffect(() => {
-    fetchCategories();
   }, []);
+
+  const fetchCartCount = async () => {
+    try {
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      
+      const user = JSON.parse(userData);
+      if (!user?.id) return;
+      
+      const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
+      const totalItems = data.reduce((sum: number, item: any) => sum + item.quantity, 0);
+      setCartItemsCount(totalItems);
+    } catch (error) {
+      console.error('Error fetching cart count:', error);
+    }
+  };
+
+  const fetchWishlistCount = async () => {
+    try {
+      const userData = localStorage.getItem('user');
+      if (!userData) return;
+      
+      const user = JSON.parse(userData);
+      if (!user?.id) return;
+      
+      const data = await apiCall(API_ENDPOINTS.USER_WISHLIST(user.id));
+      setWishlistItemsCount(data.length);
+    } catch (error) {
+      console.error('Error fetching wishlist count:', error);
+    }
+  };
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/categories');
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.CATEGORIES);
       setCategories(data);
       // حفظ في localStorage لتجنب الفلاش في المرة القادمة
       localStorage.setItem('cachedCategories', JSON.stringify(data));
     } catch (error) {
       console.error('Error fetching categories:', error);
-    }
-  };
-
-  const fetchCart = async () => {
-    try {
-      if (!user?.id) {
-        console.log('👤 No user ID, setting cart count to 0');
-        setCartItemsCount(0);
-        return;
-      }
-      
-      console.log('🛒 Fetching cart for user:', user.id);
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/cart`);
-      const data = await response.json();
-      const itemsCount = data.reduce((total: number, item: CartItem) => total + item.quantity, 0);
-      
-      console.log('🛒 Cart items count:', itemsCount);
-      setCartItemsCount(itemsCount);
-      
-      // حفظ آخر تحديث في localStorage
-      localStorage.setItem('lastCartCount', itemsCount.toString());
-      localStorage.setItem('lastCartFetch', Date.now().toString());
-    } catch (error) {
-      console.error('❌ Error fetching cart:', error);
-      setCartItemsCount(0);
-    }
-  };
-
-  const fetchWishlist = async () => {
-    try {
-      if (!user?.id) {
-        console.log('👤 No user ID, setting wishlist count to 0');
-        setWishlistItemsCount(0);
-        return;
-      }
-      
-      console.log('❤️ Fetching wishlist for user:', user.id);
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/wishlist`);
-      const data = await response.json();
-      
-      console.log('❤️ Wishlist items count:', data.length);
-      setWishlistItemsCount(data.length);
-      
-      // حفظ آخر تحديث في localStorage
-      localStorage.setItem('lastWishlistCount', data.length.toString());
-      localStorage.setItem('lastWishlistFetch', Date.now().toString());
-    } catch (error) {
-      console.error('❌ Error fetching wishlist:', error);
-      setWishlistItemsCount(0);
     }
   };
 
@@ -268,8 +146,8 @@ function Navbar() {
     localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthModalOpen(false);
     setTimeout(() => {
-      fetchCart();
-      fetchWishlist();
+      fetchCartCount();
+      fetchWishlistCount();
     }, 100);
   };
 

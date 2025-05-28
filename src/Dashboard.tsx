@@ -6,6 +6,7 @@ import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, Cart
 import logo from './assets/logo.png';
 import OrderModal from './components/OrderModal';
 import DeleteModal from './components/DeleteModal';
+import { apiCall, API_ENDPOINTS, buildApiUrl } from './config/api';
 
 // تعريف الأنواع
 interface Service {
@@ -186,11 +187,7 @@ const Dashboard: React.FC = () => {
   // وظائف المنتجات
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/products');
-      if (!response.ok) {
-        throw new Error('فشل في جلب المنتجات');
-      }
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.PRODUCTS);
       setProducts(data);
       setFilteredProducts(data);
     } catch (error) {
@@ -202,28 +199,19 @@ const Dashboard: React.FC = () => {
   // وظائف التصنيفات
   const fetchCategories = async () => {
     try {
-      setLoading(true);
-      const response = await fetch('http://localhost:3001/api/categories');
-      if (!response.ok) throw new Error('فشل في جلب التصنيفات');
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.CATEGORIES);
       setCategories(data);
       setFilteredCategories(data);
     } catch (error) {
       console.error('Error fetching categories:', error);
-      setError('فشل في تحميل التصنيفات');
-    } finally {
-      setLoading(false);
+      toast.error('فشل في جلب التصنيفات');
     }
   };
 
   // وظائف الكوبونات
   const fetchCoupons = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/coupons');
-      if (!response.ok) {
-        throw new Error('فشل في جلب الكوبونات');
-      }
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.COUPONS);
       setCoupons(data);
       setFilteredCoupons(data);
     } catch (error) {
@@ -235,26 +223,19 @@ const Dashboard: React.FC = () => {
   // وظائف قائمة الأمنيات
   const fetchWishlistItems = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/wishlist');
-      if (!response.ok) {
-        throw new Error('فشل في جلب قائمة الأمنيات');
-      }
-      const data = await response.json();
+      // Note: This might need user ID - for now using a placeholder
+      const data = await apiCall('wishlist');
       setWishlistItems(data);
     } catch (error) {
-      console.error('Error fetching wishlist:', error);
-      toast.error('فشل في جلب قائمة الأمنيات');
+      console.error('Error fetching wishlist items:', error);
+      // Don't show error toast for wishlist as it might not be critical
     }
   };
 
   // وظائف الطلبات
   const fetchOrders = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/orders');
-      if (!response.ok) {
-        throw new Error('فشل في جلب الطلبات');
-      }
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.ORDERS);
       setOrders(data);
       setFilteredOrders(data);
     } catch (error) {
@@ -266,28 +247,12 @@ const Dashboard: React.FC = () => {
   // وظائف العملاء
   const fetchCustomers = async () => {
     try {
-      setLoading(true);
-      setError('');
-      
-      console.log('🔄 Fetching customers with updated stats...');
-      const response = await fetch('http://localhost:3001/api/customers');
-      
-      if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-      }
-      
-      const data = await response.json();
-      console.log(`✅ Fetched ${data.length} customers:`, data);
-      
+      const data = await apiCall(API_ENDPOINTS.CUSTOMERS);
       setCustomers(data);
       setFilteredCustomers(data);
     } catch (error) {
-      console.error('❌ Error fetching customers:', error);
-      setError('فشل في تحميل بيانات العملاء');
-      setCustomers([]);
-      setFilteredCustomers([]);
-    } finally {
-      setLoading(false);
+      console.error('Error fetching customers:', error);
+      toast.error('فشل في جلب العملاء');
     }
   };
 
@@ -311,14 +276,11 @@ const Dashboard: React.FC = () => {
   
   const fetchCustomerStats = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/customers/stats');
-      if (response.ok) {
-        const stats = await response.json();
-        setCustomerStats(stats);
-        console.log('📊 Customer stats loaded:', stats);
-      }
+      const data = await apiCall(API_ENDPOINTS.CUSTOMER_STATS);
+      return data;
     } catch (error) {
       console.error('Error fetching customer stats:', error);
+      return null;
     }
   };
 
@@ -381,57 +343,58 @@ const Dashboard: React.FC = () => {
   // Order update handler
   const handleOrderStatusUpdate = async (orderId: number, newStatus: string) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}/status`, {
+      setLoading(true);
+      
+      await apiCall(API_ENDPOINTS.ORDER_STATUS(orderId), {
         method: 'PUT',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({ status: newStatus })
+        body: JSON.stringify({ status: newStatus }),
       });
 
-      if (!response.ok) {
-        throw new Error('فشل في تحديث حالة الطلب');
-      }
-
-      // Update the order in the local state
-      setOrders(prevOrders =>
-        prevOrders.map(order =>
-          order.id === orderId ? { ...order, status: newStatus as any } : order
+      // تحديث الطلب في الحالة المحلية
+      setOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: newStatus as Order['status'] }
+            : order
+        )
+      );
+      
+      // تحديث الطلبات المفلترة أيضاً
+      setFilteredOrders(prevOrders => 
+        prevOrders.map(order => 
+          order.id === orderId 
+            ? { ...order, status: newStatus as Order['status'] }
+            : order
         )
       );
 
-      // Update filtered orders as well
-      setFilteredOrders(prevFiltered =>
-        prevFiltered.map(order =>
-          order.id === orderId ? { ...order, status: newStatus as any } : order
-        )
-      );
-
-      toast.success('تم تحديث حالة الطلب بنجاح');
+      toast.success(`تم تحديث حالة الطلب إلى: ${getOrderStatusText(newStatus)}`);
     } catch (error) {
       console.error('Error updating order status:', error);
       toast.error('فشل في تحديث حالة الطلب');
+    } finally {
+      setLoading(false);
     }
   };
 
   const handleDeleteOrder = async (orderId: number) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا الطلب؟ لا يمكن التراجع عن هذا الإجراء.')) return;
-
     try {
-      const response = await fetch(`http://localhost:3001/api/orders/${orderId}`, {
+      setLoading(true);
+      
+      await apiCall(API_ENDPOINTS.ORDER_BY_ID(orderId), {
         method: 'DELETE',
       });
 
-      if (!response.ok) {
-        throw new Error('فشل في حذف الطلب');
-      }
-
-      setOrders(orders.filter(order => order.id !== orderId));
-      setFilteredOrders(filteredOrders.filter(order => order.id !== orderId));
+      // إزالة الطلب من الحالة المحلية
+      setOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+      setFilteredOrders(prevOrders => prevOrders.filter(order => order.id !== orderId));
+      
       toast.success('تم حذف الطلب بنجاح');
     } catch (error) {
       console.error('Error deleting order:', error);
       toast.error('فشل في حذف الطلب');
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -496,20 +459,14 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDeleteProduct = async (id: number) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
-
     try {
-      const response = await fetch(`http://localhost:3001/api/products/${id}`, {
+      await apiCall(API_ENDPOINTS.PRODUCT_BY_ID(id), {
         method: 'DELETE',
       });
-
-      if (!response.ok) {
-        throw new Error('فشل في حذف المنتج');
-      }
-
-      setProducts(products.filter(product => product.id !== id));
-      setFilteredProducts(filteredProducts.filter(product => product.id !== id));
-      toast.success('تم حذف المنتج بنجاح!');
+      
+      setProducts(products.filter(p => p.id !== id));
+      setFilteredProducts(filteredProducts.filter(p => p.id !== id));
+      toast.success('تم حذف المنتج بنجاح');
     } catch (error) {
       console.error('Error deleting product:', error);
       toast.error('فشل في حذف المنتج');
@@ -517,20 +474,14 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDeleteCoupon = async (id: number) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا الكوبون؟')) return;
-
     try {
-      const response = await fetch(`http://localhost:3001/api/coupons/${id}`, {
+      await apiCall(API_ENDPOINTS.COUPON_BY_ID(id), {
         method: 'DELETE',
       });
-
-      if (!response.ok) {
-        throw new Error('فشل في حذف الكوبون');
-      }
-
-      setCoupons(coupons.filter(coupon => coupon.id !== id));
-      setFilteredCoupons(filteredCoupons.filter(coupon => coupon.id !== id));
-      toast.success('تم حذف الكوبون بنجاح!');
+      
+      setCoupons(coupons.filter(c => c.id !== id));
+      setFilteredCoupons(filteredCoupons.filter(c => c.id !== id));
+      toast.success('تم حذف الكوبون بنجاح');
     } catch (error) {
       console.error('Error deleting coupon:', error);
       toast.error('فشل في حذف الكوبون');
@@ -538,30 +489,16 @@ const Dashboard: React.FC = () => {
   };
 
   const handleDeleteCategory = async (id: number) => {
-    if (!window.confirm('هل أنت متأكد من حذف هذا التصنيف؟')) return;
-
     try {
-      const response = await fetch(`http://localhost:3001/api/categories/${id}`, {
+      await apiCall(API_ENDPOINTS.CATEGORY_BY_ID(id), {
         method: 'DELETE',
       });
-
-      if (!response.ok) {
-        throw new Error('فشل في حذف التصنيف');
-      }
-
-      setCategories(categories.filter(category => category.id !== id));
-      setFilteredCategories(filteredCategories.filter(category => category.id !== id));
       
-      const updatedProducts = products.map(product => 
-        product.categoryId === id ? { ...product, categoryId: null } : product
-      );
-      setProducts(updatedProducts);
-      setFilteredProducts(filteredProducts.map(product => 
-        product.categoryId === id ? { ...product, categoryId: null } : product
-      ));
+      setCategories(categories.filter(c => c.id !== id));
+      setFilteredCategories(filteredCategories.filter(c => c.id !== id));
+      toast.success('تم حذف التصنيف بنجاح');
       
-      toast.success('تم حذف التصنيف بنجاح!');
-      // Trigger a refresh in the main app
+      // Trigger categories update event
       window.dispatchEvent(new Event('categoriesUpdated'));
     } catch (error) {
       console.error('Error deleting category:', error);

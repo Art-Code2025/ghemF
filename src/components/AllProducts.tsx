@@ -3,6 +3,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { Search, Filter, Grid, List, Package } from 'lucide-react';
 import ProductCard from './ProductCard';
+import { apiCall, API_ENDPOINTS } from '../config/api';
 
 
 interface Product {
@@ -70,8 +71,7 @@ const AllProducts: React.FC = () => {
 
   const fetchProducts = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/products');
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.PRODUCTS);
       setProducts(data);
       // حفظ في localStorage لتجنب الفلاش في المرة القادمة
       localStorage.setItem('cachedAllProducts', JSON.stringify(data));
@@ -82,8 +82,7 @@ const AllProducts: React.FC = () => {
 
   const fetchCategories = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/categories');
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.CATEGORIES);
       setCategories(data);
       // حفظ في localStorage لتجنب الفلاش في المرة القادمة
       localStorage.setItem('cachedCategories', JSON.stringify(data));

@@ -1,5 +1,7 @@
-// Optimized API utilities for fast performance
-const API_BASE = 'http://localhost:3001/api';
+import { buildApiUrl } from '../config/api';
+
+// استخدام النظام الجديد للـ API
+const API_BASE = buildApiUrl('');
 
 // Simple cache for API responses
 const cache = new Map<string, { data: any; timestamp: number }>();
@@ -16,7 +18,7 @@ export const fastApi = async (endpoint: string, options: RequestInit = {}) => {
   }
   
   try {
-    const response = await fetch(`${API_BASE}${endpoint}`, {
+    const response = await fetch(`${API_BASE}/${endpoint}`, {
       ...options,
       headers: {
         'Content-Type': 'application/json',
@@ -70,4 +72,52 @@ export const addToWishlist = (userId: string, data: any) =>
 export const removeFromWishlist = (userId: string, productId: string) => 
   fastApi(`/user/${userId}/wishlist/product/${productId}`, {
     method: 'DELETE',
-  }); 
+  });
+
+export const api = {
+  get: async (endpoint: string) => {
+    const response = await fetch(`${API_BASE}/${endpoint}`);
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  },
+  
+  post: async (endpoint: string, data: any) => {
+    const response = await fetch(`${API_BASE}/${endpoint}`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  },
+  
+  put: async (endpoint: string, data: any) => {
+    const response = await fetch(`${API_BASE}/${endpoint}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(data),
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  },
+  
+  delete: async (endpoint: string) => {
+    const response = await fetch(`${API_BASE}/${endpoint}`, {
+      method: 'DELETE',
+    });
+    if (!response.ok) {
+      throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+    }
+    return response.json();
+  },
+}; 
