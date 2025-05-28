@@ -12,41 +12,39 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
   const [buttonLoaded, setButtonLoaded] = useState(false);
-  const [imageDisplayMode, setImageDisplayMode] = useState<'cover' | 'contain'>('cover'); // Always cover for full display
+  const [imageAspectRatio, setImageAspectRatio] = useState<number>(16/9);
 
-  // Auto-detect screen size and set appropriate display mode
+  // حساب نسبة العرض للارتفاع للصورة الحالية
   useEffect(() => {
-    const handleResize = () => {
-      // Always use cover for professional full-screen look without any gaps
-      setImageDisplayMode('cover');
-    };
-
-    // Set initial mode
-    handleResize();
-    
-    // Listen for resize events
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, []);
+    if (images[activeIndex]) {
+      const img = new Image();
+      img.onload = () => {
+        const ratio = img.naturalWidth / img.naturalHeight;
+        setImageAspectRatio(ratio);
+      };
+      img.src = images[activeIndex];
+    }
+  }, [activeIndex, images]);
 
   useEffect(() => {
     setActiveIndex(currentIndex);
   }, [currentIndex]);
 
   useEffect(() => {
-    let interval: number;
-    if (isPlaying && images.length > 1) {
-      interval = setInterval(() => {
-        setProgress((prev) => {
-          if (prev >= 100) {
-            setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
-            return 0;
-          }
-          return prev + 1.5;
-        });
-      }, 120);
-    }
-    return () => clearInterval(interval);
+    // شيل الحركة التلقائية للصور
+    // let interval: number;
+    // if (isPlaying && images.length > 1) {
+    //   interval = setInterval(() => {
+    //     setProgress((prev) => {
+    //       if (prev >= 100) {
+    //         setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
+    //         return 0;
+    //       }
+    //       return prev + 1.5;
+    //     });
+    //   }, 120);
+    // }
+    // return () => clearInterval(interval);
   }, [isPlaying, images.length]);
 
   useEffect(() => {
@@ -65,10 +63,6 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   const resetSlider = () => {
     setActiveIndex(0);
     setProgress(0);
-  };
-
-  const toggleImageDisplayMode = () => {
-    setImageDisplayMode(prev => prev === 'cover' ? 'contain' : 'cover');
   };
 
   // Touch/swipe functionality for mobile
@@ -92,20 +86,36 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
     const isRightSwipe = distance < -50;
 
     if (isLeftSwipe) {
-      // Swipe left - next image
       setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
       setProgress(0);
     }
     if (isRightSwipe) {
-      // Swipe right - previous image
       setActiveIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
       setProgress(0);
     }
   };
 
+  // تحديد ارتفاع الحاوية بناءً على نسبة الصورة
+  const getContainerHeight = () => {
+    const baseWidth = typeof window !== 'undefined' ? window.innerWidth : 390;
+    const padding = 32; // للحواف
+    const availableWidth = baseWidth - padding;
+    
+    if (imageAspectRatio > 1.5) {
+      // صور عريضة
+      return Math.min(availableWidth / imageAspectRatio + 100, 500);
+    } else if (imageAspectRatio < 0.8) {
+      // صور طويلة
+      return Math.min(600, availableWidth * 1.2);
+    } else {
+      // صور مربعة أو قريبة من المربع
+      return Math.min(availableWidth + 50, 550);
+    }
+  };
+
   if (!images || images.length === 0) {
     return (
-      <div className="relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] bg-gradient-to-br from-slate-50 via-gray-100 to-slate-50 flex items-center justify-center overflow-hidden">
+      <div className="relative w-full h-[400px] bg-gradient-to-br from-slate-50 via-gray-100 to-slate-50 flex items-center justify-center overflow-hidden rounded-2xl">
         <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-gray-200/30 via-transparent to-transparent" />
         <p className="text-gray-600 text-lg sm:text-xl lg:text-2xl font-light tracking-wide px-4 text-center">لا توجد صور متاحة</p>
       </div>
@@ -114,16 +124,21 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-black"
+      className="image-slider-container relative w-full overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl shadow-2xl"
+      style={{ 
+        height: `${getContainerHeight()}px`,
+        minHeight: '300px',
+        maxHeight: '600px'
+      }}
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Images with Smooth Transitions - Full Coverage */}
+      {/* Images with Smart Display - محتوى الصور */}
       {images.map((image, index) => (
         <div
           key={index}
-          className={`absolute w-full h-full transition-all duration-[2000ms] ease-out overflow-hidden ${
+          className={`absolute inset-0 transition-all duration-[2000ms] ease-out flex items-center justify-center p-4 ${
             index === activeIndex 
               ? 'opacity-100 scale-100 z-10' 
               : index === (activeIndex - 1 + images.length) % images.length
@@ -131,40 +146,40 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
               : 'opacity-0 scale-98 z-0'
           }`}
         >
-          <img
-            src={image}
-            alt={`مجموعة مميزة ${index + 1}`}
-            className={`slider-image w-full h-full transition-all duration-[4000ms] ease-out ${
-              index === activeIndex ? 'scale-102 filter brightness-105 saturate-110' : 'scale-100'
-            } object-cover`}
-            style={{
-              objectFit: 'cover',
-              objectPosition: 'center center',
-              width: '100%',
-              height: '100%'
-            }}
-            loading={index === 0 ? 'eager' : 'lazy'}
-          />
+          <div className="relative w-full h-full flex items-center justify-center">
+            <img
+              src={image}
+              alt={`مجموعة مميزة ${index + 1}`}
+              className={`max-w-full max-h-full object-contain transition-all duration-[4000ms] ease-out rounded-xl shadow-2xl ${
+                index === activeIndex ? 'scale-100 filter brightness-105 saturate-110' : 'scale-95'
+              }`}
+              style={{
+                objectFit: 'contain',
+                objectPosition: 'center center',
+              }}
+              loading={index === 0 ? 'eager' : 'lazy'}
+            />
+            
+            {/* إطار أنيق حول الصورة */}
+            <div className={`absolute inset-0 rounded-xl transition-all duration-2000 pointer-events-none ${
+              index === activeIndex 
+                ? 'bg-gradient-to-br from-white/5 via-transparent to-black/5 shadow-2xl'
+                : 'bg-gradient-to-br from-black/10 via-transparent to-black/20'
+            }`} />
+          </div>
           
-          {/* Professional Overlay - Subtle and refined */}
-          <div className={`absolute inset-0 transition-all duration-2000 ${
-            index === activeIndex 
-              ? 'bg-gradient-to-br from-black/5 via-transparent to-black/10'
-              : 'bg-gradient-to-br from-black/15 via-gray-900/5 to-black/20'
-          }`} />
-          
-          {/* Subtle Floating Elements */}
+          {/* عناصر ديكورية متحركة */}
           {index === activeIndex && (
             <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(4)].map((_, i) => (
+              {[...Array(6)].map((_, i) => (
                 <div
                   key={i}
-                  className={`absolute w-1 h-1 bg-white/20 rounded-full animate-pulse`}
+                  className={`absolute w-2 h-2 bg-gradient-to-r from-pink-300/40 to-purple-300/40 rounded-full animate-pulse blur-sm`}
                   style={{
-                    left: `${25 + i * 20}%`,
-                    top: `${20 + (i % 2) * 50}%`,
-                    animationDelay: `${i * 1.2}s`,
-                    animationDuration: '3s',
+                    left: `${15 + (i * 15)}%`,
+                    top: `${20 + ((i % 3) * 25)}%`,
+                    animationDelay: `${i * 0.8}s`,
+                    animationDuration: '4s',
                   }}
                 />
               ))}
@@ -173,61 +188,60 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       ))}
 
-      {/* Refined CTA Section - Better mobile positioning */}
-      <div className="absolute inset-0 flex items-end justify-center z-20 px-4 pb-12 sm:pb-16 md:pb-20">
-        <div className="text-center space-y-3 sm:space-y-4 lg:space-y-5">
-          {/* Elegant Heading - Optimized mobile sizing */}
-          <div className="space-y-2 sm:space-y-3">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight tracking-wide drop-shadow-2xl">
-              <span className="bg-gradient-to-r from-white via-pink-100 to-white bg-clip-text text-transparent">
-                مجموعة
-              </span>
-              <br />
-              <span className="bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-300 bg-clip-text text-transparent font-black">
-                استثنائية
-              </span>
-            </h1>
-            <div className="h-0.5 sm:h-1 bg-gradient-to-r from-transparent via-white/70 to-transparent w-12 sm:w-16 lg:w-20 xl:w-24 mx-auto rounded-full" />
-          </div>
+      {/* زر الدعوة للعمل - مبسط وصغير */}
+      <div className="absolute bottom-6 right-6 z-20">
+        <a
+          href="/products"
+          className={`group relative inline-flex items-center gap-1.5 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-3 py-2 rounded-lg border border-pink-400/60 hover:border-pink-300/80 transition-all duration-300 transform ${
+            buttonLoaded ? 'translate-x-0 opacity-100' : 'translate-x-[100px] opacity-0'
+          } hover:scale-105 hover:shadow-lg hover:shadow-pink-500/30 text-xs font-medium shadow-lg overflow-hidden`}
+        >
+          {/* تأثير اللمعان */}
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-300/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
+          
+          <span className="relative z-10 text-xs">✨</span>
+          <span className="relative z-10 tracking-wide">استكشف منتجاتنا</span>
+          <ChevronLeft className="w-3 h-3 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
+        </a>
+      </div>
 
-          {/* Sophisticated CTA Button - Perfect mobile sizing */}
-          <div className="relative">
-            <a
-              href="/products"
-              className={`group relative inline-flex items-center gap-2 sm:gap-3 lg:gap-4 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-5 sm:px-6 lg:px-8 xl:px-10 py-2.5 sm:py-3 lg:py-4 xl:py-5 rounded-xl border-2 border-pink-400/60 hover:border-pink-300/80 transition-all duration-500 transform ${
-                buttonLoaded ? 'translate-x-0 opacity-100' : '-translate-x-[150px] opacity-0'
-              } hover:scale-105 hover:shadow-2xl hover:shadow-pink-500/40 text-sm sm:text-base lg:text-lg xl:text-xl font-semibold shadow-2xl overflow-hidden ease-[cubic-bezier(0.4,0,0.2,1)]`}
-            >
-              {/* Pink Shimmer Effect */}
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-300/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1500 ease-out" />
-              
-              {/* Floating Animation */}
-              <div className="absolute inset-0 bg-pink-400/20 rounded-full scale-0 group-hover:scale-110 transition-transform duration-500 ease-out" />
-              
-              <span className="relative z-10 text-sm sm:text-base opacity-95">✨</span>
-              <span className="relative z-10 tracking-wide font-semibold"> استكشف منتجاتنا </span>
-              <ChevronLeft className="w-4 h-4 sm:w-4 sm:h-4 lg:w-5 lg:h-5 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
-            </a>
+      {/* نقاط التنقل */}
+      {images.length > 1 && (
+        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex space-x-2 bg-black/20 backdrop-blur-md rounded-full px-3 py-2">
+            {images.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => handleDotClick(index)}
+                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                  index === activeIndex
+                    ? 'bg-white scale-125'
+                    : 'bg-white/50 hover:bg-white/70'
+                }`}
+              />
+            ))}
           </div>
         </div>
-      </div>
+      )}
 
-      {/* Subtle Corner Accents - Mobile optimized */}
-      <div className="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
-        <div className="absolute top-0 left-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
-        <div className="absolute top-0 left-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
+      {/* عناصر الزينة في الزوايا */}
+      <div className="absolute top-3 left-3 w-6 h-6 z-20">
+        <div className="absolute top-0 left-0 w-2 h-px bg-white/40" />
+        <div className="absolute top-0 left-0 w-px h-2 bg-white/40" />
       </div>
-      <div className="absolute top-2 sm:top-3 lg:top-4 right-2 sm:right-3 lg:right-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
-        <div className="absolute top-0 right-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
-        <div className="absolute top-0 right-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
+      <div className="absolute top-3 right-3 w-6 h-6 z-20">
+        <div className="absolute top-0 right-0 w-2 h-px bg-white/40" />
+        <div className="absolute top-0 right-0 w-px h-2 bg-white/40" />
       </div>
-      <div className="absolute bottom-2 sm:bottom-3 lg:bottom-4 left-2 sm:left-3 lg:left-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
-        <div className="absolute bottom-0 left-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
-        <div className="absolute bottom-0 left-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
-      </div>
-      <div className="absolute bottom-2 sm:bottom-3 lg:bottom-4 right-2 sm:right-3 lg:right-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
-        <div className="absolute bottom-0 right-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
-        <div className="absolute bottom-0 right-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
+      
+      {/* أزرار التحكم - مبسطة */}
+      <div className="absolute top-4 left-4 z-20 flex space-x-2">
+        <button
+          onClick={resetSlider}
+          className="bg-black/20 backdrop-blur-md text-white p-1.5 rounded-full hover:bg-black/30 transition-all duration-300"
+        >
+          <RotateCcw className="w-3 h-3" />
+        </button>
       </div>
     </div>
   );

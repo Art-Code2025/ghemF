@@ -1,5 +1,6 @@
 import React from 'react';
-import { Phone, Mail, MapPin, ExternalLink, Users, Headphones, UserCheck } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Phone, Mail, MapPin, ExternalLink, Users, Headphones, UserCheck, Shield, RotateCcw } from 'lucide-react';
 
 const ContactSection = () => {
   const openGoogleMaps = () => {
@@ -156,19 +157,40 @@ const ContactSection = () => {
       </div>
 
       {/* Premium Footer */}
-      <footer className="relative py-6 sm:py-8 mt-12 sm:mt-16 border-t border-gray-300/30 text-center">
+      <footer className="relative py-6 sm:py-8 mt-12 sm:mt-16 border-t border-gray-300/30">
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-stone-100/30 to-transparent" />
         <div className="relative">
-          <a 
-            href="https://www.instagram.com/artc.ode39?igsh=OG0xOGltcmM0djV6" 
-            target="_blank" 
-            rel="noopener noreferrer"
-            className="inline-flex items-center text-gray-600 text-xs sm:text-sm font-medium hover:text-gray-800 transition-all duration-300 bg-white/60 backdrop-blur-xl border border-gray-300/40 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-white/80 transform hover:scale-105"
-          >
-            <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-bold">ArtCode</span>
-            <span className="mx-1 sm:mx-2">-</span>
-            <span>2025</span>
-          </a>
+          {/* Policy Links Section */}
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4 sm:gap-6 mb-6">
+            <Link
+              to="/privacy-policy"
+              className="inline-flex items-center text-gray-600 text-xs sm:text-sm font-medium hover:text-gray-800 transition-all duration-300 bg-white/60 backdrop-blur-xl border border-gray-300/40 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-white/80 transform hover:scale-105"
+            >
+              <Shield className="w-4 h-4 ml-2 text-blue-600" />
+              <span>سياسة الاستخدام والخصوصية</span>
+            </Link>
+            <Link
+              to="/return-policy"
+              className="inline-flex items-center text-gray-600 text-xs sm:text-sm font-medium hover:text-gray-800 transition-all duration-300 bg-white/60 backdrop-blur-xl border border-gray-300/40 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-white/80 transform hover:scale-105"
+            >
+              <RotateCcw className="w-4 h-4 ml-2 text-green-600" />
+              <span>سياسة الاسترجاع والاستبدال</span>
+            </Link>
+          </div>
+          
+          {/* Copyright Section */}
+          <div className="text-center">
+            <a 
+              href="https://www.instagram.com/artc.ode39?igsh=OG0xOGltcmM0djV6" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="inline-flex items-center text-gray-600 text-xs sm:text-sm font-medium hover:text-gray-800 transition-all duration-300 bg-white/60 backdrop-blur-xl border border-gray-300/40 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-white/80 transform hover:scale-105"
+            >
+              <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-bold">ArtCode</span>
+              <span className="mx-1 sm:mx-2">-</span>
+              <span>2025</span>
+            </a>
+          </div>
         </div>
       </footer>
     </div>

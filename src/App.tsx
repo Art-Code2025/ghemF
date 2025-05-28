@@ -334,6 +334,8 @@ const App: React.FC = () => {
                 <Link to="/products" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">المنتجات</Link>
                 <Link to="/about" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">من نحن</Link>
                 <Link to="/contact" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">اتصل بنا</Link>
+                <Link to="/privacy-policy" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">سياسة الخصوصية</Link>
+                <Link to="/return-policy" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">سياسة الاسترجاع</Link>
               </div>
             </div>
             

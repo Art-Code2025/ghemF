@@ -8,6 +8,7 @@ import App from './App';
 import ProductDetail from './components/ProductDetail';
 import ProductsByCategory from './components/ProductsByCategory';
 import ShoppingCart from './components/ShoppingCart';
+import CartDiagnostics from './components/CartDiagnostics';
 import Wishlist from './components/Wishlist';
 import Login from './Login';
 import Dashboard from './Dashboard';
@@ -24,6 +25,8 @@ import Contact from './pages/Contact';
 import Media from './pages/Media';
 import Partners from './pages/Partners';
 import CategoryPage from './components/CategoryPage';
+import PrivacyPolicy from './components/PrivacyPolicy';
+import ReturnPolicy from './components/ReturnPolicy';
 import './index.css';
 
 // تعريف Props لـ ProtectedRoute
@@ -66,6 +69,7 @@ const LayoutWrapper: React.FC = () => {
           <Route path="/category/:slug" element={<CategoryPage />} />
           <Route path="/category/:id" element={<CategoryPage />} />
           <Route path="/cart" element={<ShoppingCart />} />
+          <Route path="/cart/diagnostics" element={<CartDiagnostics />} />
           <Route path="/checkout" element={<Checkout />} />
           <Route path="/thank-you" element={<ThankYou />} />
           <Route path="/wishlist" element={<Wishlist />} />
@@ -94,6 +98,10 @@ const LayoutWrapper: React.FC = () => {
           <Route path="/contact" element={<Contact />} />
           <Route path="/media" element={<Media />} />
           <Route path="/partners" element={<Partners />} />
+          
+          {/* Policy Routes */}
+          <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+          <Route path="/return-policy" element={<ReturnPolicy />} />
         </Routes>
       </div>
     </>
