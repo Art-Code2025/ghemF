@@ -6,6 +6,7 @@ import { ArrowRight, Package, Filter, Grid, List } from 'lucide-react';
 import ProductCard from './ProductCard';
 import WhatsAppButton from './WhatsAppButton';
 import { extractIdFromSlug, isValidSlug } from '../utils/slugify';
+import { apiCall, API_ENDPOINTS } from '../config/api';
 
 
 interface Product {
@@ -78,14 +79,11 @@ const CategoryPage: React.FC = () => {
 
   const fetchCategoryAndProducts = async (catId: number) => {
     try {
-      // Use normal fetch
-      const [categoryResponse, productsResponse] = await Promise.all([
-        fetch(`http://localhost:3001/api/categories/${catId}`),
-        fetch('http://localhost:3001/api/products')
+      // Use new API system
+      const [categoryData, allProducts] = await Promise.all([
+        apiCall(API_ENDPOINTS.CATEGORY_BY_ID(catId)),
+        apiCall(API_ENDPOINTS.PRODUCTS)
       ]);
-      
-      const categoryData = await categoryResponse.json();
-      const allProducts = await productsResponse.json();
       
       setCategory(categoryData);
       const categoryProducts = allProducts.filter((product: Product) => product.categoryId === catId);
@@ -96,6 +94,7 @@ const CategoryPage: React.FC = () => {
       localStorage.setItem(`cachedCategoryProducts_${catId}`, JSON.stringify(categoryProducts));
     } catch (error) {
       console.error('Error fetching data:', error);
+      toast.error('فشل في تحميل بيانات التصنيف');
     }
   };
 

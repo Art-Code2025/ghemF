@@ -1440,7 +1440,7 @@ const Dashboard: React.FC = () => {
                       <p className="text-gray-900 font-bold text-xl mb-2">لا توجد تصنيفات متاحة</p>
                       <p className="text-gray-500 text-sm mb-6">ابدأ بإضافة تصنيفات لتنظيم منتجاتك</p>
                       <Link
-                        to="/dashboard/category/add"
+                        to="/admin/category/add"
                         className="inline-flex items-center px-6 py-3 border border-transparent text-sm font-medium rounded-xl shadow-lg text-white bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 transition-all duration-200 transform hover:scale-105"
                       >
                         إضافة أول تصنيف
@@ -1476,7 +1476,7 @@ const Dashboard: React.FC = () => {
                           <p className="text-gray-600 text-sm mb-6 line-clamp-2">{category.description}</p>
                           <div className="flex gap-3">
                             <Link
-                              to={`/dashboard/category/edit/${category.id}`}
+                              to={`/admin/category/edit/${category.id}`}
                               className="flex-1 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-xl text-sm font-medium hover:from-blue-600 hover:to-blue-700 transition-all duration-200 text-center transform hover:scale-105"
                             >
                               تعديل
@@ -1898,7 +1898,7 @@ const Dashboard: React.FC = () => {
                 </div>
                 <div className="flex items-center space-x-3">
                   <Link
-                    to="/dashboard/coupon/add"
+                    to="/admin/coupon/add"
                     className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-pink-600 hover:bg-pink-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-pink-500"
                   >
                     <svg className="w-4 h-4 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -1938,7 +1938,7 @@ const Dashboard: React.FC = () => {
                       <p className="text-gray-900 font-medium">لا توجد كوبونات متاحة</p>
                       <p className="text-gray-500 text-sm mb-4">ابدأ بإضافة كوبونات خصم جديدة</p>
                       <Link
-                        to="/dashboard/coupon/add"
+                        to="/admin/coupon/add"
                         className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-lg shadow-sm text-white bg-pink-600 hover:bg-pink-700"
                       >
                         إضافة أول كوبون
@@ -1996,7 +1996,7 @@ const Dashboard: React.FC = () => {
                         
                         <div className="flex gap-2">
                           <Link
-                            to={`/dashboard/coupon/edit/${coupon.id}`}
+                            to={`/admin/coupon/edit/${coupon.id}`}
                             className="flex-1 bg-blue-100 text-blue-700 px-3 py-2 rounded-lg text-sm font-medium hover:bg-blue-200 transition-colors text-center"
                           >
                             تعديل
@@ -2233,14 +2233,14 @@ const Dashboard: React.FC = () => {
                     </h3>
                     <div className="space-y-3">
                       <Link
-                        to="/dashboard/product/add"
+                        to="/admin/product/add"
                         className="w-full flex items-center justify-center bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-200 transform hover:scale-105 font-medium"
                       >
                         <span className="mr-2">➕</span>
                         إضافة منتج جديد
                       </Link>
                       <Link
-                        to="/dashboard/category/add"
+                        to="/admin/category/add"
                         className="w-full flex items-center justify-center bg-gradient-to-r from-green-500 to-green-600 text-white py-3 rounded-xl hover:from-green-600 hover:to-green-700 transition-all duration-200 transform hover:scale-105 font-medium"
                       >
                         <span className="mr-2">📂</span>

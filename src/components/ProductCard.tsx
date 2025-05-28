@@ -379,7 +379,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
             
             {/* View Details Button */}
             <Link
-              to={`/product/${product.id}`}
+              to={`/product/${createProductSlug(product.id, product.name)}`}
               className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm shadow-lg transition-all duration-200 flex items-center justify-center gap-1 sm:gap-2"
             >
               <Eye className="w-3 h-3 sm:w-4 sm:h-4" />

@@ -64,7 +64,7 @@ const CouponForm: React.FC = () => {
     } catch (error) {
       console.error('Error fetching coupon:', error);
       toast.error('فشل في جلب بيانات الكوبون');
-      navigate('/dashboard?tab=coupons');
+      navigate('/admin?tab=coupons');
     } finally {
       setLoading(false);
     }
@@ -129,7 +129,7 @@ const CouponForm: React.FC = () => {
       }
       
       toast.success(isEdit ? 'تم تحديث الكوبون بنجاح!' : 'تم إضافة الكوبون بنجاح!');
-      navigate('/dashboard?tab=coupons');
+      navigate('/admin?tab=coupons');
     } catch (error) {
       console.error('Error saving coupon:', error);
       toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء الحفظ');
@@ -186,7 +186,7 @@ const CouponForm: React.FC = () => {
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between h-auto sm:h-16 py-3 sm:py-0 gap-3 sm:gap-0">
             <div className="flex items-center space-x-3 sm:space-x-4">
               <button
-                onClick={() => navigate('/dashboard?tab=coupons')}
+                onClick={() => navigate('/admin?tab=coupons')}
                 className="flex items-center text-gray-600 hover:text-pink-600 transition-colors text-sm sm:text-base"
               >
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -490,7 +490,7 @@ const CouponForm: React.FC = () => {
                   
                   <button
                     type="button"
-                    onClick={() => navigate('/dashboard?tab=coupons')}
+                    onClick={() => navigate('/admin?tab=coupons')}
                     disabled={saving}
                     className="w-full px-6 py-3 bg-gray-200 text-gray-700 rounded-xl hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 font-medium"
                   >

@@ -42,7 +42,7 @@ const CategoryEdit: React.FC = () => {
     } catch (error) {
       console.error('Error:', error);
       toast.error('فشل في جلب بيانات التصنيف');
-      navigate('/dashboard?tab=categories');
+      navigate('/admin?tab=categories');
     } finally {
       setFetchLoading(false);
     }
@@ -72,7 +72,7 @@ const CategoryEdit: React.FC = () => {
       toast.success('تم تحديث التصنيف بنجاح!');
       // Trigger a refresh in the main app
       window.dispatchEvent(new Event('categoriesUpdated'));
-      navigate('/dashboard?tab=categories');
+      navigate('/admin?tab=categories');
     } catch (error) {
       console.error('Error:', error);
       toast.error('فشل في تحديث التصنيف');
@@ -117,7 +117,7 @@ const CategoryEdit: React.FC = () => {
       <div className="min-h-screen bg-gray-100 flex items-center justify-center px-4" dir="rtl">
         <div className="text-center">
           <h2 className="text-lg sm:text-xl font-bold text-gray-900 mb-2">التصنيف غير موجود</h2>
-          <Link to="/dashboard?tab=categories" className="text-orange-600 hover:text-orange-700 text-sm sm:text-base">
+          <Link to="/admin?tab=categories" className="text-orange-600 hover:text-orange-700 text-sm sm:text-base">
             العودة إلى التصنيفات
           </Link>
         </div>
@@ -132,7 +132,7 @@ const CategoryEdit: React.FC = () => {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between h-auto sm:h-16 py-3 sm:py-0 gap-3 sm:gap-0">
             <div className="flex flex-col sm:flex-row items-start sm:items-center space-y-2 sm:space-y-0 sm:space-x-4 w-full sm:w-auto">
-              <Link to="/dashboard?tab=categories" className="flex items-center text-gray-600 hover:text-orange-600 transition-colors text-sm sm:text-base">
+              <Link to="/admin?tab=categories" className="flex items-center text-gray-600 hover:text-orange-600 transition-colors text-sm sm:text-base">
                 <svg className="w-4 h-4 sm:w-5 sm:h-5 ml-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                 </svg>
@@ -230,7 +230,7 @@ const CategoryEdit: React.FC = () => {
                   </button>
                   
                   <Link
-                    to="/dashboard?tab=categories"
+                    to="/admin?tab=categories"
                     className="flex-1 px-6 py-3 text-gray-700 bg-gray-200 rounded-xl hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-all duration-200 font-medium text-center"
                   >
                     إلغاء

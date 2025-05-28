@@ -45,7 +45,7 @@ const CategoryForm: React.FC = () => {
           console.error('Error fetching category:', error);
           toast.error(error.message);
           setLoading(false);
-          navigate('/dashboard');
+          navigate('/admin');
         });
     }
   }, [id, isEditing, navigate]);
@@ -89,7 +89,7 @@ const CategoryForm: React.FC = () => {
       }
 
       toast.success(`تم ${isEditing ? 'تحديث' : 'إضافة'} التصنيف بنجاح!`);
-      navigate('/dashboard?tab=categories');
+      navigate('/admin?tab=categories');
     } catch (error) {
       console.error('Error saving category:', error);
       toast.error((error as Error).message || 'حدث خطأ أثناء حفظ التصنيف');
@@ -161,7 +161,7 @@ const CategoryForm: React.FC = () => {
         <div className="flex flex-col sm:flex-row justify-end gap-3 sm:gap-4 mt-4 sm:mt-6">
           <button
             type="button"
-            onClick={() => navigate('/dashboard?tab=categories')}
+            onClick={() => navigate('/admin?tab=categories')}
             className="px-4 sm:px-6 py-2 sm:py-2.5 bg-gray-300 text-gray-800 rounded text-sm sm:text-base order-2 sm:order-1"
             disabled={submitting}
           >

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { extractIdFromSlug, isValidSlug, createProductSlug } from '../utils/slugify';
 import { 
@@ -17,11 +17,13 @@ import {
   ChevronRight,
   Upload,
   X,
-  Check
+  Check,
+  Eye,
+  Package
 } from 'lucide-react';
 import WhatsAppButton from './WhatsAppButton';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
-import { addToCartUnified, addToWishlistUnified } from '../utils/cartUtils';
+import { addToCartUnified, addToWishlistUnified, removeFromWishlistUnified } from '../utils/cartUtils';
 
 interface Product {
   id: number;
@@ -96,6 +98,7 @@ const ProductDetail: React.FC = () => {
   });
   const [loading, setLoading] = useState(false);
   const [defaultOptions, setDefaultOptions] = useState<any[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const getSizeGuideImage = (productType: string): string => {
     const sizeGuideImages = {
@@ -153,10 +156,12 @@ const ProductDetail: React.FC = () => {
         setSelectedOptions(initialOptions);
       }
       
-      if (data.categoryId) fetchCategory(data.categoryId);
+      if (data.categoryId) {
+        fetchCategory(data.categoryId);
+      }
     } catch (error) {
       console.error('Error fetching product:', error);
-      toast.error('فشل في تحميل المنتج');
+      setError('المنتج غير موجود');
     } finally {
       setLoading(false);
     }
@@ -175,8 +180,7 @@ const ProductDetail: React.FC = () => {
 
   const fetchCategory = async (categoryId: number) => {
     try {
-      const response = await fetch(`http://localhost:3001/api/categories/${categoryId}`);
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.CATEGORY_BY_ID(categoryId));
       setCategory(data);
     } catch (error) {
       console.error('Error fetching category:', error);
