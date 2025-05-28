@@ -12,13 +12,12 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   const [isPlaying, setIsPlaying] = useState(true);
   const [progress, setProgress] = useState(0);
   const [buttonLoaded, setButtonLoaded] = useState(false);
-  const [imageDisplayMode, setImageDisplayMode] = useState<'cover' | 'contain'>('contain'); // Default to contain for mobile-first
+  const [imageDisplayMode, setImageDisplayMode] = useState<'cover' | 'contain'>('cover'); // Always cover for full display
 
   // Auto-detect screen size and set appropriate display mode
   useEffect(() => {
     const handleResize = () => {
-      const isMobile = window.innerWidth < 768; // md breakpoint
-      // Always use cover for professional look
+      // Always use cover for professional full-screen look without any gaps
       setImageDisplayMode('cover');
     };
 
@@ -115,16 +114,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-gradient-to-br from-rose-50 via-pink-50 to-white"
+      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-black"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Images with Smooth Transitions */}
+      {/* Images with Smooth Transitions - Full Coverage */}
       {images.map((image, index) => (
         <div
           key={index}
-          className={`absolute w-full h-full transition-all duration-[2000ms] ease-out ${
+          className={`absolute w-full h-full transition-all duration-[2000ms] ease-out overflow-hidden ${
             index === activeIndex 
               ? 'opacity-100 scale-100 z-10' 
               : index === (activeIndex - 1 + images.length) % images.length
@@ -137,7 +136,13 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
             alt={`مجموعة مميزة ${index + 1}`}
             className={`slider-image w-full h-full transition-all duration-[4000ms] ease-out ${
               index === activeIndex ? 'scale-102 filter brightness-105 saturate-110' : 'scale-100'
-            } object-contain bg-gradient-to-br from-gray-50 to-white`}
+            } object-cover`}
+            style={{
+              objectFit: 'cover',
+              objectPosition: 'center center',
+              width: '100%',
+              height: '100%'
+            }}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
           
@@ -207,8 +212,6 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       </div>
 
-
-
       {/* Subtle Corner Accents - Mobile optimized */}
       <div className="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
         <div className="absolute top-0 left-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
@@ -226,8 +229,6 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         <div className="absolute bottom-0 right-0 w-1.5 sm:w-2 lg:w-3 h-px bg-white/40" />
         <div className="absolute bottom-0 right-0 w-px h-1.5 sm:h-2 lg:h-3 bg-white/40" />
       </div>
-
-
     </div>
   );
 }
