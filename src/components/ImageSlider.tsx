@@ -88,7 +88,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
       ))}
 
       {/* زر "استكشف منتجاتنا" مصغر ومنزل قليلاً */}
-      <div className="absolute inset-0 flex justify-center items-center pt-8 sm:pt-12 z-[30] pointer-events-none">
+      <div className="absolute inset-0 flex justify-center items-center pt-8 sm:pt-12 z-[80] pointer-events-none">
         <Link
           to="/products"
           className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 
@@ -97,10 +97,18 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
                      ${buttonLoaded ? 'scale-100 opacity-95' : 'scale-75 opacity-0'}
                      hover:scale-105 hover:shadow-xl hover:from-pink-600 hover:to-rose-600
                      focus:outline-none focus:ring-4 focus:ring-pink-300
-                     text-xs sm:text-sm font-medium z-[30] relative`}
+                     text-xs sm:text-sm font-medium z-[80] relative`}
           style={{ 
             pointerEvents: 'auto',
-            touchAction: 'manipulation'
+            touchAction: 'manipulation',
+            position: 'relative',
+            zIndex: 80
+          }}
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            console.log('🛍️ استكشف منتجاتنا clicked!');
+            window.location.href = '/products';
           }}
         >
           <div className="flex items-center gap-1">

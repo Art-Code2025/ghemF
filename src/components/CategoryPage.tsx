@@ -207,11 +207,11 @@ const CategoryPage: React.FC = () => {
         {/* Products Grid/List */}
         {sortedProducts.length > 0 ? (
           <div className={viewMode === 'grid' 
-            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 justify-items-center place-items-center w-full'
-            : 'space-y-4 sm:space-y-6'
+            ? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 sm:gap-6 lg:gap-8 justify-items-center place-items-center w-full max-w-7xl mx-auto'
+            : 'space-y-4 sm:space-y-6 max-w-7xl mx-auto'
           }>
             {sortedProducts.map((product) => (
-              <div key={product.id} className="w-full max-w-sm mx-auto">
+              <div key={product.id} className="w-full max-w-sm mx-auto flex justify-center">
                 <ProductCard
                   product={product}
                   viewMode={viewMode}

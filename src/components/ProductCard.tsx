@@ -254,7 +254,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
 
   // ---- GRID VIEW - PROFESSIONAL AND MODERN ----
   return (
-    <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-80 h-auto group relative">
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-80 h-auto group relative mx-auto">
       {/* Gradient Border Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
       

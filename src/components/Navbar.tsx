@@ -429,7 +429,7 @@ function Navbar() {
         </div>
 
         {/* Premium Mobile Menu - Vertical Sidebar */}
-        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-[55] transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-[70] transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
           <div className="h-full bg-[#f8f6ea]/95 backdrop-blur-2xl shadow-2xl border-l border-gray-300/30 p-4 sm:p-6 overflow-y-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-[#f8f6ea]/30 via-[#f8f6ea]/40 to-[#f8f6ea]/30" />
             
@@ -523,7 +523,7 @@ function Navbar() {
         {/* Overlay for mobile menu */}
         {isMenuOpen && (
           <div 
-            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[45]"
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[65]"
             onClick={() => setIsMenuOpen(false)}
           />
         )}
