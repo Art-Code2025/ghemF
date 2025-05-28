@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ChevronLeft, ArrowRight, Package, Filter, Grid, List } from 'lucide-react';
+import { ChevronLeft, ArrowRight, Package, Filter, Grid, List, RefreshCw } from 'lucide-react';
 import ProductCard from './ProductCard';
 import WhatsAppButton from './WhatsAppButton';
 import { extractIdFromSlug, isValidSlug, createProductSlug } from '../utils/slugify';
@@ -30,68 +30,140 @@ interface Category {
   image: string;
 }
 
+// Cache للبيانات
+const dataCache = new Map();
+const CACHE_DURATION = 5 * 60 * 1000; // 5 دقائق
+
 const ProductsByCategory: React.FC = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
   
   // استخراج categoryId من slug أو id
-  const categoryId = slug ? extractIdFromSlug(slug).toString() : id;
+  const categoryId = useMemo(() => 
+    slug ? extractIdFromSlug(slug).toString() : id, 
+    [slug, id]
+  );
   
+  // تحميل البيانات من Cache أولاً
   const [products, setProducts] = useState<Product[]>(() => {
-    const saved = localStorage.getItem(`cachedCategoryProducts_${categoryId}`);
-    try {
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
+    const cacheKey = `products_${categoryId}`;
+    const cached = dataCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      return cached.data;
     }
+    return [];
   });
+  
   const [category, setCategory] = useState<Category | null>(() => {
-    const saved = localStorage.getItem(`cachedCategory_${categoryId}`);
-    try {
-      return saved ? JSON.parse(saved) : null;
-    } catch {
-      return null;
+    const cacheKey = `category_${categoryId}`;
+    const cached = dataCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < CACHE_DURATION) {
+      return cached.data;
     }
+    return null;
   });
-  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
-  const [error, setError] = useState<string | null>(null);
+  
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (categoryId) {
-      fetchCategory();
-      fetchProducts();
-    } else {
+  // تحميل البيانات بشكل متوازي
+  const fetchData = useCallback(async () => {
+    if (!categoryId) {
       setError('معرف التصنيف غير صحيح');
+      setLoading(false);
+      return;
+    }
+
+    try {
+      setLoading(true);
+      
+      // تحقق من Cache أولاً
+      const categoryCache = dataCache.get(`category_${categoryId}`);
+      const productsCache = dataCache.get(`products_${categoryId}`);
+      
+      const now = Date.now();
+      const categoryFromCache = categoryCache && (now - categoryCache.timestamp < CACHE_DURATION) ? categoryCache.data : null;
+      const productsFromCache = productsCache && (now - productsCache.timestamp < CACHE_DURATION) ? productsCache.data : null;
+
+      // إذا البيانات موجودة في Cache، استخدمها فوراً
+      if (categoryFromCache && productsFromCache) {
+        setCategory(categoryFromCache);
+        setProducts(productsFromCache);
+        setLoading(false);
+        return;
+      }
+
+      // تحميل البيانات بشكل متوازي
+      const promises = [];
+      
+      if (!categoryFromCache) {
+        promises.push(
+          apiCall(API_ENDPOINTS.CATEGORY_BY_ID(categoryId))
+            .then(data => {
+              setCategory(data);
+              dataCache.set(`category_${categoryId}`, { data, timestamp: now });
+              return data;
+            })
+            .catch(err => {
+              console.error('Error fetching category:', err);
+              return null;
+            })
+        );
+      } else {
+        setCategory(categoryFromCache);
+      }
+
+      if (!productsFromCache) {
+        promises.push(
+          apiCall(API_ENDPOINTS.PRODUCTS_BY_CATEGORY(categoryId))
+            .then(data => {
+              setProducts(data);
+              dataCache.set(`products_${categoryId}`, { data, timestamp: now });
+              return data;
+            })
+            .catch(err => {
+              console.error('Error fetching products:', err);
+              setError('فشل في تحميل المنتجات');
+              return [];
+            })
+        );
+      } else {
+        setProducts(productsFromCache);
+      }
+
+      // انتظار جميع الطلبات
+      if (promises.length > 0) {
+        await Promise.allSettled(promises);
+      }
+      
+      setError(null);
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('فشل في تحميل البيانات');
+    } finally {
       setLoading(false);
     }
   }, [categoryId]);
 
-  const fetchCategory = async () => {
-    try {
-      const data = await apiCall(API_ENDPOINTS.CATEGORY_BY_ID(categoryId!));
-      setCategory(data);
-    } catch (error) {
-      console.error('Error fetching category:', error);
-      setError('فشل في تحميل بيانات التصنيف');
-    }
-  };
+  useEffect(() => {
+    fetchData();
+  }, [fetchData]);
 
-  const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const data = await apiCall(API_ENDPOINTS.PRODUCTS_BY_CATEGORY(categoryId!));
-      setProducts(data);
-    } catch (error) {
-      console.error('Error fetching products:', error);
-      setError('فشل في تحميل المنتجات');
-    } finally {
-      setLoading(false);
-    }
-  };
+  // تحسين عرض Loading
+  if (loading) {
+    return (
+      <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">
+        <div className="text-center py-8">
+          <RefreshCw className="h-8 w-8 animate-spin mx-auto text-green-600 mb-3" />
+          <h3 className="text-lg font-semibold text-gray-900 mb-1">جاري التحميل...</h3>
+          <p className="text-sm text-gray-600">يتم تحميل منتجات التصنيف</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">
-
+      {/* عرض معلومات الفئة */}
       {category && (
         <div className="mb-6 sm:mb-8 text-center sm:text-right">
           <h1 className="text-xl sm:text-2xl lg:text-3xl font-bold mb-2 sm:mb-3">{category.name}</h1>
@@ -101,14 +173,17 @@ const ProductsByCategory: React.FC = () => {
         </div>
       )}
       
+      {/* عرض المنتجات أو رسالة فارغة */}
       {products.length === 0 ? (
         <div className="text-center py-12 sm:py-16 px-4">
           <div className="max-w-md mx-auto">
             <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-6">
-              <span className="text-2xl sm:text-3xl">📦</span>
+              <Package className="h-8 w-8 text-gray-400" />
             </div>
             <h3 className="text-lg sm:text-xl font-bold text-gray-900 mb-3">لا توجد منتجات</h3>
-            <p className="text-sm sm:text-base text-gray-600 mb-6">لا توجد منتجات في هذا التصنيف حالياً.</p>
+            <p className="text-sm sm:text-base text-gray-600 mb-6">
+              {category ? `لا توجد منتجات في تصنيف "${category.name}" حالياً.` : 'لا توجد منتجات في هذا التصنيف حالياً.'}
+            </p>
             <Link 
               to="/" 
               className="inline-block px-4 sm:px-6 py-2 sm:py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm sm:text-base font-medium"

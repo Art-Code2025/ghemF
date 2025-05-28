@@ -205,4 +205,147 @@ if (typeof window !== 'undefined') {
       console.log('🚀 Performance Metrics:', metrics);
     }, 10000); // Log every 10 seconds
   }
-} 
+}
+
+// تحسينات السرعة والأداء
+export class SpeedOptimizer {
+  private static cache = new Map<string, { data: any; timestamp: number; ttl: number }>();
+  private static readonly DEFAULT_TTL = 5 * 60 * 1000; // 5 دقائق
+
+  // تخزين مؤقت ذكي
+  static setCache(key: string, data: any, ttl: number = this.DEFAULT_TTL): void {
+    this.cache.set(key, {
+      data,
+      timestamp: Date.now(),
+      ttl
+    });
+  }
+
+  // استرجاع من التخزين المؤقت
+  static getCache<T>(key: string): T | null {
+    const cached = this.cache.get(key);
+    if (!cached) return null;
+
+    const now = Date.now();
+    if (now - cached.timestamp > cached.ttl) {
+      this.cache.delete(key);
+      return null;
+    }
+
+    return cached.data as T;
+  }
+
+  // تنظيف التخزين المؤقت المنتهي الصلاحية
+  static cleanExpiredCache(): void {
+    const now = Date.now();
+    for (const [key, value] of this.cache.entries()) {
+      if (now - value.timestamp > value.ttl) {
+        this.cache.delete(key);
+      }
+    }
+  }
+
+  // مسح التخزين المؤقت
+  static clearCache(): void {
+    this.cache.clear();
+  }
+
+  // تحسين الصور
+  static optimizeImageUrl(url: string, width?: number, height?: number): string {
+    if (!url) return '';
+    
+    // إضافة معاملات التحسين للصور
+    const separator = url.includes('?') ? '&' : '?';
+    let optimizedUrl = url;
+    
+    if (width) {
+      optimizedUrl += `${separator}w=${width}`;
+    }
+    if (height) {
+      optimizedUrl += `${optimizedUrl.includes('?') ? '&' : '?'}h=${height}`;
+    }
+    
+    return optimizedUrl;
+  }
+
+  // تحميل مسبق للبيانات
+  static async preloadData(endpoints: string[]): Promise<void> {
+    const promises = endpoints.map(async (endpoint) => {
+      try {
+        const response = await fetch(endpoint);
+        if (response.ok) {
+          const data = await response.json();
+          this.setCache(endpoint, data);
+        }
+      } catch (error) {
+        console.warn(`Failed to preload ${endpoint}:`, error);
+      }
+    });
+
+    await Promise.allSettled(promises);
+  }
+
+  // تحسين الطلبات المتوازية
+  static async parallelRequests<T>(requests: Promise<T>[]): Promise<T[]> {
+    const results = await Promise.allSettled(requests);
+    return results
+      .filter((result) => result.status === 'fulfilled')
+      .map(result => (result as PromiseFulfilledResult<T>).value);
+  }
+
+  // تأخير ذكي للطلبات
+  static debounce<T extends (...args: any[]) => any>(
+    func: T,
+    delay: number
+  ): (...args: Parameters<T>) => void {
+    let timeoutId: number;
+    return (...args: Parameters<T>) => {
+      clearTimeout(timeoutId);
+      timeoutId = window.setTimeout(() => func(...args), delay);
+    };
+  }
+
+  // تحسين الذاكرة
+  static memoize<T extends (...args: any[]) => any>(fn: T): T {
+    const cache = new Map();
+    return ((...args: any[]) => {
+      const key = JSON.stringify(args);
+      if (cache.has(key)) {
+        return cache.get(key);
+      }
+      const result = fn(...args);
+      cache.set(key, result);
+      return result;
+    }) as T;
+  }
+
+  // تحسين التحميل التدريجي
+  static createIntersectionObserver(
+    callback: (entries: IntersectionObserverEntry[]) => void,
+    options?: IntersectionObserverInit
+  ): IntersectionObserver {
+    return new IntersectionObserver(callback, {
+      rootMargin: '50px',
+      threshold: 0.1,
+      ...options
+    });
+  }
+
+  // تحسين الأداء العام
+  static performanceOptimizations(): void {
+    // تنظيف التخزين المؤقت كل 10 دقائق
+    setInterval(() => {
+      this.cleanExpiredCache();
+    }, 10 * 60 * 1000);
+
+    // تحسين الذاكرة
+    if ('requestIdleCallback' in window) {
+      requestIdleCallback(() => {
+        this.cleanExpiredCache();
+      });
+    }
+  }
+}
+
+// تشغيل التحسينات عند تحميل الملف
+SpeedOptimizer.performanceOptimizations(); 
