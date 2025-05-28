@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { ChevronLeft, Play, Pause, RotateCcw, Maximize2, Minimize2 } from 'lucide-react';
+import { ChevronLeft, RotateCcw } from 'lucide-react';
 import '../styles/mobile-slider.css';
 
 interface ImageSliderProps {
@@ -9,43 +9,11 @@ interface ImageSliderProps {
 
 function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   const [activeIndex, setActiveIndex] = useState(currentIndex);
-  const [isPlaying, setIsPlaying] = useState(true);
-  const [progress, setProgress] = useState(0);
   const [buttonLoaded, setButtonLoaded] = useState(false);
-  const [imageAspectRatio, setImageAspectRatio] = useState<number>(16/9);
-
-  // حساب نسبة العرض للارتفاع للصورة الحالية
-  useEffect(() => {
-    if (images[activeIndex]) {
-      const img = new Image();
-      img.onload = () => {
-        const ratio = img.naturalWidth / img.naturalHeight;
-        setImageAspectRatio(ratio);
-      };
-      img.src = images[activeIndex];
-    }
-  }, [activeIndex, images]);
 
   useEffect(() => {
     setActiveIndex(currentIndex);
   }, [currentIndex]);
-
-  useEffect(() => {
-    // شيل الحركة التلقائية للصور
-    // let interval: number;
-    // if (isPlaying && images.length > 1) {
-    //   interval = setInterval(() => {
-    //     setProgress((prev) => {
-    //       if (prev >= 100) {
-    //         setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
-    //         return 0;
-    //       }
-    //       return prev + 1.5;
-    //     });
-    //   }, 120);
-    // }
-    // return () => clearInterval(interval);
-  }, [isPlaying, images.length]);
 
   useEffect(() => {
     setTimeout(() => setButtonLoaded(true), 200);
@@ -53,16 +21,10 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   const handleDotClick = (index: number) => {
     setActiveIndex(index);
-    setProgress(0);
-  };
-
-  const togglePlayPause = () => {
-    setIsPlaying(!isPlaying);
   };
 
   const resetSlider = () => {
     setActiveIndex(0);
-    setProgress(0);
   };
 
   // Touch/swipe functionality for mobile
@@ -87,29 +49,9 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
     if (isLeftSwipe) {
       setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
-      setProgress(0);
     }
     if (isRightSwipe) {
       setActiveIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-      setProgress(0);
-    }
-  };
-
-  // تحديد ارتفاع الحاوية بناءً على نسبة الصورة
-  const getContainerHeight = () => {
-    const baseWidth = typeof window !== 'undefined' ? window.innerWidth : 390;
-    const padding = 32; // للحواف
-    const availableWidth = baseWidth - padding;
-    
-    if (imageAspectRatio > 1.5) {
-      // صور عريضة
-      return Math.min(availableWidth / imageAspectRatio + 100, 500);
-    } else if (imageAspectRatio < 0.8) {
-      // صور طويلة
-      return Math.min(600, availableWidth * 1.2);
-    } else {
-      // صور مربعة أو قريبة من المربع
-      return Math.min(availableWidth + 50, 550);
     }
   };
 
@@ -124,21 +66,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl shadow-2xl"
-      style={{ 
-        height: `${getContainerHeight()}px`,
-        minHeight: '300px',
-        maxHeight: '600px'
-      }}
+      className="image-slider-container relative w-full h-[500px] overflow-hidden bg-gradient-to-br from-gray-50 via-white to-gray-100 rounded-2xl shadow-2xl"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
     >
-      {/* Images with Smart Display - محتوى الصور */}
+      {/* Images with Full Coverage */}
       {images.map((image, index) => (
         <div
           key={index}
-          className={`absolute inset-0 transition-all duration-[2000ms] ease-out flex items-center justify-center p-4 ${
+          className={`absolute inset-0 transition-all duration-1000 ease-out ${
             index === activeIndex 
               ? 'opacity-100 scale-100 z-10' 
               : index === (activeIndex - 1 + images.length) % images.length
@@ -146,77 +83,53 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
               : 'opacity-0 scale-98 z-0'
           }`}
         >
-          <div className="relative w-full h-full flex items-center justify-center">
-            <img
-              src={image}
-              alt={`مجموعة مميزة ${index + 1}`}
-              className={`max-w-full max-h-full object-contain transition-all duration-[4000ms] ease-out rounded-xl shadow-2xl ${
-                index === activeIndex ? 'scale-100 filter brightness-105 saturate-110' : 'scale-95'
-              }`}
-              style={{
-                objectFit: 'contain',
-                objectPosition: 'center center',
-              }}
-              loading={index === 0 ? 'eager' : 'lazy'}
-            />
-            
-            {/* إطار أنيق حول الصورة */}
-            <div className={`absolute inset-0 rounded-xl transition-all duration-2000 pointer-events-none ${
-              index === activeIndex 
-                ? 'bg-gradient-to-br from-white/5 via-transparent to-black/5 shadow-2xl'
-                : 'bg-gradient-to-br from-black/10 via-transparent to-black/20'
-            }`} />
-          </div>
+          <img
+            src={image}
+            alt={`مجموعة مميزة ${index + 1}`}
+            className={`w-full h-full object-cover transition-all duration-1000 ease-out ${
+              index === activeIndex ? 'scale-100 filter brightness-105 saturate-110' : 'scale-95'
+            }`}
+            loading={index === 0 ? 'eager' : 'lazy'}
+          />
           
-          {/* عناصر ديكورية متحركة */}
-          {index === activeIndex && (
-            <div className="absolute inset-0 overflow-hidden pointer-events-none">
-              {[...Array(6)].map((_, i) => (
-                <div
-                  key={i}
-                  className={`absolute w-2 h-2 bg-gradient-to-r from-pink-300/40 to-purple-300/40 rounded-full animate-pulse blur-sm`}
-                  style={{
-                    left: `${15 + (i * 15)}%`,
-                    top: `${20 + ((i % 3) * 25)}%`,
-                    animationDelay: `${i * 0.8}s`,
-                    animationDuration: '4s',
-                  }}
-                />
-              ))}
-            </div>
-          )}
+          {/* تدرج خفيف للحماية */}
+          <div className={`absolute inset-0 transition-all duration-1000 pointer-events-none ${
+            index === activeIndex 
+              ? 'bg-gradient-to-t from-black/20 via-transparent to-transparent'
+              : 'bg-gradient-to-t from-black/40 via-transparent to-black/10'
+          }`} />
         </div>
       ))}
 
-      {/* زر الدعوة للعمل - مبسط وصغير */}
-      <div className="absolute bottom-6 right-6 z-20">
+      {/* زر الدعوة للعمل - في المنتصف العلوي */}
+      <div className="absolute top-6 left-1/2 transform -translate-x-1/2 z-20">
         <a
           href="/products"
-          className={`group relative inline-flex items-center gap-1.5 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-3 py-2 rounded-lg border border-pink-400/60 hover:border-pink-300/80 transition-all duration-300 transform ${
-            buttonLoaded ? 'translate-x-0 opacity-100' : 'translate-x-[100px] opacity-0'
-          } hover:scale-105 hover:shadow-lg hover:shadow-pink-500/30 text-xs font-medium shadow-lg overflow-hidden`}
+          className={`group relative inline-flex items-center gap-2 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-6 py-3 rounded-full border border-pink-400/60 hover:border-pink-300/80 transition-all duration-300 transform ${
+            buttonLoaded ? 'translate-y-0 opacity-100' : 'translate-y-[-50px] opacity-0'
+          } hover:scale-105 hover:shadow-xl hover:shadow-pink-500/40 text-sm font-medium shadow-xl overflow-hidden`}
         >
           {/* تأثير اللمعان */}
-          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-300/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-300/40 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 ease-out" />
           
-          <span className="relative z-10 text-xs">✨</span>
-          <span className="relative z-10 tracking-wide">استكشف منتجاتنا</span>
-          <ChevronLeft className="w-3 h-3 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
+          <span className="relative z-10 text-sm">✨</span>
+          <span className="relative z-10 tracking-wide font-semibold">استكشف منتجاتنا</span>
+          <ChevronLeft className="w-4 h-4 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
         </a>
       </div>
 
       {/* نقاط التنقل */}
       {images.length > 1 && (
-        <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2 z-20">
-          <div className="flex space-x-2 bg-black/20 backdrop-blur-md rounded-full px-3 py-2">
+        <div className="absolute bottom-6 left-1/2 transform -translate-x-1/2 z-20">
+          <div className="flex space-x-3 bg-black/30 backdrop-blur-lg rounded-full px-4 py-2.5">
             {images.map((_, index) => (
               <button
                 key={index}
                 onClick={() => handleDotClick(index)}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                className={`w-2.5 h-2.5 rounded-full transition-all duration-300 ${
                   index === activeIndex
-                    ? 'bg-white scale-125'
-                    : 'bg-white/50 hover:bg-white/70'
+                    ? 'bg-white scale-125 shadow-lg'
+                    : 'bg-white/60 hover:bg-white/80 hover:scale-110'
                 }`}
               />
             ))}
@@ -225,23 +138,39 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
       )}
 
       {/* عناصر الزينة في الزوايا */}
-      <div className="absolute top-3 left-3 w-6 h-6 z-20">
-        <div className="absolute top-0 left-0 w-2 h-px bg-white/40" />
-        <div className="absolute top-0 left-0 w-px h-2 bg-white/40" />
+      <div className="absolute top-4 left-4 w-8 h-8 z-20">
+        <div className="absolute top-0 left-0 w-3 h-px bg-white/50" />
+        <div className="absolute top-0 left-0 w-px h-3 bg-white/50" />
       </div>
-      <div className="absolute top-3 right-3 w-6 h-6 z-20">
-        <div className="absolute top-0 right-0 w-2 h-px bg-white/40" />
-        <div className="absolute top-0 right-0 w-px h-2 bg-white/40" />
+      <div className="absolute top-4 right-4 w-8 h-8 z-20">
+        <div className="absolute top-0 right-0 w-3 h-px bg-white/50" />
+        <div className="absolute top-0 right-0 w-px h-3 bg-white/50" />
       </div>
       
-      {/* أزرار التحكم - مبسطة */}
-      <div className="absolute top-4 left-4 z-20 flex space-x-2">
+      {/* زر إعادة التعيين */}
+      <div className="absolute bottom-6 right-6 z-20">
         <button
           onClick={resetSlider}
-          className="bg-black/20 backdrop-blur-md text-white p-1.5 rounded-full hover:bg-black/30 transition-all duration-300"
+          className="bg-black/30 backdrop-blur-lg text-white p-2.5 rounded-full hover:bg-black/40 transition-all duration-300 hover:scale-110 shadow-lg"
         >
-          <RotateCcw className="w-3 h-3" />
+          <RotateCcw className="w-4 h-4" />
         </button>
+      </div>
+
+      {/* عناصر ديكورية متحركة */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-5">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className={`absolute w-1.5 h-1.5 bg-gradient-to-r from-white/20 to-pink-200/30 rounded-full animate-pulse blur-sm`}
+            style={{
+              left: `${10 + (i * 12)}%`,
+              top: `${15 + ((i % 4) * 20)}%`,
+              animationDelay: `${i * 1.2}s`,
+              animationDuration: '5s',
+            }}
+          />
+        ))}
       </div>
     </div>
   );
