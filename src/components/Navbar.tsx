@@ -23,14 +23,8 @@ interface Category {
 function Navbar() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [cartItemsCount, setCartItemsCount] = useState<number>(() => {
-    const saved = localStorage.getItem('lastCartCount');
-    return saved ? parseInt(saved) : 0;
-  });
-  const [wishlistItemsCount, setWishlistItemsCount] = useState<number>(() => {
-    const saved = localStorage.getItem('lastWishlistCount');
-    return saved ? parseInt(saved) : 0;
-  });
+  const [cartItemsCount, setCartItemsCount] = useState<number>(0);
+  const [wishlistItemsCount, setWishlistItemsCount] = useState<number>(0);
   const [categories, setCategories] = useState<Category[]>(() => {
     const saved = localStorage.getItem('cachedCategories');
     try {
@@ -62,19 +56,6 @@ function Navbar() {
         console.error('Error parsing saved user:', error);
         localStorage.removeItem('user');
       }
-    } else {
-      // For testing - auto login with demo user
-      console.log('🔧 No user found, setting demo user for testing');
-      const demoUser = {
-        id: 5,
-        name: 'ahmed maher',
-        email: 'ahmedmaher123384@gmail.com',
-        firstName: 'ahmed',
-        lastName: 'maher'
-      };
-      setUser(demoUser);
-      localStorage.setItem('user', JSON.stringify(demoUser));
-      console.log('✅ Demo user set:', demoUser);
     }
   }, []);
 
@@ -101,31 +82,49 @@ function Navbar() {
   const fetchCartCount = async () => {
     try {
       const userData = localStorage.getItem('user');
-      if (!userData) return;
+      if (!userData) {
+        setCartItemsCount(0);
+        return;
+      }
       
       const user = JSON.parse(userData);
-      if (!user?.id) return;
+      if (!user?.id) {
+        setCartItemsCount(0);
+        return;
+      }
       
       const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
       const totalItems = data.reduce((sum: number, item: any) => sum + item.quantity, 0);
       setCartItemsCount(totalItems);
+      // حفظ العدد محلياً للمستخدم الحالي فقط
+      localStorage.setItem(`cartCount_${user.id}`, totalItems.toString());
     } catch (error) {
       console.error('Error fetching cart count:', error);
+      setCartItemsCount(0);
     }
   };
 
   const fetchWishlistCount = async () => {
     try {
       const userData = localStorage.getItem('user');
-      if (!userData) return;
+      if (!userData) {
+        setWishlistItemsCount(0);
+        return;
+      }
       
       const user = JSON.parse(userData);
-      if (!user?.id) return;
+      if (!user?.id) {
+        setWishlistItemsCount(0);
+        return;
+      }
       
       const data = await apiCall(API_ENDPOINTS.USER_WISHLIST(user.id));
       setWishlistItemsCount(data.length);
+      // حفظ العدد محلياً للمستخدم الحالي فقط
+      localStorage.setItem(`wishlistCount_${user.id}`, data.length.toString());
     } catch (error) {
       console.error('Error fetching wishlist count:', error);
+      setWishlistItemsCount(0);
     }
   };
 
@@ -146,18 +145,35 @@ function Navbar() {
     setUser(userData);
     localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthModalOpen(false);
+    
+    // تحميل بيانات المستخدم الجديد فقط
     setTimeout(() => {
       fetchCartCount();
       fetchWishlistCount();
     }, 100);
+    
+    toast.success(`مرحباً بك ${userData.name || userData.firstName || 'عزيزي العميل'}`);
   };
 
   const handleLogout = () => {
+    // مسح جميع بيانات المستخدم
+    const currentUser = user;
     setUser(null);
     localStorage.removeItem('user');
+    
+    // مسح بيانات السلة والمفضلة للمستخدم الحالي
+    if (currentUser?.id) {
+      localStorage.removeItem(`cartCount_${currentUser.id}`);
+      localStorage.removeItem(`wishlistCount_${currentUser.id}`);
+    }
+    
     setIsUserMenuOpen(false);
     setCartItemsCount(0);
     setWishlistItemsCount(0);
+    
+    // إعادة توجيه للصفحة الرئيسية
+    navigate('/');
+    toast.success('تم تسجيل الخروج بنجاح');
   };
 
   const openAuthModal = () => {
@@ -167,11 +183,57 @@ function Navbar() {
 
   return (
     <>
-      <nav dir="rtl" className={`fixed top-0 right-0 w-full z-50 transition-all duration-700 ease-out ${
-        scrolled 
-          ? 'bg-[#f8f6ea]/95 backdrop-blur-2xl shadow-2xl shadow-gray-300/20 border-b border-gray-300/30' 
-          : 'bg-[#f8f6ea]/80 backdrop-blur-xl shadow-xl'
-        }`}>
+      <nav className="sticky top-0 z-50 bg-gradient-to-r from-[#f8f6ea]/95 via-[#f8f6ea]/98 to-[#f8f6ea]/95 backdrop-blur-2xl border-b border-gray-300/30 shadow-xl" dir="rtl">
+        <style>
+          {`
+            /* Mobile Touch Optimization */
+            @media (max-width: 1024px) {
+              .mobile-touch-target {
+                min-height: 44px;
+                min-width: 44px;
+                touch-action: manipulation;
+                -webkit-touch-callout: none;
+                -webkit-user-select: none;
+                user-select: none;
+              }
+              
+              .mobile-logo-area {
+                position: absolute;
+                left: 50%;
+                top: 50%;
+                transform: translate(-50%, -50%);
+                z-index: 50;
+                pointer-events: auto;
+                touch-action: manipulation;
+                padding: 8px;
+                border-radius: 8px;
+              }
+              
+              .mobile-icons-area {
+                position: relative;
+                z-index: 60;
+                pointer-events: auto;
+              }
+              
+              .mobile-menu-button {
+                position: relative;
+                z-index: 60;
+                pointer-events: auto;
+                touch-action: manipulation;
+              }
+            }
+            
+            /* Prevent text selection on touch */
+            .no-select {
+              -webkit-touch-callout: none;
+              -webkit-user-select: none;
+              -khtml-user-select: none;
+              -moz-user-select: none;
+              -ms-user-select: none;
+              user-select: none;
+            }
+          `}
+        </style>
         
         {/* Premium Glass Morphism Background */}
         <div className="absolute inset-0 bg-gradient-to-r from-[#f8f6ea]/20 via-[#f8f6ea]/30 to-[#f8f6ea]/20 backdrop-blur-3xl" />
@@ -180,16 +242,16 @@ function Navbar() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400/40 to-transparent" />
         
         <div className="relative flex items-center justify-between h-16 sm:h-20 lg:h-24 px-4 sm:px-6 lg:px-12">
-          {/* Menu Button for Mobile */}
+          {/* Menu Button for Mobile - أعلى z-index */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="text-gray-800 hover:text-gray-600 p-2 sm:p-3 rounded-xl lg:hidden transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 shadow-lg hover:shadow-xl z-50"
+            className="mobile-menu-button mobile-touch-target text-gray-800 hover:text-gray-600 p-2 sm:p-3 rounded-xl lg:hidden transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 shadow-lg hover:shadow-xl z-[60] relative no-select"
           >
             {isMenuOpen ? <X size={24} className="sm:w-7 sm:h-7" /> : <Menu size={24} className="sm:w-7 sm:h-7" />}
           </button>
 
-          {/* Premium Logo - Fixed Center */}
-          <div className="absolute left-1/2 top-1/2 transform -translate-x-1/2 -translate-y-1/2 lg:relative lg:left-auto lg:top-auto lg:transform-none z-40">
+          {/* Premium Logo - Fixed Center with proper z-index */}
+          <div className="mobile-logo-area lg:relative lg:left-auto lg:top-auto lg:transform-none z-[50]">
             <div 
               onClick={(e) => {
                 e.preventDefault();
@@ -199,13 +261,17 @@ function Navbar() {
                 setIsMenuOpen(false);
                 window.scrollTo(0, 0);
               }}
-              className="flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group cursor-pointer"
+              className="mobile-touch-target flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group cursor-pointer relative z-[50] bg-transparent p-2 rounded-lg no-select"
+              style={{ 
+                pointerEvents: 'auto',
+                touchAction: 'manipulation'
+              }}
             >
               <div className="relative">
                 <img 
                   src={logo} 
                   alt="GHEM Store Logo" 
-                  className="h-10 sm:h-14 lg:h-20 w-auto drop-shadow-2xl select-none" 
+                  className="h-10 sm:h-14 lg:h-20 w-auto drop-shadow-2xl select-none pointer-events-none" 
                   draggable={false}
                 />
                 <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
@@ -214,7 +280,7 @@ function Navbar() {
           </div>
 
           {/* Premium Desktop Navigation */}
-          <div className="hidden lg:flex items-center gap-1 xl:gap-2 z-30">
+          <div className="hidden lg:flex items-center gap-1 xl:gap-2 z-[40]">
             {/* عرض Categories فوراً بدون شرط */}
             {categories.map((category, index) => (
                 <button
@@ -242,14 +308,14 @@ function Navbar() {
                       console.error('❌ Navigation error:', error);
                     }
                   }}
-                  className={`relative px-3 lg:px-4 xl:px-6 py-2 lg:py-3 rounded-xl lg:rounded-2xl font-medium text-sm lg:text-base text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-105 group cursor-pointer z-10 ${
+                  className={`relative px-3 lg:px-4 xl:px-6 py-2 lg:py-3 rounded-xl lg:rounded-2xl font-medium text-sm lg:text-base text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-105 group cursor-pointer z-[40] ${
                     isActive(`/category/${createCategorySlug(category.id, category.name)}`) 
                       ? 'bg-white/60 backdrop-blur-xl border border-gray-300/50 text-gray-800 shadow-lg' 
                       : 'hover:bg-white/40 hover:backdrop-blur-xl hover:border hover:border-gray-300/30'
                   }`}
                   style={{
                     position: 'relative',
-                    zIndex: 10,
+                    zIndex: 40,
                     pointerEvents: 'auto'
                   }}
                 >
@@ -266,10 +332,17 @@ function Navbar() {
               ))}
             </div>
 
-          {/* Premium Icons Section */}
-          <div className="flex items-center gap-2 sm:gap-3 lg:gap-4">
+          {/* Premium Icons Section - أعلى z-index */}
+          <div className="mobile-icons-area flex items-center gap-2 sm:gap-3 lg:gap-4 z-[60] relative">
             {/* Cart Icon */}
-            <Link to="/cart" className="relative p-2 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl group">
+            <Link 
+              to="/cart" 
+              className="mobile-touch-target relative p-2 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl group z-[60] no-select"
+              style={{ 
+                pointerEvents: 'auto',
+                touchAction: 'manipulation'
+              }}
+            >
               <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               {cartItemsCount > 0 && (
                 <span 
@@ -283,7 +356,14 @@ function Navbar() {
             </Link>
 
             {/* Wishlist Icon */}
-            <Link to="/wishlist" className="relative p-2 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl group">
+            <Link 
+              to="/wishlist" 
+              className="mobile-touch-target relative p-2 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl group z-[60] no-select"
+              style={{ 
+                pointerEvents: 'auto',
+                touchAction: 'manipulation'
+              }}
+            >
               <Heart className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
               {wishlistItemsCount > 0 && (
                 <span 
@@ -298,10 +378,14 @@ function Navbar() {
 
             {/* User Menu */}
             {user ? (
-              <div className="relative">
+              <div className="relative z-[60]">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="flex items-center gap-2 sm:gap-3 text-gray-700 px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-white/60 to-[#f8f6ea]/60 backdrop-blur-xl border border-gray-300/40 hover:bg-gradient-to-r hover:from-white/80 hover:to-[#f8f6ea]/80 transition-all duration-300 ease-out transform hover:scale-105 shadow-xl hover:shadow-2xl group"
+                  className="mobile-touch-target flex items-center gap-2 sm:gap-3 text-gray-700 px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-white/60 to-[#f8f6ea]/60 backdrop-blur-xl border border-gray-300/40 hover:bg-gradient-to-r hover:from-white/80 hover:to-[#f8f6ea]/80 transition-all duration-300 ease-out transform hover:scale-105 shadow-xl hover:shadow-2xl group z-[60] no-select"
+                  style={{ 
+                    pointerEvents: 'auto',
+                    touchAction: 'manipulation'
+                  }}
                 >
                   <User size={20} className="sm:w-6 sm:h-6 text-pink-500" />
                   <div className="text-right hidden sm:block">
@@ -311,7 +395,7 @@ function Navbar() {
                   <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
                 {isUserMenuOpen && (
-                  <div className="absolute left-0 mt-2 sm:mt-4 w-48 sm:w-56 bg-[#f8f6ea]/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl shadow-2xl border border-gray-300/40 py-2 sm:py-3 animate-[slideInFromTop_0.3s_ease-out]">
+                  <div className="absolute left-0 mt-2 sm:mt-4 w-48 sm:w-56 bg-[#f8f6ea]/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl shadow-2xl border border-gray-300/40 py-2 sm:py-3 animate-[slideInFromTop_0.3s_ease-out] z-[70]">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#f8f6ea]/30 via-[#f8f6ea]/40 to-[#f8f6ea]/30 rounded-2xl sm:rounded-3xl" />
                     <div className="relative">
                       <button
@@ -328,7 +412,11 @@ function Navbar() {
             ) : (
               <button
                 onClick={openAuthModal}
-                className="relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-lg hover:shadow-xl font-medium group"
+                className="mobile-touch-target relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-lg hover:shadow-xl font-medium group z-[60] no-select"
+                style={{ 
+                  pointerEvents: 'auto',
+                  touchAction: 'manipulation'
+                }}
               >
                 <div className="flex items-center gap-1 sm:gap-1.5">
                   <User size={16} className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
@@ -341,7 +429,7 @@ function Navbar() {
         </div>
 
         {/* Premium Mobile Menu - Vertical Sidebar */}
-        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-40 transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-[55] transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
           <div className="h-full bg-[#f8f6ea]/95 backdrop-blur-2xl shadow-2xl border-l border-gray-300/30 p-4 sm:p-6 overflow-y-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-[#f8f6ea]/30 via-[#f8f6ea]/40 to-[#f8f6ea]/30" />
             
@@ -356,33 +444,86 @@ function Navbar() {
               </button>
             </div>
             
-            <div className="relative space-y-3">
-              {/* عرض Categories فوراً بدون شرط */}
-              {categories.map((category) => (
-                  <button
-                    key={category.id}
-                    onClick={() => {
-                      console.log('📱 Mobile Category clicked:', category.name, 'ID:', category.id);
-                      const categorySlug = createCategorySlug(category.id, category.name);
-                      navigate(`/category/${categorySlug}`);
-                      setIsMenuOpen(false);
-                    }}
-                    className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
-                      isActive(`/category/${createCategorySlug(category.id, category.name)}`) ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
-                    }`}
-                  >
-                    {category.name}
-                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-                  </button>
-                ))}
+            {/* Navigation Links */}
+            <div className="relative space-y-3 mb-6">
+              {/* الرئيسية */}
+              <Link
+                to="/"
+                onClick={() => setIsMenuOpen(false)}
+                className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
+                  isActive('/') ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Home className="w-5 h-5" />
+                  <span>الرئيسية</span>
+                </div>
+              </Link>
+
+              {/* جميع المنتجات */}
+              <Link
+                to="/products"
+                onClick={() => setIsMenuOpen(false)}
+                className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
+                  isActive('/products') ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3">
+                  <Package className="w-5 h-5" />
+                  <span>جميع المنتجات</span>
+                </div>
+              </Link>
             </div>
+
+            {/* Categories Section */}
+            {categories.length > 0 && (
+              <div className="relative">
+                <h4 className="text-sm font-semibold text-gray-600 mb-3 px-2">التصنيفات</h4>
+                <div className="space-y-2">
+                  {categories.map((category) => (
+                    <button
+                      key={category.id}
+                      onClick={() => {
+                        console.log('📱 Mobile Category clicked:', category.name, 'ID:', category.id);
+                        const categorySlug = createCategorySlug(category.id, category.name);
+                        navigate(`/category/${categorySlug}`);
+                        setIsMenuOpen(false);
+                      }}
+                      className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
+                        isActive(`/category/${createCategorySlug(category.id, category.name)}`) ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-pink-100 to-rose-100 flex items-center justify-center">
+                          <span className="text-pink-600 text-sm font-bold">
+                            {category.name.charAt(0)}
+                          </span>
+                        </div>
+                        <span>{category.name}</span>
+                      </div>
+                      <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Empty State */}
+            {categories.length === 0 && (
+              <div className="relative text-center py-8">
+                <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                  <Package className="w-8 h-8 text-gray-400" />
+                </div>
+                <p className="text-gray-600 text-sm">لا توجد تصنيفات متاحة</p>
+              </div>
+            )}
           </div>
         </div>
         
         {/* Overlay for mobile menu */}
         {isMenuOpen && (
           <div 
-            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[45]"
             onClick={() => setIsMenuOpen(false)}
           />
         )}

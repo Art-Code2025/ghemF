@@ -88,7 +88,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
       ))}
 
       {/* زر "استكشف منتجاتنا" مصغر ومنزل قليلاً */}
-      <div className="absolute inset-0 flex justify-center items-center pt-8 sm:pt-12 z-20 pointer-events-none">
+      <div className="absolute inset-0 flex justify-center items-center pt-8 sm:pt-12 z-[30] pointer-events-none">
         <Link
           to="/products"
           className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 
@@ -97,7 +97,11 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
                      ${buttonLoaded ? 'scale-100 opacity-95' : 'scale-75 opacity-0'}
                      hover:scale-105 hover:shadow-xl hover:from-pink-600 hover:to-rose-600
                      focus:outline-none focus:ring-4 focus:ring-pink-300
-                     text-xs sm:text-sm font-medium`}
+                     text-xs sm:text-sm font-medium z-[30] relative`}
+          style={{ 
+            pointerEvents: 'auto',
+            touchAction: 'manipulation'
+          }}
         >
           <div className="flex items-center gap-1">
             <span className="text-xs">✨</span>
@@ -127,10 +131,14 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
           <button
             onClick={() => setActiveIndex((prev) => (prev - 1 + images.length) % images.length)}
             aria-label="الصورة السابقة"
-            className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 z-30 
+            className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 z-[35] 
                        bg-gray-800/70 text-white p-2 sm:p-2.5 rounded-full
                        hover:bg-gray-800/90 transition-all duration-300 
                        focus:outline-none focus:ring-2 focus:ring-white/50"
+            style={{ 
+              pointerEvents: 'auto',
+              touchAction: 'manipulation'
+            }}
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 rotate-180" />
           </button>
@@ -138,10 +146,14 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
           <button
             onClick={() => setActiveIndex((prev) => (prev + 1) % images.length)}
             aria-label="الصورة التالية"
-            className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-30 
+            className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-[35] 
                        bg-gray-800/70 text-white p-2 sm:p-2.5 rounded-full
                        hover:bg-gray-800/90 transition-all duration-300 
                        focus:outline-none focus:ring-2 focus:ring-white/50"
+            style={{ 
+              pointerEvents: 'auto',
+              touchAction: 'manipulation'
+            }}
           >
             <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
