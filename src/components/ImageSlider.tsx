@@ -115,7 +115,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-gradient-to-br from-gray-100 via-white to-gray-50"
+      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -137,7 +137,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
             alt={`مجموعة مميزة ${index + 1}`}
             className={`slider-image w-full h-full transition-all duration-[4000ms] ease-out ${
               index === activeIndex ? 'scale-102 filter brightness-105 saturate-110' : 'scale-100'
-            } object-contain`}
+            } object-cover`}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
           
@@ -207,58 +207,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       </div>
 
-      {/* Enhanced Navigation - Now visible on mobile with better positioning */}
-      <div className="absolute bottom-2 sm:bottom-4 lg:bottom-6 xl:bottom-8 left-1/2 transform -translate-x-1/2 z-30 flex">
-        <div className="slider-controls flex items-center gap-1.5 sm:gap-2 lg:gap-3 bg-white/15 backdrop-blur-xl rounded-full px-2 sm:px-3 lg:px-4 xl:px-5 py-1 sm:py-1.5 lg:py-2 xl:py-2.5 border border-white/20">
-          {/* Play/Pause Control */}
-          <button
-            onClick={togglePlayPause}
-            className="p-1 sm:p-1.5 lg:p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 group"
-          >
-            {isPlaying ? (
-              <Pause className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5 text-white/80 group-hover:text-white transition-colors" />
-            ) : (
-              <Play className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5 text-white/80 group-hover:text-white transition-colors" />
-            )}
-          </button>
 
-          {/* Elegant Navigation Dots - Mobile optimized */}
-          <div className="flex items-center gap-1 sm:gap-1.5">
-            {images.map((_, index) => (
-              <button
-                key={index}
-                onClick={() => handleDotClick(index)}
-                className={`relative transition-all duration-500 ${
-                  index === activeIndex ? 'w-3 sm:w-4 lg:w-6 h-1 sm:h-1.5 lg:h-2' : 'w-1 sm:w-1.5 lg:w-2 h-1 sm:h-1.5 lg:h-2'
-                }`}
-              >
-                {/* Base Dot */}
-                <div className={`absolute inset-0 rounded-full transition-all duration-500 ${
-                  index === activeIndex
-                    ? 'bg-gradient-to-r from-amber-300/80 to-yellow-200/80'
-                    : 'bg-white/30 hover:bg-white/50'
-                }`} />
-                
-                {/* Progress Indicator */}
-                {index === activeIndex && (
-                  <div 
-                    className="absolute inset-0 bg-white/60 rounded-full transition-all duration-100 ease-linear"
-                    style={{ width: `${progress}%` }}
-                  />
-                )}
-              </button>
-            ))}
-          </div>
-
-          {/* Reset Button */}
-          <button
-            onClick={resetSlider}
-            className="p-1 sm:p-1.5 lg:p-2 rounded-full bg-white/20 hover:bg-white/30 transition-all duration-300 group"
-          >
-            <RotateCcw className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5 text-white/80 group-hover:text-white group-hover:rotate-180 transition-all duration-300" />
-          </button>
-        </div>
-      </div>
 
       {/* Subtle Corner Accents - Mobile optimized */}
       <div className="absolute top-2 sm:top-3 lg:top-4 left-2 sm:left-3 lg:left-4 w-4 h-4 sm:w-6 sm:h-6 lg:w-8 lg:h-8 z-20">
