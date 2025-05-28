@@ -1,6 +1,7 @@
-import React, { useState } from 'react';
-import { X, MapPin, Phone, Mail, Package, Clock, CreditCard, FileText, Printer, Copy, CheckCircle, Truck, AlertCircle, Star, Eye } from 'lucide-react';
+import React, { useState, useEffect } from 'react';
+import { X, MapPin, Phone, Mail, Package, Clock, CreditCard, FileText, Printer, Copy, CheckCircle, Truck, AlertCircle, Star, Eye, Edit, Save } from 'lucide-react';
 import { toast } from 'react-toastify';
+import { buildImageUrl } from '../config/api';
 
 interface OrderItem {
   productId: number;
@@ -728,7 +729,7 @@ const OrderModal: React.FC<OrderModalProps> = ({ order, isOpen, onClose, onStatu
                       <div className="flex items-start space-x-4">
                         {item.productImage && (
                           <img
-                            src={`http://localhost:3001${item.productImage}`}
+                            src={buildImageUrl(item.productImage)}
                             alt={item.productName}
                             className="w-20 h-20 object-cover rounded-xl border-2 border-gray-200"
                           />

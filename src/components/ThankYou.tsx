@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { CheckCircle, Package, Clock, Phone, MapPin, Mail, ArrowRight, Home, ShoppingBag } from 'lucide-react';
+import { buildImageUrl } from '../config/api';
 
 interface OrderItem {
   id: number;
@@ -173,7 +174,7 @@ const ThankYou: React.FC = () => {
                   {order.items.map((item, index) => (
                     <div key={index} className="flex items-start space-x-4 p-6 bg-gray-50 rounded-2xl border border-gray-100">
                       <img
-                        src={`http://localhost:3001${item.mainImage}`}
+                        src={buildImageUrl(item.mainImage)}
                         alt={item.name}
                         className="w-20 h-20 object-cover rounded-xl border-2 border-white shadow-lg"
                       />

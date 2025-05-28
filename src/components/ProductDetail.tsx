@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { extractIdFromSlug, isValidSlug, createProductSlug } from '../utils/slugify';
+import { extractIdFromSlug, isValidSlug, createProductSlug, createCategorySlug } from '../utils/slugify';
 import { 
   Heart, 
   ShoppingCart, 
@@ -19,7 +19,13 @@ import {
   X,
   Check,
   Eye,
-  Package
+  Package,
+  Image as ImageIcon,
+  FileText,
+  AlertCircle,
+  Sparkles,
+  Gift,
+  Clock
 } from 'lucide-react';
 import WhatsAppButton from './WhatsAppButton';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';

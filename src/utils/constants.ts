@@ -1,3 +1,5 @@
+import { buildApiUrl } from '../config/api';
+
 // Performance-optimized constants
 export const PERFORMANCE_CONFIG = {
   // API settings
@@ -24,9 +26,16 @@ export const PERFORMANCE_CONFIG = {
   RESIZE_THROTTLE: 250,
 };
 
+// API Configuration
+export const API_CONFIG = {
+  BASE: buildApiUrl(''),
+  TIMEOUT: 10000,
+  RETRY_ATTEMPTS: 3,
+  RETRY_DELAY: 1000,
+};
+
 // API endpoints
 export const API_ENDPOINTS = {
-  BASE: 'http://localhost:3001/api',
   PRODUCTS: '/products',
   CATEGORIES: '/categories',
   CART: '/user/:userId/cart',

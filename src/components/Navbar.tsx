@@ -1,10 +1,11 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
-import { Menu, X, ShoppingCart, Heart, User, LogOut, Search, Package, Settings, Phone, Mail, MapPin, Clock, ChevronDown, Home, Grid3X3, Star, Award, Truck, Shield } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { Menu, X, ShoppingCart, Heart, User, LogOut, Search, Package, Settings, Phone, Mail, MapPin, Clock, ChevronDown, Home, Grid3X3, Star, Award, Truck, Shield, Sparkles, Bell } from 'lucide-react';
 import logo from '../assets/logo.png';
 import AuthModal from './AuthModal';
 import { createCategorySlug } from '../utils/slugify';
-import { apiCall, API_ENDPOINTS } from '../config/api';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 
 interface CartItem {
   id: number;

@@ -1,12 +1,21 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
-import { ToastContainer, toast } from 'react-toastify';
+import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ResponsiveContainer } from 'recharts';
-import logo from './assets/logo.png';
+import { 
+  Package, Users, ShoppingCart, DollarSign, TrendingUp, Calendar, 
+  Eye, Edit, Trash2, Plus, Search, Filter, Download, RefreshCw,
+  BarChart3, PieChart, Activity, Clock, CheckCircle, XCircle,
+  AlertTriangle, Star, Heart, MessageSquare, Phone, Mail,
+  MapPin, CreditCard, Truck, Gift, Tag, Percent, Settings,
+  LogOut, Home, Menu, X, ChevronDown, ChevronRight, Bell,
+  FileText, Image, Upload, Save, ArrowLeft, ArrowRight
+} from 'lucide-react';
+import { PieChart as RechartsPieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, CartesianGrid, LineChart, Line, ResponsiveContainer } from 'recharts';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from './config/api';
 import OrderModal from './components/OrderModal';
 import DeleteModal from './components/DeleteModal';
-import { apiCall, API_ENDPOINTS, buildApiUrl, buildImageUrl } from './config/api';
+import logo from './assets/logo.png';
 
 // تعريف الأنواع
 interface Service {
@@ -1775,7 +1784,7 @@ const Dashboard: React.FC = () => {
                                         <div className="flex items-start space-x-2 mb-2">
                                           {item.productImage && (
                                             <img
-                                              src={`http://localhost:3001${item.productImage}`}
+                                              src={buildImageUrl(item.productImage)}
                                               alt={item.productName}
                                               className="w-10 h-10 rounded-lg object-cover border mr-2 flex-shrink-0"
                                             />

@@ -1,10 +1,12 @@
-import { useState, useEffect } from 'react';
-import { useParams, Link } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate, Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ChevronLeft, ArrowRight, Package, Filter, Grid, List } from 'lucide-react';
 import ProductCard from './ProductCard';
 import WhatsAppButton from './WhatsAppButton';
-import { extractIdFromSlug, isValidSlug } from '../utils/slugify';
+import { extractIdFromSlug, isValidSlug, createProductSlug } from '../utils/slugify';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 
 interface Product {
   id: number;
@@ -30,112 +32,62 @@ interface Category {
 
 const ProductsByCategory: React.FC = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
-  // تحميل البيانات فوراً من localStorage لتجنب الفلاش
+  
+  // استخراج categoryId من slug أو id
+  const categoryId = slug ? extractIdFromSlug(slug).toString() : id;
+  
   const [products, setProducts] = useState<Product[]>(() => {
-    const categoryId = slug ? extractIdFromSlug(slug).toString() : id;
-    if (categoryId) {
-      const saved = localStorage.getItem(`cachedCategoryProducts_${categoryId}`);
-      try {
-        return saved ? JSON.parse(saved) : [];
-      } catch {
-        return [];
-      }
+    const saved = localStorage.getItem(`cachedCategoryProducts_${categoryId}`);
+    try {
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
     }
-    return [];
   });
   const [category, setCategory] = useState<Category | null>(() => {
-    const categoryId = slug ? extractIdFromSlug(slug).toString() : id;
-    if (categoryId) {
-      const saved = localStorage.getItem(`cachedCategory_${categoryId}`);
-      try {
-        return saved ? JSON.parse(saved) : null;
-      } catch {
-        return null;
-      }
+    const saved = localStorage.getItem(`cachedCategory_${categoryId}`);
+    try {
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
     }
-    return null;
   });
-  // No loading state needed
+  const [filteredProducts, setFilteredProducts] = useState<Product[]>(products);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    fetchCategory();
-    fetchProductsByCategory();
-  }, [id, slug]);
+    if (categoryId) {
+      fetchCategory();
+      fetchProducts();
+    } else {
+      setError('معرف التصنيف غير صحيح');
+      setLoading(false);
+    }
+  }, [categoryId]);
 
   const fetchCategory = async () => {
-    // تحديد الـ ID من slug أو id
-    let categoryId: string | undefined;
-    
-    if (slug) {
-      // إذا كان slug موجود، استخرج الـ ID منه
-      if (isValidSlug(slug)) {
-        categoryId = extractIdFromSlug(slug).toString();
-      } else {
-        toast.error('رابط التصنيف غير صحيح');
-        return;
-      }
-    } else if (id) {
-      // إذا كان id موجود مباشرة
-      categoryId = id;
-    } else {
-      return;
-    }
-    
     try {
-      const response = await fetch(`http://localhost:3001/api/categories/${categoryId}`);
-      
-      if (!response.ok) {
-        throw new Error('فشل في جلب التصنيف');
-      }
-      
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.CATEGORY_BY_ID(categoryId!));
       setCategory(data);
-      // حفظ في localStorage لتجنب الفلاش في المرة القادمة
-      localStorage.setItem(`cachedCategory_${categoryId}`, JSON.stringify(data));
     } catch (error) {
       console.error('Error fetching category:', error);
-      toast.error('فشل في جلب التصنيف');
+      setError('فشل في تحميل بيانات التصنيف');
     }
   };
 
-  const fetchProductsByCategory = async () => {
-    // تحديد الـ ID من slug أو id
-    let categoryId: string | undefined;
-    
-    if (slug) {
-      // إذا كان slug موجود، استخرج الـ ID منه
-      if (isValidSlug(slug)) {
-        categoryId = extractIdFromSlug(slug).toString();
-      } else {
-        return;
-      }
-    } else if (id) {
-      // إذا كان id موجود مباشرة
-      categoryId = id;
-    } else {
-      return;
-    }
-    
+  const fetchProducts = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/products/category/${categoryId}`);
-      
-      if (!response.ok) {
-        throw new Error('فشل في جلب المنتجات');
-      }
-      
-      const data = await response.json();
+      setLoading(true);
+      const data = await apiCall(API_ENDPOINTS.PRODUCTS_BY_CATEGORY(categoryId!));
       setProducts(data);
-      // حفظ في localStorage لتجنب الفلاش في المرة القادمة
-      localStorage.setItem(`cachedCategoryProducts_${categoryId}`, JSON.stringify(data));
     } catch (error) {
       console.error('Error fetching products:', error);
-      toast.error('فشل في جلب المنتجات');
+      setError('فشل في تحميل المنتجات');
+    } finally {
+      setLoading(false);
     }
   };
-
-
-
-  // No loading screen - instant display
 
   return (
     <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8" dir="rtl">

@@ -1,5 +1,8 @@
-import { useEffect, useState, FormEvent, ChangeEvent } from 'react';
+import React, { useState, useEffect, FormEvent, ChangeEvent } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
+import { toast } from 'react-toastify';
+import { ArrowRight, Save, Upload, X, Plus, Minus } from 'lucide-react';
+import { apiCall, API_ENDPOINTS, buildImageUrl, buildApiUrl } from './config/api';
 
 // تعريف نوع الخدمة
 interface Service {
@@ -44,13 +47,7 @@ const ServiceForm: React.FC = () => {
   useEffect(() => {
     if (id) {
       setFetchLoading(true);
-      fetch(`http://localhost:3001/api/services`)
-        .then(response => {
-          if (!response.ok) {
-            throw new Error('فشل في جلب بيانات الخدمة. تأكد أن السيرفر يعمل.');
-          }
-          return response.json();
-        })
+      apiCall(API_ENDPOINTS.SERVICES)
         .then(data => {
           const service: Service = data.find((s: Service) => s.id === parseInt(id || '0'));
           if (service) {
@@ -71,7 +68,7 @@ const ServiceForm: React.FC = () => {
         })
         .catch(error => {
           console.error('Error fetching service:', error);
-          setError(error.message || 'حدث خطأ أثناء جلب بيانات الخدمة. تأكد أن السيرفر يعمل على http://localhost:3001');
+          setError(error.message || 'حدث خطأ أثناء جلب بيانات الخدمة');
           setFetchLoading(false);
         });
     }
@@ -158,7 +155,7 @@ const ServiceForm: React.FC = () => {
     setSuccess(null);
 
     const method = id ? 'PUT' : 'POST';
-    const url = id ? `http://localhost:3001/api/services/${id}` : 'http://localhost:3001/api/services';
+    const url = id ? buildApiUrl(`/services/${id}`) : buildApiUrl('/services');
 
     const formDataToSend = new FormData();
     formDataToSend.append('name', formData.name);
@@ -193,7 +190,7 @@ const ServiceForm: React.FC = () => {
     } catch (error: any) {
       console.error('Error saving service:', error);
       setLoading(false);
-      setError(error.message || 'حدث خطأ أثناء حفظ الخدمة. تأكد أن السيرفر يعمل على http://localhost:3001');
+      setError(error.message || 'حدث خطأ أثناء حفظ الخدمة');
     }
   };
 
@@ -476,7 +473,7 @@ const ServiceForm: React.FC = () => {
             {formData.mainImage && (
               <div className="flex items-center justify-between glass-effect p-4 rounded-xl mt-4 card-hover">
                 <img
-                  src={formData.mainImage.startsWith('/images/') ? `http://localhost:3001${formData.mainImage}` : formData.mainImage}
+                  src={buildImageUrl(formData.mainImage)}
                   alt="main-preview"
                   className="w-20 h-20 object-cover rounded-lg image-preview"
                 />
@@ -511,7 +508,7 @@ const ServiceForm: React.FC = () => {
                 <li key={index} className="glass-effect p-4 rounded-xl card-hover animate-slide-in" style={{ animationDelay: `${index * 100}ms` }}>
                   <div className="flex items-center justify-between mb-3">
                     <img
-                      src={image.startsWith('/images/') ? `http://localhost:3001${image}` : image}
+                      src={buildImageUrl(image)}
                       alt={`preview-${index}`}
                       className="w-20 h-20 object-cover rounded-lg image-preview"
                     />

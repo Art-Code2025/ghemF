@@ -4,6 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ChevronLeft, Package, Sparkles } from 'lucide-react';
 import { createCategorySlug } from './utils/slugify';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from './config/api';
 
 interface Product {
   id: number;
@@ -43,20 +44,12 @@ const App: React.FC = () => {
       console.log('🔄 Fetching data...');
       
       // جلب التصنيفات
-      const categoriesResponse = await fetch('http://localhost:3001/api/categories');
-      if (!categoriesResponse.ok) {
-        throw new Error(`Categories API error: ${categoriesResponse.status}`);
-      }
-      const categoriesData = await categoriesResponse.json();
+      const categoriesData = await apiCall(API_ENDPOINTS.CATEGORIES);
       console.log('✅ Categories fetched:', categoriesData.length);
       setCategories(categoriesData);
       
       // جلب المنتجات
-      const productsResponse = await fetch('http://localhost:3001/api/products');
-      if (!productsResponse.ok) {
-        throw new Error(`Products API error: ${productsResponse.status}`);
-      }
-      const productsData = await productsResponse.json();
+      const productsData = await apiCall(API_ENDPOINTS.PRODUCTS);
       console.log('✅ Products fetched:', productsData.length);
       setProducts(productsData);
       
@@ -165,7 +158,7 @@ const App: React.FC = () => {
                     <div className="bg-white rounded-2xl overflow-hidden border border-pink-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                       <div className="relative h-48 overflow-hidden">
                         <img
-                          src={category.image ? `http://localhost:3001${category.image}` : `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`}
+                          src={buildImageUrl(category.image)}
                           alt={category.name}
                           className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                           onError={(e) => {
@@ -223,7 +216,7 @@ const App: React.FC = () => {
                 <div key={product.id} className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-105">
                   <div className="relative h-48 overflow-hidden">
                     <img
-                      src={product.mainImage.startsWith('http') ? product.mainImage : `http://localhost:3001${product.mainImage}`}
+                      src={buildImageUrl(product.mainImage)}
                       alt={product.name}
                       className="w-full h-full object-cover"
                       onError={(e) => {

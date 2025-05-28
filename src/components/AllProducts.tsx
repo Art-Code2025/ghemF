@@ -1,9 +1,11 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { Search, Filter, Grid, List, Package } from 'lucide-react';
+import { Search, Filter, Grid, List, Package, Sparkles, ChevronDown, X, SlidersHorizontal, ArrowUpDown } from 'lucide-react';
 import ProductCard from './ProductCard';
-import { apiCall, API_ENDPOINTS } from '../config/api';
+import { createCategorySlug, createProductSlug } from '../utils/slugify';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 
 
 interface Product {

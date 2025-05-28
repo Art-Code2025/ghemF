@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
+import { Heart, ShoppingCart, Trash2, Package, ArrowRight, Star, Gift, Sparkles } from 'lucide-react';
+import { createProductSlug } from '../utils/slugify';
+import { addToCartUnified, removeFromWishlistUnified } from '../utils/cartUtils';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
-
-import { addToCartUnified } from '../utils/cartUtils';
 
 interface WishlistItem {
   id: number;

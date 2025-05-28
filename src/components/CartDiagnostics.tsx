@@ -1,5 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { AlertCircle, CheckCircle, XCircle, RefreshCw, User, Database, Wifi } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { CheckCircle, XCircle, AlertTriangle, RefreshCw, Wifi, WifiOff, Database, User, ShoppingCart } from 'lucide-react';
+import { apiCall, API_ENDPOINTS } from '../config/api';
 
 interface DiagnosticResult {
   name: string;
@@ -55,28 +57,19 @@ const CartDiagnostics: React.FC = () => {
 
     // 2. فحص الاتصال بالخادم
     try {
-      const response = await fetch('http://localhost:3001/api/categories');
-      if (response.ok) {
-        results.push({
-          name: 'الاتصال بالخادم',
-          status: 'success',
-          message: 'الخادم يعمل بشكل طبيعي',
-          details: `رمز الاستجابة: ${response.status}`
-        });
-      } else {
-        results.push({
-          name: 'الاتصال بالخادم',
-          status: 'warning',
-          message: 'الخادم يستجيب لكن هناك مشكلة',
-          details: `رمز الاستجابة: ${response.status}`
-        });
-      }
+      await apiCall(API_ENDPOINTS.CATEGORIES);
+      results.push({
+        name: 'الاتصال بالخادم',
+        status: 'success',
+        message: 'الخادم يعمل بشكل طبيعي',
+        details: 'تم الاتصال بنجاح'
+      });
     } catch (error) {
       results.push({
         name: 'الاتصال بالخادم',
         status: 'error',
         message: 'لا يمكن الوصول للخادم',
-        details: 'تأكد من تشغيل الخادم على المنفذ 3001'
+        details: 'تأكد من الاتصال بالإنترنت'
       });
     }
 
@@ -85,37 +78,20 @@ const CartDiagnostics: React.FC = () => {
       try {
         const user = JSON.parse(userData);
         if (user?.id) {
-          const cartResponse = await fetch(`http://localhost:3001/api/user/${user.id}/cart`);
-          if (cartResponse.ok) {
-            const cartData = await cartResponse.json();
-            results.push({
-              name: 'سلة التسوق',
-              status: 'success',
-              message: `تم تحميل السلة بنجاح`,
-              details: `عدد المنتجات: ${Array.isArray(cartData) ? cartData.length : 0}`
-            });
-          } else if (cartResponse.status === 404) {
-            results.push({
-              name: 'سلة التسوق',
-              status: 'warning',
-              message: 'السلة فارغة أو غير موجودة',
-              details: 'هذا طبيعي إذا لم تضف منتجات بعد'
-            });
-          } else {
-            results.push({
-              name: 'سلة التسوق',
-              status: 'error',
-              message: 'خطأ في تحميل السلة',
-              details: `رمز الخطأ: ${cartResponse.status}`
-            });
-          }
+          const cartData = await apiCall(API_ENDPOINTS.USER_CART(user.id));
+          results.push({
+            name: 'سلة التسوق',
+            status: 'success',
+            message: `تم تحميل السلة بنجاح`,
+            details: `عدد المنتجات: ${Array.isArray(cartData) ? cartData.length : 0}`
+          });
         }
       } catch (error) {
         results.push({
           name: 'سلة التسوق',
-          status: 'error',
-          message: 'فشل في الوصول لسلة التسوق',
-          details: error instanceof Error ? error.message : 'خطأ غير معروف'
+          status: 'warning',
+          message: 'السلة فارغة أو غير موجودة',
+          details: 'هذا طبيعي إذا لم تضف منتجات بعد'
         });
       }
     }
@@ -171,11 +147,11 @@ const CartDiagnostics: React.FC = () => {
       case 'success':
         return <CheckCircle className="w-5 h-5 text-green-500" />;
       case 'warning':
-        return <AlertCircle className="w-5 h-5 text-yellow-500" />;
+        return <AlertTriangle className="w-5 h-5 text-yellow-500" />;
       case 'error':
         return <XCircle className="w-5 h-5 text-red-500" />;
       default:
-        return <AlertCircle className="w-5 h-5 text-gray-500" />;
+        return <AlertTriangle className="w-5 h-5 text-gray-500" />;
     }
   };
 
@@ -235,7 +211,7 @@ const CartDiagnostics: React.FC = () => {
                   </div>
                 ) : hasWarnings ? (
                   <div className="flex items-center gap-3 text-yellow-700">
-                    <AlertCircle className="w-6 h-6" />
+                    <AlertTriangle className="w-6 h-6" />
                     <div>
                       <h3 className="font-bold">تحذيرات</h3>
                       <p className="text-sm">النظام يعمل لكن هناك بعض التحذيرات</p>

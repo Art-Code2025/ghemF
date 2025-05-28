@@ -1,4 +1,5 @@
 import { toast } from 'react-toastify';
+import { apiCall, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 // دالة موحدة لإضافة منتج إلى السلة
 export const addToCartUnified = async (
@@ -36,7 +37,7 @@ export const addToCartUnified = async (
       requestBody.attachments = attachments;
     }
 
-    const response = await fetch(`http://localhost:3001/api/user/${user.id}/cart`, {
+    const response = await fetch(buildApiUrl(`/user/${user.id}/cart`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(requestBody)
@@ -174,7 +175,7 @@ export const addToWishlistUnified = async (productId: number, productName: strin
 
     console.log('❤️ Adding to wishlist:', { productId, productName });
 
-    const response = await fetch(`http://localhost:3001/api/user/${user.id}/wishlist`, {
+    const response = await fetch(buildApiUrl(`/user/${user.id}/wishlist`), {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ productId })
@@ -290,8 +291,9 @@ export const removeFromWishlistUnified = async (productId: number, productName: 
 
     console.log('💔 Removing from wishlist:', { productId, productName });
 
-    const response = await fetch(`http://localhost:3001/api/user/${user.id}/wishlist/product/${productId}`, {
-      method: 'DELETE'
+    const response = await fetch(buildApiUrl(`/user/${user.id}/wishlist/${productId}`), {
+      method: 'DELETE',
+      headers: { 'Content-Type': 'application/json' }
     });
 
     if (!response.ok) {

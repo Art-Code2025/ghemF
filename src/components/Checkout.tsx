@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ShoppingCart, User, CreditCard, CheckCircle, ArrowLeft, ArrowRight, Package, Truck, Shield, Star, Heart, Gift, MapPin, Phone, Mail, Sparkles, Clock, Award } from 'lucide-react';
+import { ShoppingCart, User, CreditCard, CheckCircle, ArrowLeft, ArrowRight, Package, Truck, Shield, Star, Heart, Gift, MapPin, Phone, Mail, Sparkles, Clock, Award, AlertCircle, Minus, Plus, X, Tag, Percent } from 'lucide-react';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 
 interface Product {
   id: number;
@@ -115,62 +116,30 @@ const Checkout: React.FC = () => {
     }
   ];
 
-  useEffect(() => {
-    fetchCart();
-  }, []);
-
-  const fetchCart = async () => {
+  const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
-      
       const userData = localStorage.getItem('user');
       if (!userData) {
-        console.log('🛒 No user logged in, redirecting to login');
-        toast.error('يجب تسجيل الدخول أولاً');
-        navigate('/');
+        setCartItems([]);
         return;
       }
 
       const user = JSON.parse(userData);
-      if (!user || !user.id) {
-        console.log('🛒 Invalid user data, redirecting to login');
-        toast.error('يجب تسجيل الدخول أولاً');
-        navigate('/');
-        return;
-      }
-
-      console.log(`🛒 Fetching cart for checkout - user ${user.id}...`);
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/cart`);
-      if (!response.ok) {
-        throw new Error('فشل في جلب سلة التسوق');
-      }
-      const data = await response.json();
-      console.log(`🛒 Checkout cart loaded: ${data.length} items`);
-      
-      if (data.length === 0) {
-        toast.error('سلة التسوق فارغة!');
-        navigate('/cart');
-        return;
-      }
-      
-      setCartItems(data);
-      
-      if (user.firstName && user.lastName) {
-        setCustomerInfo(prev => ({
-          ...prev,
-          name: `${user.firstName} ${user.lastName}`,
-          email: user.email || ''
-        }));
-      }
-      
-      setLoading(false);
+      const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
+      setCartItems(Array.isArray(data) ? data : []);
     } catch (error) {
-      console.error('🛒 Error fetching cart for checkout:', error);
-      toast.error('فشل في جلب سلة التسوق');
-      navigate('/cart');
+      console.error('Error fetching cart:', error);
+      toast.error('فشل في تحميل السلة');
+      setCartItems([]);
+    } finally {
       setLoading(false);
     }
-  };
+  }, []);
+
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   const getTotalSavings = () => {
     return cartItems.reduce((total, item) => {
@@ -231,36 +200,23 @@ const Checkout: React.FC = () => {
     return optionNames[optionName] || optionName;
   };
 
-  const validateCoupon = async () => {
-    if (!couponCode.trim()) {
-      toast.error('يرجى إدخال كود الكوبون');
-      return;
-    }
-
-    setCouponValidating(true);
+  const validateCoupon = async (code: string) => {
     try {
-      const response = await fetch('http://localhost:3001/api/coupons/validate', {
+      setCouponValidating(true);
+      const data = await apiCall(API_ENDPOINTS.VALIDATE_COUPON, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          code: couponCode.trim(),
-          totalAmount: getTotalPrice() + getShippingCost()
-        })
+        body: JSON.stringify({ code, orderTotal: getTotalPrice() + getShippingCost() })
       });
 
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.message || 'كوبون غير صحيح');
+      if (data.valid) {
+        setAppliedCoupon(data.coupon);
+        toast.success(`تم تطبيق كود الخصم! خصم ${data.discount} ر.س`);
+      } else {
+        toast.error(data.message || 'كود الخصم غير صحيح');
       }
-
-      const data = await response.json();
-      setAppliedCoupon(data);
-      toast.success(`🎉 تم تطبيق الكوبون بنجاح! وفرت ${data.discountAmount.toFixed(2)} ر.س`);
     } catch (error) {
       console.error('Error validating coupon:', error);
-      toast.error(error instanceof Error ? error.message : 'فشل في التحقق من الكوبون');
+      toast.error('فشل في التحقق من كود الخصم');
     } finally {
       setCouponValidating(false);
     }
@@ -385,22 +341,15 @@ const Checkout: React.FC = () => {
         })
       };
       
-      const response = await fetch('http://localhost:3001/api/checkout', {
+      const result = await apiCall(API_ENDPOINTS.CHECKOUT, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
         body: JSON.stringify(finalOrderPayload)
       });
 
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({ message: 'خطأ في الخادم' }));
-        throw new Error(errorData.message || 'فشل في إتمام الطلب');
+      if (!result.success) {
+        throw new Error(result.message || 'فشل في إتمام الطلب');
       }
 
-      const result = await response.json();
-      console.log('✅ Order placed successfully:', result);
-      
       // تحضير بيانات الطلب لصفحة Thank You
       const thankYouOrder = {
         id: result.orderId || result.order?.id || Date.now(),
@@ -432,16 +381,12 @@ const Checkout: React.FC = () => {
       localStorage.setItem('thankYouOrder', JSON.stringify(thankYouOrder));
       
       // مسح السلة
-      try {
-        await fetch(`http://localhost:3001/api/user/${user.id}/cart`, {
-          method: 'DELETE'
-        });
-        window.dispatchEvent(new Event('cartUpdated'));
-        console.log('🧹 Cart cleared successfully');
-      } catch (cartError) {
-        console.warn('⚠️ Failed to clear cart:', cartError);
-      }
-      
+      await apiCall(API_ENDPOINTS.USER_CART(user.id), {
+        method: 'DELETE'
+      });
+      window.dispatchEvent(new Event('cartUpdated'));
+      console.log('🧹 Cart cleared successfully');
+
       // عرض رسالة نجاح
       toast.success('🎉 تم إرسال طلبك بنجاح!', {
         position: "top-center",
@@ -736,7 +681,7 @@ const Checkout: React.FC = () => {
                       >
                         <div className="relative flex-shrink-0">
                           <img
-                            src={`http://localhost:3001${item.product?.mainImage}`}
+                            src={buildImageUrl(item.product?.mainImage || '')}
                             alt={item.product?.name}
                             className="w-20 h-20 sm:w-24 sm:h-24 object-cover rounded-xl sm:rounded-2xl ml-0 sm:ml-6 lg:ml-8 shadow-lg transition-transform duration-300 hover:scale-110"
                           />
@@ -1249,7 +1194,7 @@ const Checkout: React.FC = () => {
                           placeholder="أدخل كود الخصم"
                         />
                         <button
-                          onClick={validateCoupon}
+                          onClick={() => validateCoupon(couponCode)}
                           disabled={couponValidating || !couponCode.trim()}
                           className="px-6 py-4 bg-gradient-to-r from-gray-900 to-black text-white rounded-2xl hover:from-black hover:to-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-bold shadow-lg hover:shadow-xl transform hover:-translate-y-1"
                         >

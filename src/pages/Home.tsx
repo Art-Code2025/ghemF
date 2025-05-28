@@ -1,12 +1,13 @@
 import React, { useRef, useEffect, useState, lazy, Suspense } from 'react';
 import { Link } from 'react-router-dom';
-import { ArrowLeft, Star, Phone, Clock, Shield, Award, ThumbsUp, Sparkles, Zap, Heart, Users } from 'lucide-react';
+import { ArrowLeft, Star, Phone, Clock, Shield, Award, ThumbsUp, Sparkles, Zap, Heart, Users, ChevronLeft, ChevronRight, Package, Gift } from 'lucide-react';
 import Navbar from '../components/Navbar';
 import Slider from 'react-slick';
 import 'slick-carousel/slick/slick.css';
 import 'slick-carousel/slick/slick-theme.css';
 import { ToastContainer, toast } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 
 // Lazy load components that aren't immediately visible
 const ContactFooter = lazy(() => import('../components/ContactFooter'));
@@ -126,42 +127,13 @@ function Home() {
     }
   }, []);
 
-  const fetchServices = () => {
-    setLoading(true);
-    fetch('http://localhost:3001/api/services')
-      .then(response => {
-        if (!response.ok) {
-          setServerAvailable(false);
-          throw new Error('فشل في جلب الخدمات');
-        }
-        return response.json();
-      })
-      .then(data => {
-        // استرجاع الترتيب المحفوظ من localStorage
-        const savedOrder = localStorage.getItem('servicesOrder');
-        let sortedData = data as Service[];
-        if (savedOrder) {
-          const orderedIds = JSON.parse(savedOrder) as number[];
-          sortedData = orderedIds
-            .map(id => data.find((service: Service) => service.id === id))
-            .filter((service): service is Service => service !== undefined);
-          // إضافة خدمات جديدة غير موجودة في الترتيب
-          const existingIds = new Set(orderedIds);
-          sortedData = [
-            ...sortedData,
-            ...data.filter((service: Service) => !existingIds.has(service.id))
-          ];
-        }
-        setServices(sortedData);
-        setLoading(false);
-        setServerAvailable(true);
-      })
-      .catch(error => {
-        setError(error.message || 'حدث خطأ أثناء جلب الخدمات');
-        toast.error(error.message || 'حدث خطأ أثناء جلب الخدمات');
-        setLoading(false);
-        setServerAvailable(false);
-      });
+  const fetchServices = async () => {
+    try {
+      const data = await apiCall(API_ENDPOINTS.SERVICES);
+      setServices(data);
+    } catch (error) {
+      console.error('Error fetching services:', error);
+    }
   };
 
   // دالة لتتبع زيارات الخدمة
@@ -228,7 +200,7 @@ function Home() {
   }, []);
 
   const getImageSrc = (image: string) => {
-    return `http://localhost:3001${image}`;
+    return buildImageUrl(image);
   };
 
   // إعدادات السلايدر للكروسيل

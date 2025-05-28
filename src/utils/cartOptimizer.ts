@@ -1,4 +1,5 @@
 // Shopping Cart Speed Optimizer - محسن سرعة سلة التسوق
+import { buildApiUrl } from '../config/api';
 
 interface CartOptimizationConfig {
   enableInstantUpdates: boolean;
@@ -31,7 +32,7 @@ export const cartOptimizer = {
     
     try {
       // Fetch fresh data
-      const response = await fetch(`http://localhost:3001/api/user/${userId}/cart`);
+      const response = await fetch(buildApiUrl(`/user/${userId}/cart`));
       const data = await response.json();
       
       // Cache the result
@@ -68,7 +69,7 @@ export const cartOptimizer = {
     
     // Background API call
     if (CART_CONFIG.enableBackgroundSync) {
-      fetch(`http://localhost:3001/api/user/${userId}/cart/${itemId}`, {
+      fetch(buildApiUrl(`/user/${userId}/cart/${itemId}`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ quantity })
@@ -92,7 +93,7 @@ export const cartOptimizer = {
     
     // Background API call
     if (CART_CONFIG.enableBackgroundSync) {
-      fetch(`http://localhost:3001/api/user/${userId}/cart/${itemId}`, {
+      fetch(buildApiUrl(`/user/${userId}/cart/${itemId}`), {
         method: 'DELETE'
       }).catch(console.error);
     }
@@ -109,7 +110,7 @@ export const cartOptimizer = {
     
     // Background API call
     if (CART_CONFIG.enableBackgroundSync) {
-      fetch(`http://localhost:3001/api/user/${userId}/cart`, {
+      fetch(buildApiUrl(`/user/${userId}/cart`), {
         method: 'DELETE'
       }).catch(console.error);
     }
@@ -133,7 +134,7 @@ export const cartOptimizer = {
     
     // Background API call
     if (CART_CONFIG.enableBackgroundSync) {
-      fetch(`http://localhost:3001/api/user/${userId}/cart/update-options`, {
+      fetch(buildApiUrl(`/user/${userId}/cart/update-options`), {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({

@@ -1,7 +1,8 @@
-import { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { apiCall, API_ENDPOINTS, buildApiUrl } from '../config/api';
+import { ArrowRight, Plus, Minus, X, Upload, Image as ImageIcon, Save, Eye, Package, Tag, DollarSign, Hash, FileText, Layers, Palette, Ruler, Type, ToggleLeft, ToggleRight } from 'lucide-react';
+import { buildImageUrl, apiCall, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 interface Product {
   id: number;
@@ -551,7 +552,7 @@ const ProductForm: React.FC = () => {
                                 <img
                                   src={mainImageFile 
                                     ? URL.createObjectURL(mainImageFile) 
-                                    : `http://localhost:3001${product.mainImage}`
+                                    : buildImageUrl(product.mainImage)
                                   }
                                   alt="صورة رئيسية"
                                   className="w-full h-full object-cover"
@@ -614,7 +615,7 @@ const ProductForm: React.FC = () => {
                             {!detailedImageFiles.length && product.detailedImages.map((image, index) => (
                               <div key={index} className="relative">
                                 <img
-                                  src={`http://localhost:3001${image}`}
+                                  src={buildImageUrl(image)}
                                   alt={`صورة ${index + 1}`}
                                   className="w-full h-20 object-cover rounded-lg border-2 border-purple-200"
                                 />

@@ -1,6 +1,18 @@
-import { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
+import { ChevronLeft, ChevronRight, Package, Sparkles } from 'lucide-react';
+
+// Import components directly for debugging
+import ImageSlider from './components/ImageSlider';
+import ProductCard from './components/ProductCard';
+import WhatsAppButton from './components/WhatsAppButton';
+import cover1 from './assets/cover1.jpg';
+import { createCategorySlug } from './utils/slugify';
+import cover2 from './assets/cover2.jpg';
+import cover3 from './assets/cover3.jpg';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from './config/api';
 
 interface Category {
   id: number;
@@ -21,13 +33,8 @@ const AppSimple: React.FC = () => {
   const fetchCategories = async () => {
     try {
       console.log('🔄 Fetching categories...');
-      const response = await fetch('http://localhost:3001/api/categories');
+      const data = await apiCall(API_ENDPOINTS.CATEGORIES);
       
-      if (!response.ok) {
-        throw new Error(`HTTP ${response.status}: ${response.statusText}`);
-      }
-      
-      const data = await response.json();
       console.log('✅ Categories fetched:', data);
       
       setCategories(data);
@@ -116,7 +123,7 @@ const AppSimple: React.FC = () => {
             <div key={category.id} className="bg-white rounded-2xl shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-300 hover:scale-105">
               <div className="h-48 bg-gradient-to-br from-pink-200 to-rose-200 flex items-center justify-center">
                 <img 
-                  src={category.image.startsWith('http') ? category.image : `http://localhost:3001${category.image}`}
+                  src={buildImageUrl(category.image)}
                   alt={category.name}
                   className="w-full h-full object-cover"
                   onError={(e) => {

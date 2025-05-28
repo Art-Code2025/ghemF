@@ -4,7 +4,7 @@ import { toast } from 'react-toastify';
 import { Heart, Eye } from 'lucide-react';
 import { createProductSlug } from '../utils/slugify';
 import { addToCartUnified, addToWishlistUnified, removeFromWishlistUnified } from '../utils/cartUtils';
-import { buildImageUrl } from '../config/api';
+import { buildImageUrl, apiCall, API_ENDPOINTS } from '../config/api';
 
 
 interface Product {
@@ -56,16 +56,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   }, []);
 
   const checkWishlistStatus = async () => {
+    const userData = localStorage.getItem('user');
+    if (!userData) return;
+
     try {
-      const userData = localStorage.getItem('user');
-      if (!userData) return;
       const user = JSON.parse(userData);
-      if (!user?.id) return;
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/wishlist/check/${product.id}`);
-      const data = await response.json();
+      const data = await apiCall(API_ENDPOINTS.WISHLIST_CHECK(user.id, product.id));
       setIsInWishlist(data.isInWishlist);
-    } catch {
-      setIsInWishlist(false);
+    } catch (error) {
+      console.error('Error checking wishlist status:', error);
     }
   };
 

@@ -1,5 +1,6 @@
 // Speed optimizer for lightning-fast performance
 import { PERFORMANCE_CONFIG } from './constants';
+import { buildApiUrl, buildImageUrl } from '../config/api';
 
 // Memory cache for instant access
 const speedCache = new Map<string, any>();
@@ -35,7 +36,7 @@ export const ultraFastApi = async (endpoint: string, options: RequestInit = {}) 
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), PERFORMANCE_CONFIG.API_TIMEOUT);
     
-    const response = await fetch(`http://localhost:3001/api${endpoint}`, {
+    const response = await fetch(buildApiUrl(endpoint), {
       ...options,
       signal: controller.signal,
       headers: {
@@ -96,11 +97,8 @@ export const preloadCriticalResources = async () => {
 export const optimizeImage = (src: string, width?: number, height?: number) => {
   if (!src) return '';
   
-  // If it's already a full URL, return as is
-  if (src.startsWith('http')) return src;
-  
-  // Add server URL if needed
-  const baseUrl = src.startsWith('/') ? `http://localhost:3001${src}` : `http://localhost:3001/${src}`;
+  // Use the centralized image URL builder
+  const baseUrl = buildImageUrl(src);
   
   // Add optimization parameters if provided
   if (width || height) {

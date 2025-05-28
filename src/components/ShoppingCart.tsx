@@ -1,7 +1,8 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ShoppingCart as CartIcon, Plus, Minus, Trash2, Package, Sparkles, ArrowRight, Heart, Edit3, X, Check, Upload, Image as ImageIcon } from 'lucide-react';
+import { apiCall, API_ENDPOINTS, buildImageUrl, buildApiUrl } from '../config/api';
 
 interface CartItem {
   id: number;
@@ -98,19 +99,9 @@ const ShoppingCart: React.FC = () => {
       const user = JSON.parse(userData);
       console.log('👤 User found:', user);
 
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/cart`);
-      console.log('📡 Response status:', response.status);
-
-      if (response.ok) {
-        const data = await response.json();
-        console.log('✅ Cart data:', data);
-        setCartItems(Array.isArray(data) ? data : []);
-      } else if (response.status === 404) {
-        console.log('📭 Cart is empty');
-        setCartItems([]);
-      } else {
-        throw new Error(`خطأ في الخادم: ${response.status}`);
-      }
+      const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
+      console.log('✅ Cart data:', data);
+      setCartItems(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('❌ Error loading cart:', error);
       setError('خطأ في تحميل السلة. تأكد من الاتصال بالإنترنت.');
@@ -129,65 +120,41 @@ const ShoppingCart: React.FC = () => {
   const updateQuantity = async (itemId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
 
+    const userData = localStorage.getItem('user');
+    if (!userData) return;
+
     try {
-      // تحديث فوري في الواجهة
+      const user = JSON.parse(userData);
+      await apiCall(API_ENDPOINTS.USER_CART(user.id) + `/${itemId}`, {
+        method: 'PUT',
+        body: JSON.stringify({ quantity: newQuantity })
+      });
+      
       setCartItems(prev => prev.map(item => 
         item.id === itemId ? { ...item, quantity: newQuantity } : item
       ));
-
-      const userData = localStorage.getItem('user');
-      if (!userData) {
-        toast.error('يجب تسجيل الدخول أولاً');
-        return;
-      }
-
-      const user = JSON.parse(userData);
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/cart/${itemId}`, {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ quantity: newQuantity })
-      });
-
-      if (response.ok) {
-        toast.success('تم تحديث الكمية');
-      } else {
-        // إرجاع التغيير في حالة الفشل
-        fetchCart();
-        throw new Error('فشل في تحديث الكمية');
-      }
     } catch (error) {
       console.error('Error updating quantity:', error);
-      toast.error('خطأ في تحديث الكمية');
+      toast.error('فشل في تحديث الكمية');
     }
   };
 
   // حذف منتج من السلة
   const removeItem = async (itemId: number) => {
+    const userData = localStorage.getItem('user');
+    if (!userData) return;
+
     try {
-      // حذف فوري من الواجهة
-      setCartItems(prev => prev.filter(item => item.id !== itemId));
-
-      const userData = localStorage.getItem('user');
-      if (!userData) {
-        toast.error('يجب تسجيل الدخول أولاً');
-        return;
-      }
-
       const user = JSON.parse(userData);
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/cart/${itemId}`, {
+      await apiCall(API_ENDPOINTS.USER_CART(user.id) + `/${itemId}`, {
         method: 'DELETE'
       });
-
-      if (response.ok) {
-        toast.success('تم حذف المنتج من السلة');
-      } else {
-        // إرجاع المنتج في حالة الفشل
-        fetchCart();
-        throw new Error('فشل في حذف المنتج');
-      }
+      
+      setCartItems(prev => prev.filter(item => item.id !== itemId));
+      toast.success('تم حذف المنتج من السلة');
     } catch (error) {
       console.error('Error removing item:', error);
-      toast.error('خطأ في حذف المنتج');
+      toast.error('فشل في حذف المنتج');
     }
   };
 
@@ -224,17 +191,15 @@ const ShoppingCart: React.FC = () => {
 
   // رفع الصور
   const handleImageUpload = async (files: FileList) => {
-    if (!files.length) return;
-
     setUploadingImages(true);
+    const uploadedImages: string[] = [];
+
     try {
-      const uploadedImages: string[] = [];
-      
       for (const file of Array.from(files)) {
         const formData = new FormData();
         formData.append('image', file);
 
-        const response = await fetch('http://localhost:3001/api/upload', {
+        const response = await fetch(buildApiUrl('/upload'), {
           method: 'POST',
           body: formData
         });
@@ -266,16 +231,11 @@ const ShoppingCart: React.FC = () => {
       if (!userData) return;
 
       const user = JSON.parse(userData);
-      const response = await fetch(`http://localhost:3001/api/user/${user.id}/cart`, {
+      await apiCall(API_ENDPOINTS.USER_CART(user.id), {
         method: 'DELETE'
       });
 
-      if (response.ok) {
-        toast.success('تم إفراغ السلة');
-      } else {
-        // إرجاع البيانات في حالة الفشل
-        fetchCart();
-      }
+      toast.success('تم إفراغ السلة');
     } catch (error) {
       console.error('Error clearing cart:', error);
       toast.error('خطأ في إفراغ السلة');
@@ -451,7 +411,7 @@ const ShoppingCart: React.FC = () => {
                               <div className="w-full h-80 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden shadow-lg">
                                 {item.product?.mainImage ? (
                                   <img 
-                                    src={`http://localhost:3001${item.product.mainImage}`}
+                                    src={buildImageUrl(item.product.mainImage)}
                                     alt={item.product?.name || 'منتج'}
                                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
                                   />
@@ -526,9 +486,8 @@ const ShoppingCart: React.FC = () => {
                                               cartItem.id === item.id ? { ...cartItem, selectedOptions: newOptions } : cartItem
                                             ));
                                             // Auto-save to backend
-                                            fetch(`http://localhost:3001/api/user/${JSON.parse(localStorage.getItem('user') || '{}').id}/cart/${item.id}`, {
+                                            apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
                                               method: 'PUT',
-                                              headers: { 'Content-Type': 'application/json' },
                                               body: JSON.stringify({ selectedOptions: newOptions })
                                             });
                                           }}
@@ -559,9 +518,8 @@ const ShoppingCart: React.FC = () => {
                                                     cartItem.id === item.id ? { ...cartItem, selectedOptions: newOptions } : cartItem
                                                   ));
                                                   // Auto-save to backend
-                                                  fetch(`http://localhost:3001/api/user/${JSON.parse(localStorage.getItem('user') || '{}').id}/cart/${item.id}`, {
+                                                  apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
                                                     method: 'PUT',
-                                                    headers: { 'Content-Type': 'application/json' },
                                                     body: JSON.stringify({ selectedOptions: newOptions })
                                                   });
                                                 }}
@@ -581,9 +539,8 @@ const ShoppingCart: React.FC = () => {
                                               cartItem.id === item.id ? { ...cartItem, selectedOptions: newOptions } : cartItem
                                             ));
                                             // Auto-save to backend
-                                            fetch(`http://localhost:3001/api/user/${JSON.parse(localStorage.getItem('user') || '{}').id}/cart/${item.id}`, {
+                                            apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
                                               method: 'PUT',
-                                              headers: { 'Content-Type': 'application/json' },
                                               body: JSON.stringify({ selectedOptions: newOptions })
                                             });
                                           }}
@@ -675,9 +632,8 @@ const ShoppingCart: React.FC = () => {
                                         cartItem.id === item.id ? { ...cartItem, attachments: newAttachments } : cartItem
                                       ));
                                       // Auto-save to backend
-                                      fetch(`http://localhost:3001/api/user/${JSON.parse(localStorage.getItem('user') || '{}').id}/cart/${item.id}`, {
+                                      apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
                                         method: 'PUT',
-                                        headers: { 'Content-Type': 'application/json' },
                                         body: JSON.stringify({ attachments: newAttachments })
                                       });
                                     }}

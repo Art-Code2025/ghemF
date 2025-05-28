@@ -1,5 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { X, Mail, Lock, User, Phone, ArrowRight, ArrowLeft, CheckCircle } from 'lucide-react';
+import { X, Mail, Lock, User, Phone, ArrowRight, ArrowLeft, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { toast } from 'react-toastify';
+import { apiCall, API_ENDPOINTS } from '../config/api';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -60,6 +62,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
   // Handle email submission
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
     if (!email.trim()) {
       setError('الرجاء إدخال البريد الإلكتروني');
       return;
@@ -75,33 +78,26 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/send-otp', {
+      const data = await apiCall(API_ENDPOINTS.SEND_OTP, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email })
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setStep('otp');
-        setCountdown(300); // 5 minutes
-        setCanResend(false);
-        setUserData(prev => ({ ...prev, email }));
-        
-        // عرض رسالة نجاح
-        if (data.otp) {
-          // في حالة وجود OTP في الرد (fallback)
-          console.log('OTP Fallback:', data.otp);
-        }
-        
-        // Focus first OTP input
-        setTimeout(() => {
-          otpInputRefs.current[0]?.focus();
-        }, 100);
-      } else {
-        setError(data.message || 'فشل في إرسال رمز التحقق');
+      setStep('otp');
+      setCountdown(300); // 5 minutes
+      setCanResend(false);
+      setUserData(prev => ({ ...prev, email }));
+      
+      // عرض رسالة نجاح
+      if (data.otp) {
+        // في حالة وجود OTP في الرد (fallback)
+        console.log('OTP Fallback:', data.otp);
       }
+      
+      // Focus first OTP input
+      setTimeout(() => {
+        otpInputRefs.current[0]?.focus();
+      }, 100);
     } catch (error) {
       setError('خطأ في الاتصال. حاول مرة أخرى');
     } finally {
@@ -141,32 +137,25 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/verify-otp', {
+      const data = await apiCall(API_ENDPOINTS.VERIFY_OTP, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userData.email, otp: otpValue })
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        if (data.isExistingUser) {
-          // Existing user - login directly
-          onLoginSuccess(data.user);
-          onClose();
-        } else {
-          // New user - continue to user info
-          setStep('userInfo');
-        }
+      if (data.isExistingUser) {
+        // Existing user - login directly
+        onLoginSuccess(data.user);
+        onClose();
       } else {
-        setError(data.message || 'رمز التحقق غير صحيح');
-        setOtp(['', '', '', '']);
-        setTimeout(() => {
-          otpInputRefs.current[0]?.focus();
-        }, 100);
+        // New user - continue to user info
+        setStep('userInfo');
       }
     } catch (error) {
-      setError('خطأ في الاتصال. حاول مرة أخرى');
+      setError('رمز التحقق غير صحيح');
+      setOtp(['', '', '', '']);
+      setTimeout(() => {
+        otpInputRefs.current[0]?.focus();
+      }, 100);
     } finally {
       setLoading(false);
     }
@@ -224,22 +213,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         phone: fullPhoneNumber
       };
 
-      const response = await fetch('http://localhost:3001/api/auth/complete-registration', {
+      const data = await apiCall(API_ENDPOINTS.COMPLETE_REGISTRATION, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(registrationData)
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        onLoginSuccess(data.user);
-        onClose();
-      } else {
-        setError(data.message || 'فشل في إنشاء الحساب');
-      }
+      onLoginSuccess(data.user);
+      onClose();
     } catch (error) {
-      setError('خطأ في الاتصال. حاول مرة أخرى');
+      setError('فشل في إنشاء الحساب');
     } finally {
       setLoading(false);
     }
@@ -253,26 +235,17 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     setError('');
 
     try {
-      const response = await fetch('http://localhost:3001/api/auth/send-otp', {
+      await apiCall(API_ENDPOINTS.SEND_OTP, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ email: userData.email })
       });
 
-      const data = await response.json();
-
-      if (response.ok) {
-        setCountdown(300);
-        setCanResend(false);
-        setOtp(['', '', '', '']);
-        setTimeout(() => {
-          otpInputRefs.current[0]?.focus();
-        }, 100);
-      } else {
-        setError(data.message || 'فشل في إعادة إرسال رمز التحقق');
-      }
+      setCountdown(300);
+      setCanResend(false);
+      setOtp(['', '', '', '']);
+      toast.success('تم إرسال رمز التحقق مرة أخرى');
     } catch (error) {
-      setError('خطأ في الاتصال. حاول مرة أخرى');
+      setError('فشل في إعادة إرسال رمز التحقق');
     } finally {
       setLoading(false);
     }

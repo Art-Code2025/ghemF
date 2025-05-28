@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, Link } from 'react-router-dom';
+import { ArrowRight, Calendar, User, Eye, Star, Heart, Share2 } from 'lucide-react';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 import ContactFooter from '../components/ContactFooter';
 
 // تعريف نوع الخدمة
@@ -29,28 +31,21 @@ function ServiceDetail() {
     }
   }, [id]);
 
-  const fetchService = () => {
+  const fetchService = async () => {
     setLoading(true);
-    fetch(`http://localhost:3001/api/services`)
-      .then(response => {
-        if (!response.ok) {
-          throw new Error('فشل في جلب تفاصيل الخدمة');
-        }
-        return response.json();
-      })
-      .then(data => {
-        const foundService = data.find((s: Service) => s.id === parseInt(id || '0'));
-        if (foundService) {
-          setService(foundService);
-        } else {
-          setError('الخدمة غير موجودة');
-        }
-        setLoading(false);
-      })
-      .catch(error => {
-        setError(error.message || 'حدث خطأ أثناء جلب تفاصيل الخدمة');
-        setLoading(false);
-      });
+    try {
+      const data = await apiCall(API_ENDPOINTS.SERVICES);
+      const foundService = data.find((s: Service) => s.id === parseInt(id || '0'));
+      if (foundService) {
+        setService(foundService);
+      } else {
+        setError('الخدمة غير موجودة');
+      }
+    } catch (error) {
+      setError('حدث خطأ أثناء جلب تفاصيل الخدمة');
+    } finally {
+      setLoading(false);
+    }
   };
 
   // التمرير إلى محتوى الخدمة عند التحميل
@@ -64,7 +59,7 @@ function ServiceDetail() {
   }, [service]);
 
   const getImageSrc = (image: string) => {
-    return image.startsWith('data:image/') ? image : `http://localhost:3001${image}`;
+    return image.startsWith('data:image/') ? image : buildImageUrl(image);
   };
 
   // التحقق من الحالات المختلفة قبل عرض محتوى الخدمة
