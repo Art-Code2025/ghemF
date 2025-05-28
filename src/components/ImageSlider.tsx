@@ -86,22 +86,22 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       ))}
 
-      {/* زر "استكشف منتجاتنا" في منتصف الصورة */}
-      <div className="absolute inset-0 flex justify-center items-center z-20 pointer-events-none">
+      {/* زر "استكشف منتجاتنا" مصغر ومنزل قليلاً */}
+      <div className="absolute inset-0 flex justify-center items-center pt-8 sm:pt-12 z-20 pointer-events-none">
         <a
           href="/products"
           className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 
-                     px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl shadow-lg
+                     px-3 py-1.5 sm:px-4 sm:py-2 rounded-lg shadow-lg
                      transition-all duration-300 transform 
                      ${buttonLoaded ? 'scale-100 opacity-95' : 'scale-75 opacity-0'}
                      hover:scale-105 hover:shadow-xl hover:from-pink-600 hover:to-rose-600
                      focus:outline-none focus:ring-4 focus:ring-pink-300
-                     text-sm sm:text-base font-medium`}
+                     text-xs sm:text-sm font-medium`}
         >
-          <div className="flex items-center gap-1.5">
-            <span className="text-sm">✨</span>
+          <div className="flex items-center gap-1">
+            <span className="text-xs">✨</span>
             <span>استكشف منتجاتنا</span>
-            <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-0.5 transition-transform duration-300" />
+            <ChevronLeft className="w-3 h-3 sm:w-3.5 sm:h-3.5 group-hover:-translate-x-0.5 transition-transform duration-300" />
           </div>
         </a>
       </div>
