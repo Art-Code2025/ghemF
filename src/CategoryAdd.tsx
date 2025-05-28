@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { apiCall, API_ENDPOINTS, buildApiUrl } from './config/api';
 
 const CategoryAdd: React.FC = () => {
   const navigate = useNavigate();
@@ -23,22 +24,38 @@ const CategoryAdd: React.FC = () => {
         formDataToSend.append('mainImage', formData.image);
       }
 
-      const response = await fetch('http://localhost:3001/api/categories', {
+      const response = await fetch(buildApiUrl(API_ENDPOINTS.CATEGORIES), {
         method: 'POST',
         body: formDataToSend,
+        headers: {
+          // لا نضع Content-Type للـ FormData - المتصفح يضعه تلقائياً
+        }
       });
 
       if (!response.ok) {
-        throw new Error('فشل في إضافة التصنيف');
+        const errorText = await response.text();
+        let errorMessage = 'فشل في إضافة التصنيف';
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          // إذا لم يكن JSON، استخدم النص كما هو
+          errorMessage = errorText || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
       }
 
-      toast.success('تم إضافة التصنيف بنجاح!');
+      const result = await response.json();
+      toast.success(result.message || 'تم إضافة التصنيف بنجاح!');
+      
       // Trigger a refresh in the main app
       window.dispatchEvent(new Event('categoriesUpdated'));
       navigate('/admin?tab=categories');
     } catch (error) {
-      console.error('Error:', error);
-      toast.error('فشل في إضافة التصنيف');
+      console.error('Error adding category:', error);
+      toast.error(error instanceof Error ? error.message : 'فشل في إضافة التصنيف');
     } finally {
       setLoading(false);
     }

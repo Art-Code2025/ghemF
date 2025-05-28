@@ -67,69 +67,67 @@ const CouponForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
-    if (!coupon.code || !coupon.name || coupon.discountValue <= 0) {
-      toast.error('يرجى ملء جميع الحقول المطلوبة بشكل صحيح');
-      return;
-    }
+    setLoading(true);
 
-    if (coupon.code.length < 3 || coupon.code.length > 20) {
-      toast.error('كود الكوبون يجب أن يكون بين 3 و 20 حرف');
-      return;
-    }
-
-    if (!/^[A-Z0-9_-]+$/.test(coupon.code)) {
-      toast.error('كود الكوبون يجب أن يحتوي على حروف إنجليزية وأرقام فقط');
-      return;
-    }
-
-    if (coupon.name.length < 3 || coupon.name.length > 100) {
-      toast.error('اسم الكوبون يجب أن يكون بين 3 و 100 حرف');
-      return;
-    }
-
-    if (coupon.discountType === 'percentage' && coupon.discountValue > 100) {
-      toast.error('نسبة الخصم لا يمكن أن تزيد عن 100%');
-      return;
-    }
-
-    if (coupon.discountType === 'fixed' && coupon.discountValue > 10000) {
-      toast.error('مبلغ الخصم لا يمكن أن يزيد عن 10,000 ريال');
-      return;
-    }
-
-    setSaving(true);
     try {
-      const formData = {
-        ...coupon,
-        expiryDate: coupon.expiryDate ? new Date(coupon.expiryDate).toISOString() : undefined
+      const couponData = {
+        name: coupon.name,
+        code: coupon.code,
+        description: coupon.description,
+        discountType: coupon.discountType,
+        discountValue: parseFloat(coupon.discountValue.toString()),
+        minimumOrderValue: coupon.minimumAmount ? parseFloat(coupon.minimumAmount.toString()) : null,
+        maxUsageCount: coupon.usageLimit ? parseInt(coupon.usageLimit.toString()) : null,
+        expiryDate: coupon.expiryDate || null,
+        isActive: coupon.isActive
       };
 
-      const endpoint = isEdit 
-        ? API_ENDPOINTS.COUPON_BY_ID(id!)
-        : API_ENDPOINTS.COUPONS;
-      
-      const method = isEdit ? 'PUT' : 'POST';
-      
-      const response = await fetch(buildApiUrl(endpoint), {
-        method,
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      
-      if (!response.ok) {
-        throw new Error(isEdit ? 'فشل في تحديث الكوبون' : 'فشل في إضافة الكوبون');
+      let response;
+      if (id) {
+        // تعديل كوبون موجود
+        response = await fetch(buildApiUrl(API_ENDPOINTS.COUPON_BY_ID(id)), {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(couponData),
+        });
+      } else {
+        // إضافة كوبون جديد
+        response = await fetch(buildApiUrl(API_ENDPOINTS.COUPONS), {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(couponData),
+        });
       }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = id ? 'فشل في تحديث الكوبون' : 'فشل في إضافة الكوبون';
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      toast.success(result.message || (id ? 'تم تحديث الكوبون بنجاح!' : 'تم إضافة الكوبون بنجاح!'));
       
-      toast.success(isEdit ? 'تم تحديث الكوبون بنجاح!' : 'تم إضافة الكوبون بنجاح!');
+      // Trigger a refresh in the dashboard
+      window.dispatchEvent(new Event('couponsUpdated'));
       navigate('/admin?tab=coupons');
     } catch (error) {
       console.error('Error saving coupon:', error);
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء الحفظ');
+      toast.error(error instanceof Error ? error.message : (id ? 'فشل في تحديث الكوبون' : 'فشل في إضافة الكوبون'));
     } finally {
-      setSaving(false);
+      setLoading(false);
     }
   };
 

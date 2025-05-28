@@ -1,6 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate, useParams } from 'react-router-dom';
 import { toast } from 'react-toastify';
+import { apiCall, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 interface Product {
   id: number;
@@ -32,6 +33,8 @@ interface ProductOption {
 
 interface OptionValue {
   value: string;
+  label?: string;
+  price?: number;
 }
 
 interface Category {
@@ -60,7 +63,7 @@ const ProductForm: React.FC = () => {
     sizeGuideImage: undefined,
   });
 
-  console.log('�� ProductForm render - product state:', product);
+  console.log('🔄 ProductForm render - product state:', product);
   console.log('📦 ProductForm render - dynamicOptions length:', product.dynamicOptions?.length || 0);
 
   const [loading, setLoading] = useState<boolean>(false);
@@ -81,22 +84,21 @@ const ProductForm: React.FC = () => {
 
   const fetchDefaultOptions = async (productType: string) => {
     try {
-      console.log('🔍 Fetching default options for productType:', productType);
-      const response = await fetch(`http://localhost:3001/api/products/default-options/${encodeURIComponent(productType)}`);
-      console.log('📡 Response status:', response.status, response.ok);
-      if (response.ok) {
-        const options = await response.json();
-        console.log('✅ Received default options:', options);
-        setDefaultOptions(options);
-        if (!isEditing) {
-          console.log('🔄 Setting product dynamicOptions to:', options);
-          setProduct(prev => ({ ...prev, dynamicOptions: options }));
-        }
-      } else {
-        console.error('❌ Response not ok:', response.status, response.statusText);
+      console.log(`🔍 Fetching default options for type: ${productType}`);
+      const data = await apiCall(API_ENDPOINTS.PRODUCT_DEFAULT_OPTIONS(productType));
+      console.log(`✅ Default options received:`, data);
+      setDefaultOptions(data);
+      
+      if (!isEditing) {
+        setProduct(prev => ({
+          ...prev,
+          dynamicOptions: data
+        }));
+        console.log(`🔄 Updated product dynamicOptions for new product`);
       }
     } catch (error) {
-      console.error('💥 Error fetching default options:', error);
+      console.error('Error fetching default options:', error);
+      toast.error('فشل في جلب الخيارات الافتراضية');
     }
   };
 
@@ -106,8 +108,7 @@ const ProductForm: React.FC = () => {
     const loadData = async () => {
       // Load categories
       try {
-        const response = await fetch('http://localhost:3001/api/categories');
-        const data = await response.json();
+        const data = await apiCall(API_ENDPOINTS.CATEGORIES);
         setCategories(data);
       } catch (error) {
         console.error('Error fetching categories:', error);
@@ -118,9 +119,7 @@ const ProductForm: React.FC = () => {
         console.log('📝 Editing mode - fetching product data');
         setLoading(true);
         try {
-          const response = await fetch(`http://localhost:3001/api/products/${id}`);
-          if (!response.ok) throw new Error('فشل في جلب المنتج');
-          const data = await response.json();
+          const data = await apiCall(API_ENDPOINTS.PRODUCT_BY_ID(id!));
           setProduct(data);
           setLoading(false);
         } catch (error) {
@@ -206,36 +205,77 @@ const ProductForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!product.name || product.price <= 0 || product.stock < 0) {
-      toast.error('يرجى ملء جميع الحقول المطلوبة');
-      return;
-    }
-    setSubmitting(true);
+    setLoading(true);
+
     try {
-      const formData = new FormData();
-      formData.append('name', product.name);
-      formData.append('description', product.description);
-      formData.append('price', product.price.toString());
-      formData.append('originalPrice', (product.originalPrice || 0).toString());
-      formData.append('stock', product.stock.toString());
-      formData.append('productType', product.productType);
-      formData.append('dynamicOptions', JSON.stringify(product.dynamicOptions));
-      if (product.categoryId) formData.append('categoryId', product.categoryId.toString());
-      formData.append('specifications', JSON.stringify([]));
-      if (mainImageFile) formData.append('mainImage', mainImageFile);
-      detailedImageFiles.forEach((file) => formData.append('detailedImages', file));
+      const formDataToSend = new FormData();
+      formDataToSend.append('name', product.name);
+      formDataToSend.append('description', product.description);
+      formDataToSend.append('price', product.price.toString());
+      if (product.originalPrice) {
+        formDataToSend.append('originalPrice', product.originalPrice.toString());
+      }
+      formDataToSend.append('stock', product.stock.toString());
+      if (product.categoryId) {
+        formDataToSend.append('categoryId', product.categoryId.toString());
+      }
+      formDataToSend.append('productType', product.productType);
+      formDataToSend.append('dynamicOptions', JSON.stringify(product.dynamicOptions));
+
+      if (mainImageFile) {
+        formDataToSend.append('mainImage', mainImageFile);
+      }
+
+      if (detailedImageFiles && detailedImageFiles.length > 0) {
+        detailedImageFiles.forEach((file, index) => {
+          formDataToSend.append('detailedImages', file);
+        });
+      }
+
+      if (sizeGuideImageFile) {
+        formDataToSend.append('sizeGuideImage', sizeGuideImageFile);
+      }
+
+      let response;
+      if (id) {
+        // تعديل منتج موجود
+        response = await fetch(buildApiUrl(API_ENDPOINTS.PRODUCT_BY_ID(id)), {
+          method: 'PUT',
+          body: formDataToSend,
+        });
+      } else {
+        // إضافة منتج جديد
+        response = await fetch(buildApiUrl(API_ENDPOINTS.PRODUCTS), {
+          method: 'POST',
+          body: formDataToSend,
+        });
+      }
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        let errorMessage = id ? 'فشل في تحديث المنتج' : 'فشل في إضافة المنتج';
+        
+        try {
+          const errorData = JSON.parse(errorText);
+          errorMessage = errorData.message || errorMessage;
+        } catch {
+          errorMessage = errorText || errorMessage;
+        }
+        
+        throw new Error(errorMessage);
+      }
+
+      const result = await response.json();
+      toast.success(result.message || (id ? 'تم تحديث المنتج بنجاح!' : 'تم إضافة المنتج بنجاح!'));
       
-      const url = isEditing ? `http://localhost:3001/api/products/${id}` : 'http://localhost:3001/api/products';
-      const method = isEditing ? 'PUT' : 'POST';
-      const response = await fetch(url, { method, body: formData });
-      if (!response.ok) throw new Error(isEditing ? 'فشل في تحديث المنتج' : 'فشل في إضافة المنتج');
-      toast.success(isEditing ? 'تم تحديث المنتج بنجاح!' : 'تم إضافة المنتج بنجاح!');
+      // Trigger a refresh in the dashboard
+      window.dispatchEvent(new Event('productsUpdated'));
       navigate('/admin?tab=products');
     } catch (error) {
       console.error('Error saving product:', error);
-      toast.error(error instanceof Error ? error.message : 'حدث خطأ أثناء الحفظ');
+      toast.error(error instanceof Error ? error.message : (id ? 'فشل في تحديث المنتج' : 'فشل في إضافة المنتج'));
     } finally {
-      setSubmitting(false);
+      setLoading(false);
     }
   };
 

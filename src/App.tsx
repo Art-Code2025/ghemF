@@ -67,6 +67,7 @@ const App: React.FC = () => {
     }
   });
   const [loading, setLoading] = useState<boolean>(false);
+  const [initialLoad, setInitialLoad] = useState<boolean>(true);
   const [currentSlide, setCurrentSlide] = useState<number>(0);
 
   const heroImages = [cover1, cover2, cover3];
@@ -95,6 +96,8 @@ const App: React.FC = () => {
 
   const fetchCategoriesWithProducts = async () => {
     try {
+      setLoading(true);
+      
       // استخدام النظام الجديد للـ API calls
       const [categoriesData, products] = await Promise.all([
         apiCall(API_ENDPOINTS.CATEGORIES),
@@ -112,8 +115,17 @@ const App: React.FC = () => {
       // حفظ في localStorage لتجنب الفلاش في المرة القادمة
       localStorage.setItem('cachedCategories', JSON.stringify(categoriesData));
       localStorage.setItem('cachedCategoryProducts', JSON.stringify(categoryProductsData));
+      
+      setInitialLoad(false);
     } catch (error) {
       console.error('Error fetching data:', error);
+      // في حالة الخطأ، إذا كان لدينا بيانات محفوظة، نستخدمها
+      if (categories.length === 0) {
+        toast.error('فشل في تحميل البيانات. يرجى إعادة المحاولة.');
+      }
+      setInitialLoad(false);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -174,9 +186,8 @@ const App: React.FC = () => {
             </div>
           </div>
           
-          {/* Dynamic Categories Grid */}
           {/* عرض Categories فوراً بدون شرط */}
-          {categories.length > 0 && (
+          {categories.length > 0 ? (
             <div className={`grid gap-4 sm:gap-6 lg:gap-8 ${
               categories.length === 1 ? 'grid-cols-1 max-w-sm sm:max-w-md mx-auto' :
               categories.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl sm:max-w-4xl mx-auto' :
@@ -239,7 +250,15 @@ const App: React.FC = () => {
                 </div>
               ))}
             </div>
-          )}
+          ) : !initialLoad && !loading ? (
+            <div className="text-center py-12">
+              <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                <span className="text-2xl">📂</span>
+              </div>
+              <h3 className="text-xl font-bold text-gray-600 mb-2">لا توجد تصنيفات متاحة</h3>
+              <p className="text-gray-500">سيتم إضافة التصنيفات قريباً</p>
+            </div>
+          ) : null}
         </div>
       </section>
 

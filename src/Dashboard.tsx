@@ -162,7 +162,31 @@ const Dashboard: React.FC = () => {
     fetchCoupons();
     fetchWishlistItems();
     fetchOrders();
-    generateSalesData();
+    fetchCustomers();
+    fetchCustomerStats();
+    
+    // Listen for updates
+    const handleCategoriesUpdate = () => {
+      fetchCategories();
+    };
+    
+    const handleProductsUpdate = () => {
+      fetchProducts();
+    };
+    
+    const handleCouponsUpdate = () => {
+      fetchCoupons();
+    };
+    
+    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
+    window.addEventListener('productsUpdated', handleProductsUpdate);
+    window.addEventListener('couponsUpdated', handleCouponsUpdate);
+    
+    return () => {
+      window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
+      window.removeEventListener('productsUpdated', handleProductsUpdate);
+      window.removeEventListener('couponsUpdated', handleCouponsUpdate);
+    };
   }, []);
 
   // Update filtered orders when orders change or when switching to orders tab
@@ -645,32 +669,28 @@ const Dashboard: React.FC = () => {
       
       switch (deleteModal.type) {
         case 'product':
-          endpoint = `http://localhost:3001/api/products/${deleteModal.id}`;
+          endpoint = API_ENDPOINTS.PRODUCT_BY_ID(deleteModal.id.toString());
           successMessage = 'تم حذف المنتج بنجاح!';
           break;
         case 'category':
-          endpoint = `http://localhost:3001/api/categories/${deleteModal.id}`;
+          endpoint = API_ENDPOINTS.CATEGORY_BY_ID(deleteModal.id.toString());
           successMessage = 'تم حذف التصنيف بنجاح!';
           break;
         case 'order':
-          endpoint = `http://localhost:3001/api/orders/${deleteModal.id}`;
+          endpoint = `orders/${deleteModal.id}`;
           successMessage = 'تم حذف الطلب بنجاح!';
           break;
         case 'customer':
-          endpoint = `http://localhost:3001/api/customers/${deleteModal.id}`;
+          endpoint = `customers/${deleteModal.id}`;
           successMessage = 'تم حذف العميل بنجاح!';
           break;
         case 'coupon':
-          endpoint = `http://localhost:3001/api/coupons/${deleteModal.id}`;
+          endpoint = API_ENDPOINTS.COUPON_BY_ID(deleteModal.id.toString());
           successMessage = 'تم حذف الكوبون بنجاح!';
           break;
       }
 
-      const response = await fetch(endpoint, { method: 'DELETE' });
-      
-      if (!response.ok) {
-        throw new Error('فشل في الحذف');
-      }
+      await apiCall(endpoint, { method: 'DELETE' });
 
       // Update local state
       switch (deleteModal.type) {

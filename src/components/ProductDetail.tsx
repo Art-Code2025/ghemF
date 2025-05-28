@@ -96,9 +96,12 @@ const ProductDetail: React.FC = () => {
     images: [],
     text: ''
   });
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [defaultOptions, setDefaultOptions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
+
+  // استخراج ID من slug أو استخدام id مباشرة
+  const productId = slug ? extractIdFromSlug(slug).toString() : id;
 
   const getSizeGuideImage = (productType: string): string => {
     const sizeGuideImages = {
@@ -110,17 +113,19 @@ const ProductDetail: React.FC = () => {
   };
 
   useEffect(() => {
-    if (id) {
+    if (productId) {
       fetchProduct();
-      fetchDefaultOptions();
+    } else {
+      setError('معرف المنتج غير صحيح');
+      setLoading(false);
     }
-  }, [id]);
+  }, [productId]);
 
   useEffect(() => {
     const handleOptionsUpdate = (event: CustomEvent) => {
-      const { productId, options, source } = event.detail;
-      if (product && productId === product.id && source === 'cart') {
-        console.log(`🔄 Updating product options from cart for product ${productId}:`, options);
+      const { productId: eventProductId, options, source } = event.detail;
+      if (product && eventProductId === product.id && source === 'cart') {
+        console.log(`🔄 Updating product options from cart for product ${eventProductId}:`, options);
         setSelectedOptions(options);
       }
     };
@@ -136,32 +141,42 @@ const ProductDetail: React.FC = () => {
     if (product) {
       calculatePrice();
       fetchReviews();
+      fetchDefaultOptions();
     }
   }, [product, selectedOptions]);
 
   const fetchProduct = async () => {
     try {
       setLoading(true);
-      const data = await apiCall(API_ENDPOINTS.PRODUCT_BY_ID(id!));
+      setError(null);
+      
+      const data = await apiCall(API_ENDPOINTS.PRODUCT_BY_ID(productId!));
+      
+      if (!data) {
+        throw new Error('المنتج غير موجود');
+      }
+      
       setProduct(data);
       setSelectedImage(data.mainImage);
       
+      // تهيئة الخيارات الافتراضية
       if (data.dynamicOptions && data.dynamicOptions.length > 0) {
         const initialOptions: { [key: string]: string } = {};
         data.dynamicOptions.forEach((option: any) => {
-          if (option.values && option.values.length > 0) {
-            initialOptions[option.name] = option.values[0];
+          if (option.options && option.options.length > 0) {
+            initialOptions[option.optionName] = option.options[0].value;
           }
         });
         setSelectedOptions(initialOptions);
       }
       
+      // جلب معلومات التصنيف
       if (data.categoryId) {
         fetchCategory(data.categoryId);
       }
     } catch (error) {
       console.error('Error fetching product:', error);
-      setError('المنتج غير موجود');
+      setError('فشل في تحميل المنتج. يرجى المحاولة مرة أخرى.');
     } finally {
       setLoading(false);
     }
@@ -189,13 +204,11 @@ const ProductDetail: React.FC = () => {
 
   const fetchReviews = async () => {
     try {
-      const response = await fetch(`http://localhost:3001/api/products/${id}/reviews`);
-      if (response.ok) {
-        const data = await response.json();
-        setReviews(data);
-      }
+      const data = await apiCall(`products/${productId}/reviews`);
+      setReviews(data || []);
     } catch (error) {
       console.error('Error fetching reviews:', error);
+      setReviews([]);
     }
   };
 
@@ -217,7 +230,7 @@ const ProductDetail: React.FC = () => {
 
       const tempReview = {
         id: Date.now(),
-        productId: parseInt(id || '0'),
+        productId: parseInt(productId || '0'),
         customerId: user.id.toString(),
         customerName: user.name || 'مستخدم',
         comment: newReview.comment,
@@ -227,9 +240,8 @@ const ProductDetail: React.FC = () => {
       setReviews(prev => [tempReview, ...prev]);
       setNewReview({ comment: '' });
 
-      const response = await fetch(`http://localhost:3001/api/products/${id}/reviews`, {
+      const response = await apiCall(`products/${productId}/reviews`, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customerId: user.id.toString(),
           customerName: user.name,
@@ -237,16 +249,8 @@ const ProductDetail: React.FC = () => {
         })
       });
 
-      if (response.ok) {
-        const result = await response.json();
-        toast.success(result.message);
-        fetchReviews();
-      } else {
-        setReviews(prev => prev.filter(review => review.id !== tempReview.id));
-        setNewReview({ comment: newReview.comment });
-        const errorData = await response.json();
-        toast.error(errorData.message || 'فشل في إضافة التعليق');
-      }
+      toast.success('تم إضافة التعليق بنجاح');
+      fetchReviews();
     } catch (error) {
       console.error('Error submitting review:', error);
       fetchReviews();
@@ -407,17 +411,44 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  if (!product) {
+  // حالة التحميل
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 flex items-center justify-center px-4">
         <div className="text-center max-w-md mx-auto">
-          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">المنتج غير موجود</h2>
-          <button 
-            onClick={() => navigate('/')} 
-            className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm sm:text-base"
-          >
-            العودة للرئيسية
-          </button>
+          <div className="animate-spin rounded-full h-16 w-16 border-b-4 border-pink-500 mx-auto mb-4"></div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-2">جاري تحميل المنتج...</h2>
+          <p className="text-gray-600">يرجى الانتظار</p>
+        </div>
+      </div>
+    );
+  }
+
+  // حالة الخطأ
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-amber-50 via-stone-100 to-amber-100 flex items-center justify-center px-4">
+        <div className="text-center max-w-md mx-auto">
+          <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <X className="w-8 h-8 text-red-500" />
+          </div>
+          <h2 className="text-xl sm:text-2xl font-bold text-gray-900 mb-4">
+            {error || 'المنتج غير موجود'}
+          </h2>
+          <div className="space-y-3">
+            <button 
+              onClick={() => window.location.reload()} 
+              className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-sm sm:text-base mr-3"
+            >
+              إعادة المحاولة
+            </button>
+            <button 
+              onClick={() => navigate('/')} 
+              className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm sm:text-base"
+            >
+              العودة للرئيسية
+            </button>
+          </div>
         </div>
       </div>
     );
@@ -455,7 +486,7 @@ const ProductDetail: React.FC = () => {
               </div>
 
               {/* Thumbnail Images */}
-              <div className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto pb-2">
+              <div className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto pb-2 mt-4">
                 <button
                   onClick={() => setSelectedImage(product.mainImage)}
                   className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
@@ -748,10 +779,10 @@ const ProductDetail: React.FC = () => {
                   />
                 </div>
 
-                <button 
+                <button
                   onClick={submitReview}
                   disabled={submittingReview || !newReview.comment.trim()}
-                  className="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 font-semibold text-sm"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium"
                 >
                   {submittingReview ? 'جاري الإرسال...' : 'إرسال التعليق'}
                 </button>
@@ -844,18 +875,15 @@ const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number |
 
   const fetchRelatedProducts = async () => {
     try {
-      const response = await fetch('http://localhost:3001/api/products');
-      if (response.ok) {
-        const data = await response.json();
-        
-        const filtered = data.filter((product: Product) => 
-          Number(product.id) !== Number(currentProductId)
-        );
-        
-        const shuffled = filtered.sort(() => Math.random() - 0.5);
-        
-        setRelatedProducts(shuffled.slice(0, 4));
-      }
+      const data = await apiCall(API_ENDPOINTS.PRODUCTS);
+      
+      const filtered = data.filter((product: Product) => 
+        Number(product.id) !== Number(currentProductId)
+      );
+      
+      const shuffled = filtered.sort(() => Math.random() - 0.5);
+      
+      setRelatedProducts(shuffled.slice(0, 4));
     } catch (error) {
       console.error('Error fetching related products:', error);
     }
@@ -883,9 +911,12 @@ const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number |
             <div className="relative">
               <div className="aspect-square overflow-hidden">
                 <img 
-                  src={product.mainImage ? `http://localhost:3001${product.mainImage}` : '/placeholder-image.png'}
+                  src={buildImageUrl(product.mainImage)}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder-image.png';
+                  }}
                 />
               </div>
               <div className="absolute top-3 right-3 bg-pink-500 text-white px-2 py-1 rounded-full text-xs font-bold">
