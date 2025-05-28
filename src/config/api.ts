@@ -32,15 +32,27 @@ export const buildApiUrl = (endpoint: string): string => {
   return `${baseUrl}/api/${finalEndpoint}`;
 };
 
-// دالة مساعدة لبناء URL الصور
+// دالة مساعدة لبناء URL الصور - محدثة
 export const buildImageUrl = (imagePath: string): string => {
   if (!imagePath) return '/placeholder-image.png';
   if (imagePath.startsWith('http')) return imagePath;
   if (imagePath.startsWith('data:image/')) return imagePath;
   
   const baseUrl = getApiBaseUrl();
+  
+  // إذا كان المسار يبدأ بـ /images/ فهو مسار نسبي من الباك إند
+  if (imagePath.startsWith('/images/')) {
+    return `${baseUrl}${imagePath}`;
+  }
+  
+  // إذا كان المسار يبدأ بـ images/ بدون slash
+  if (imagePath.startsWith('images/')) {
+    return `${baseUrl}/${imagePath}`;
+  }
+  
+  // إذا كان مسار عادي، أضف /images/ قبله
   const cleanPath = imagePath.startsWith('/') ? imagePath : `/${imagePath}`;
-  return `${baseUrl}${cleanPath}`;
+  return `${baseUrl}/images${cleanPath}`;
 };
 
 // دالة مركزية لجميع API calls

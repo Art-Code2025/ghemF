@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { Heart, Eye } from 'lucide-react';
 import { createProductSlug } from '../utils/slugify';
 import { addToCartUnified, addToWishlistUnified, removeFromWishlistUnified } from '../utils/cartUtils';
+import { buildImageUrl } from '../config/api';
 
 
 interface Product {
@@ -135,7 +136,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
           <div className="relative w-full md:w-48 lg:w-64 h-48 sm:h-56 md:h-64 flex-shrink-0 bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden">
             <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
               <img
-                src={product.mainImage.startsWith('http') ? product.mainImage : `http://localhost:3001${product.mainImage.startsWith('/') ? product.mainImage : `/${product.mainImage}`}`}
+                src={buildImageUrl(product.mainImage)}
                 alt={product.name}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 loading="lazy"
@@ -256,13 +257,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   return (
     <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200/60 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-72 h-auto min-h-[480px] sm:min-h-[520px] lg:h-[540px]">
       {/* Product Image */}
-      <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 overflow-hidden bg-gray-50">
+      <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 overflow-hidden rounded-t-2xl sm:rounded-t-3xl group-hover:rounded-t-xl transition-all duration-500">
         <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
           <img
-            src={product.mainImage.startsWith('http') ? product.mainImage : `http://localhost:3001${product.mainImage.startsWith('/') ? product.mainImage : `/${product.mainImage}`}`}
+            src={buildImageUrl(product.mainImage)}
             alt={product.name}
-            className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-            loading="lazy"
+            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+            onError={(e) => {
+              e.currentTarget.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3';
+            }}
           />
         </Link>
         

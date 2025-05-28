@@ -12,7 +12,7 @@ import cover1 from './assets/cover1.jpg';
 import { createCategorySlug } from './utils/slugify';
 import cover2 from './assets/cover2.jpg';
 import cover3 from './assets/cover3.jpg';
-import { apiCall, API_ENDPOINTS } from './config/api';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from './config/api';
 
 interface Product {
   id: number;
@@ -196,7 +196,7 @@ const App: React.FC = () => {
                         {/* Category Image */}
                         <div className="relative h-52 sm:h-60 md:h-68 lg:h-76 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
                           <img
-                            src={category.image ? `http://localhost:3001${category.image}` : `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`}
+                            src={buildImageUrl(category.image)}
                             alt={category.name}
                             className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                             onError={(e) => {

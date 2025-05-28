@@ -6,7 +6,7 @@ import { PieChart, Pie, Cell, Tooltip, Legend, BarChart, Bar, XAxis, YAxis, Cart
 import logo from './assets/logo.png';
 import OrderModal from './components/OrderModal';
 import DeleteModal from './components/DeleteModal';
-import { apiCall, API_ENDPOINTS, buildApiUrl } from './config/api';
+import { apiCall, API_ENDPOINTS, buildApiUrl, buildImageUrl } from './config/api';
 
 // تعريف الأنواع
 interface Service {
@@ -1365,7 +1365,7 @@ const Dashboard: React.FC = () => {
                               <div className="flex-shrink-0 h-12 w-12">
                                 <img 
                                   className="h-12 w-12 rounded-xl object-cover shadow-md" 
-                                  src={`http://localhost:3001${product.mainImage}`} 
+                                  src={buildImageUrl(product.mainImage)} 
                                   alt={product.name}
                                   onError={(e) => {
                                     e.currentTarget.src = '/placeholder-image.png';
@@ -1456,7 +1456,7 @@ const Dashboard: React.FC = () => {
                         <div className="h-48 overflow-hidden">
                           {category.image ? (
                             <img 
-                              src={`http://localhost:3001${category.image}`}
+                              src={buildImageUrl(category.image)}
                               alt={category.name}
                               className="w-full h-full object-cover"
                             />

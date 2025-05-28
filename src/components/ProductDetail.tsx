@@ -439,45 +439,54 @@ const ProductDetail: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
           <div className="space-y-4 sm:space-y-6">
             <div className="bg-white rounded-2xl sm:rounded-3xl shadow-2xl p-4 sm:p-6 lg:p-8 border border-gray-200">
-              <div className="aspect-square overflow-hidden rounded-xl sm:rounded-2xl mb-4 sm:mb-6">
+              <div className="relative h-80 sm:h-96 lg:h-[500px] overflow-hidden rounded-2xl sm:rounded-3xl bg-gray-100 shadow-2xl border border-gray-200">
                 <img
-                  src={selectedImage ? `http://localhost:3001${selectedImage}` : '/placeholder-image.png'}
+                  src={buildImageUrl(selectedImage)}
                   alt={product.name}
-                  className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                  className="w-full h-full object-contain transition-all duration-500 hover:scale-105"
+                  onError={(e) => {
+                    e.currentTarget.src = '/placeholder-image.png';
+                  }}
                 />
               </div>
-              
-              {product.detailedImages && product.detailedImages.length > 0 && (
-                <div className="grid grid-cols-3 sm:grid-cols-4 gap-2 sm:gap-3">
+
+              {/* Thumbnail Images */}
+              <div className="flex gap-2 sm:gap-3 lg:gap-4 overflow-x-auto pb-2">
+                <button
+                  onClick={() => setSelectedImage(product.mainImage)}
+                  className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                    selectedImage === product.mainImage ? 'border-pink-500 shadow-lg scale-105' : 'border-gray-300 hover:border-pink-300'
+                  }`}
+                >
+                  <img
+                    src={buildImageUrl(product.mainImage)}
+                    alt="Main"
+                    className="w-full h-full object-cover"
+                    onError={(e) => {
+                      e.currentTarget.src = '/placeholder-image.png';
+                    }}
+                  />
+                </button>
+                
+                {product.detailedImages && product.detailedImages.map((image, index) => (
                   <button
-                    onClick={() => setSelectedImage(product.mainImage)}
-                    className={`aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                      selectedImage === product.mainImage ? 'border-pink-500 ring-2 ring-pink-500' : 'border-gray-200 hover:border-gray-300'
+                    key={index}
+                    onClick={() => setSelectedImage(image)}
+                    className={`flex-shrink-0 w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 rounded-xl sm:rounded-2xl overflow-hidden border-2 transition-all duration-300 ${
+                      selectedImage === image ? 'border-pink-500 shadow-lg scale-105' : 'border-gray-300 hover:border-pink-300'
                     }`}
                   >
                     <img
-                      src={`http://localhost:3001${product.mainImage}`}
-                      alt="صورة رئيسية"
+                      src={buildImageUrl(image)}
+                      alt={`Detail ${index + 1}`}
                       className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder-image.png';
+                      }}
                     />
                   </button>
-                  {product.detailedImages.map((image, index) => (
-                    <button
-                      key={index}
-                      onClick={() => setSelectedImage(image)}
-                      className={`aspect-square rounded-lg sm:rounded-xl overflow-hidden border-2 transition-all duration-300 ${
-                        selectedImage === image ? 'border-pink-500 ring-2 ring-pink-500' : 'border-gray-200 hover:border-gray-300'
-                      }`}
-                    >
-                      <img
-                        src={`http://localhost:3001${image}`}
-                        alt={`صورة ${index + 1}`}
-                        className="w-full h-full object-cover"
-                      />
-                    </button>
-                  ))}
-                </div>
-              )}
+                ))}
+              </div>
             </div>
           </div>
 

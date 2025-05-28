@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Heart, ShoppingCart, Trash2, Package } from 'lucide-react';
-import { apiCall, API_ENDPOINTS } from '../config/api';
+import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 
 import { addToCartUnified } from '../utils/cartUtils';
 
@@ -254,48 +254,15 @@ const Wishlist: React.FC = () => {
               </div>
 
               {/* Product Image */}
-              <div className="relative h-72 overflow-hidden">
-                <img 
-                  src={`http://localhost:3001${item.product.mainImage}`} 
+              <div className="relative h-48 sm:h-56 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
+                <img
+                  src={buildImageUrl(item.product.mainImage)}
                   alt={item.product.name}
-                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700"
+                  className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110"
+                  onError={(e) => {
+                    e.currentTarget.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop';
+                  }}
                 />
-                
-                {/* Premium Overlay */}
-                <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                
-                {/* Stock Status */}
-                <div className={`absolute top-4 right-4 px-4 py-2 rounded-2xl text-sm font-bold backdrop-blur-xl border ${
-                  item.product.stock > 0 
-                    ? 'bg-green-100/80 text-green-800 border-green-300/50' 
-                    : 'bg-red-100/80 text-red-800 border-red-300/50'
-                }`}>
-                  {item.product.stock > 0 ? `متوفر (${item.product.stock})` : 'غير متوفر'}
-                </div>
-                
-                {/* Remove Button */}
-                <button
-                  onClick={() => removeFromWishlist(item.productId)}
-                  disabled={removing === item.id}
-                  className="absolute top-4 left-4 w-12 h-12 bg-red-100/80 backdrop-blur-xl border border-red-300/50 text-red-600 rounded-2xl hover:bg-red-200/80 transition-all duration-300 flex items-center justify-center group/btn shadow-lg"
-                  title="حذف من قائمة الأمنيات"
-                >
-                  {removing === item.id ? (
-                    <svg className="animate-spin h-5 w-5" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                  ) : (
-                    <svg className="w-5 h-5 group-hover/btn:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                    </svg>
-                  )}
-                </button>
-                
-                {/* Date Badge */}
-                <div className="absolute bottom-4 right-4 bg-black/60 backdrop-blur-xl text-white px-3 py-1 rounded-2xl text-sm border border-gray-300/20">
-                  {new Date(item.addedAt).toLocaleDateString('ar-SA')}
-                </div>
               </div>
 
               {/* Product Info */}
