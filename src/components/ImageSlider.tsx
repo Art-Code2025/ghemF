@@ -115,7 +115,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden"
+      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-gradient-to-br from-rose-50 via-pink-50 to-white"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -137,7 +137,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
             alt={`مجموعة مميزة ${index + 1}`}
             className={`slider-image w-full h-full transition-all duration-[4000ms] ease-out ${
               index === activeIndex ? 'scale-102 filter brightness-105 saturate-110' : 'scale-100'
-            } object-cover`}
+            } object-contain bg-gradient-to-br from-gray-50 to-white`}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
           
