@@ -131,7 +131,7 @@ const App: React.FC = () => {
 
       
       {/* Premium Hero Slider */}
-      <section className="relative h-[320px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] mb-2 sm:mb-6 lg:mb-8 overflow-hidden">
+      <section className="relative h-[400px] sm:h-[450px] md:h-[500px] lg:h-[600px] xl:h-[700px] mb-2 sm:mb-6 lg:mb-8 overflow-hidden">
         <ImageSlider images={heroImages} currentIndex={currentSlide} />
         
         {/* Modern Navigation Buttons */}
