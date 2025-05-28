@@ -115,7 +115,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-gradient-to-br from-pink-50 via-white to-rose-50"
+      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[450px] lg:h-[500px] xl:h-[600px] overflow-hidden bg-gradient-to-br from-gray-100 via-white to-gray-50"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -137,15 +137,15 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
             alt={`مجموعة مميزة ${index + 1}`}
             className={`slider-image w-full h-full transition-all duration-[4000ms] ease-out ${
               index === activeIndex ? 'scale-102 filter brightness-105 saturate-110' : 'scale-100'
-            } object-cover`}
+            } object-contain`}
             loading={index === 0 ? 'eager' : 'lazy'}
           />
           
-          {/* Professional Overlay - Consistent across all devices */}
+          {/* Professional Overlay - Subtle and refined */}
           <div className={`absolute inset-0 transition-all duration-2000 ${
             index === activeIndex 
-              ? 'bg-gradient-to-br from-black/20 via-gray-900/10 to-black/30'
-              : 'bg-gradient-to-br from-black/40 via-gray-900/30 to-black/50'
+              ? 'bg-gradient-to-br from-black/5 via-transparent to-black/10'
+              : 'bg-gradient-to-br from-black/15 via-gray-900/5 to-black/20'
           }`} />
           
           {/* Subtle Floating Elements */}
@@ -257,13 +257,6 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
           >
             <RotateCcw className="w-2.5 h-2.5 sm:w-3 sm:h-3 lg:w-3.5 lg:h-3.5 text-white/80 group-hover:text-white group-hover:rotate-180 transition-all duration-300" />
           </button>
-        </div>
-      </div>
-
-      {/* Mobile Swipe Indicator */}
-      <div className="absolute top-4 left-1/2 transform -translate-x-1/2 z-30 md:hidden">
-        <div className="bg-black/20 backdrop-blur-sm rounded-full px-3 py-1 border border-white/20">
-          <span className="text-white/70 text-xs font-light">← اسحب للتنقل →</span>
         </div>
       </div>
 
