@@ -131,7 +131,7 @@ const App: React.FC = () => {
 
       
       {/* Premium Hero Slider */}
-      <section className="relative h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] xl:h-[800px] mb-4 sm:mb-12 lg:mb-16 overflow-hidden">
+      <section className="relative h-[320px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] mb-2 sm:mb-6 lg:mb-8 overflow-hidden">
         <ImageSlider images={heroImages} currentIndex={currentSlide} />
         
         {/* Modern Navigation Buttons */}
@@ -150,7 +150,7 @@ const App: React.FC = () => {
       </section>
       
       {/* Premium Collection Section */}
-      <section className="relative py-6 sm:py-12 lg:py-16 overflow-hidden">
+      <section className="relative py-4 sm:py-8 lg:py-12 overflow-hidden">
         {/* Premium Background Effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-pink-100/40 via-rose-50/30 to-pink-100/40" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-pink-300/10 rounded-full blur-3xl" />
@@ -158,21 +158,21 @@ const App: React.FC = () => {
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Premium Header with Icons */}
-          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+          <div className="text-center mb-6 sm:mb-10 lg:mb-12">
             <div className="flex items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-pink-500 animate-pulse" />
-              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-pink-500 animate-pulse" />
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
                 مجموعاتنا المميزة
               </h2>
-              <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-pink-500 animate-pulse" />
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-pink-500 animate-pulse" />
             </div>
             <div className="h-1.5 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-4 sm:mb-6 mx-auto w-24 sm:w-32 lg:w-40 shadow-lg" />
-            <p className="text-sm sm:text-base lg:text-lg text-gray-700 font-medium max-w-3xl mx-auto leading-relaxed px-4 mb-4">
+            <p className="text-xs sm:text-sm lg:text-base text-gray-700 font-medium max-w-2xl mx-auto leading-relaxed px-4 mb-3">
               اكتشف تشكيلة متنوعة من المجموعات الحصرية المصممة خصيصاً لتناسب جميع أذواقكم الرفيعة
             </p>
-            <div className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-white/90 to-pink-50/90 backdrop-blur-xl border-2 border-pink-200/60 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
-              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" />
-              <span className="text-sm sm:text-base text-gray-700 font-bold">{categories.length} مجموعة متاحة</span>
+            <div className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-white/90 to-pink-50/90 backdrop-blur-xl border border-pink-200/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-pink-500" />
+              <span className="text-xs sm:text-sm text-gray-700 font-bold">{categories.length} مجموعة متاحة</span>
             </div>
           </div>
           

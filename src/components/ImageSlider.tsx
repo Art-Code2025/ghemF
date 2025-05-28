@@ -114,7 +114,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[350px] sm:h-[450px] md:h-[550px] lg:h-[650px] xl:h-[750px] overflow-hidden bg-gradient-to-br from-pink-50 via-white to-rose-50 -mt-16 sm:-mt-20 md:-mt-0 shadow-lg"
+      className="image-slider-container relative w-full h-[320px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden bg-gradient-to-br from-pink-50 via-white to-rose-50 -mt-16 sm:-mt-20 md:-mt-0"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -190,7 +190,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
                 استثنائية
               </span>
             </h1>
-            <div className="h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent w-16 sm:w-20 lg:w-24 xl:w-28 mx-auto rounded-full shadow-lg" />
+            <div className="h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent w-16 sm:w-20 lg:w-24 xl:w-28 mx-auto rounded-full" />
           </div>
 
           {/* Sophisticated CTA Button - Better mobile sizing */}
@@ -217,7 +217,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
       {/* Enhanced Navigation with Image Display Toggle - Hidden on mobile */}
       <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 xl:bottom-12 left-1/2 transform -translate-x-1/2 z-30 hidden md:flex">
-        <div className="slider-controls flex items-center gap-2 sm:gap-3 lg:gap-4 bg-white/15 backdrop-blur-xl rounded-full px-3 sm:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 lg:py-2.5 xl:py-3 border border-white/20 shadow-lg">
+        <div className="slider-controls flex items-center gap-2 sm:gap-3 lg:gap-4 bg-white/15 backdrop-blur-xl rounded-full px-3 sm:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 lg:py-2.5 xl:py-3 border border-white/20">
           {/* Image Display Mode Toggle */}
           <button
             onClick={toggleImageDisplayMode}
@@ -308,10 +308,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         <div className="absolute bottom-0 right-0 w-px h-2 sm:h-3 lg:h-4 bg-white/40" />
       </div>
 
-      {/* Gentle Ambient Lighting */}
-      <div className="absolute inset-0 bg-gradient-to-br from-amber-100/5 via-transparent to-yellow-100/5 pointer-events-none" />
-      <div className="absolute top-1/3 left-1/3 w-80 h-80 bg-white/3 rounded-full blur-3xl pointer-events-none" />
-      <div className="absolute bottom-1/3 right-1/3 w-80 h-80 bg-amber-100/3 rounded-full blur-3xl pointer-events-none" />
+
     </div>
   );
 }
