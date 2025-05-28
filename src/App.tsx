@@ -130,9 +130,11 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden" dir="rtl">
 
       
-      {/* Premium Hero Slider */}
+      {/* Premium Hero Slider - أبعاد محسنة */}
       <section className="relative h-[400px] sm:h-[450px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden">
-        <ImageSlider images={heroImages} currentIndex={currentSlide} />
+        <div className="absolute inset-0">
+          <ImageSlider images={heroImages} currentIndex={currentSlide} />
+        </div>
         
         {/* Modern Navigation Buttons - لون موحد رمادي */}
         <button

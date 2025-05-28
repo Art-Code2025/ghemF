@@ -86,16 +86,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       ))}
 
-      {/* زر "استكشف منتجاتنا" محسن - أصغر ومتوسط */}
+      {/* زر "استكشف منتجاتنا" محسن - لون بينك احترافي */}
       <div className="absolute inset-0 flex justify-center items-end pb-6 sm:pb-8 z-20 pointer-events-none">
         <a
           href="/products"
-          className={`pointer-events-auto group bg-gradient-to-r from-gray-800 to-gray-900 text-white 
+          className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 
                      px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl shadow-lg
                      transition-all duration-300 transform 
                      ${buttonLoaded ? 'scale-100 opacity-95' : 'scale-75 opacity-0'}
-                     hover:scale-105 hover:shadow-xl hover:from-gray-700 hover:to-gray-800
-                     focus:outline-none focus:ring-4 focus:ring-gray-300
+                     hover:scale-105 hover:shadow-xl hover:from-pink-600 hover:to-rose-600
+                     focus:outline-none focus:ring-4 focus:ring-pink-300
                      text-sm sm:text-base font-medium`}
         >
           <div className="flex items-center gap-1.5">
