@@ -47,7 +47,9 @@ const LayoutWrapper: React.FC = () => {
   );
 
   // إضافة responsive padding بس لو النافبار موجود
-  const contentClass = shouldHideNavbar ? '' : 'pt-16 sm:pt-20 lg:pt-24';
+  // للصفحة الرئيسية، نخلي الصورة تبدأ من النافبار مباشرة
+  const isHomePage = location.pathname === '/';
+  const contentClass = shouldHideNavbar ? '' : isHomePage ? '' : 'pt-16 sm:pt-20 lg:pt-24';
 
   return (
     <>

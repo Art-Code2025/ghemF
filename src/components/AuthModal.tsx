@@ -288,15 +288,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 z-50 flex items-center justify-end p-4">
       {/* Backdrop */}
       <div 
         className="absolute inset-0 bg-black/60 backdrop-blur-sm" 
         onClick={onClose}
       />
       
-      {/* Modal */}
-      <div className="relative bg-white rounded-2xl sm:rounded-3xl shadow-2xl w-full max-w-sm sm:max-w-md overflow-hidden">
+      {/* Modal - Smaller and from right */}
+      <div className="relative bg-white rounded-xl sm:rounded-2xl shadow-2xl w-full max-w-xs sm:max-w-sm overflow-hidden transform transition-all duration-300 animate-[slideInFromRight_0.3s_ease-out]">
         {/* Header */}
         <div className="relative bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 p-4 sm:p-6 text-center">
           <button

@@ -92,4 +92,28 @@ html {
 /* Prevent zoom on double tap for slider area */
 .image-slider-container * {
   touch-action: manipulation;
+}
+
+/* Animation for AuthModal sliding from right */
+@keyframes slideInFromRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* Animation for mobile menu sliding from top */
+@keyframes slideInFromTop {
+  from {
+    transform: translateY(-100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
 } 

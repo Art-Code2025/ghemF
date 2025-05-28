@@ -114,7 +114,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
 
   return (
     <div 
-      className="image-slider-container relative w-full h-[300px] sm:h-[400px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden bg-gray-50"
+      className="image-slider-container relative w-full h-[350px] sm:h-[450px] md:h-[550px] lg:h-[650px] xl:h-[750px] overflow-hidden bg-gradient-to-br from-pink-50 via-white to-rose-50 -mt-16 sm:-mt-20 md:-mt-0 shadow-lg"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -180,26 +180,26 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
       <div className="absolute inset-0 flex items-center justify-center z-20 px-4">
         <div className="text-center space-y-4 sm:space-y-6 lg:space-y-8">
           {/* Elegant Heading - Better mobile sizing */}
-          <div className="space-y-2 sm:space-y-4">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl xl:text-6xl font-light text-white leading-relaxed tracking-wider">
-              <span className="bg-gradient-to-r from-white via-gray-100 to-white bg-clip-text text-transparent">
+          <div className="space-y-3 sm:space-y-4">
+            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl xl:text-7xl font-bold text-white leading-tight tracking-wide drop-shadow-2xl">
+              <span className="bg-gradient-to-r from-white via-pink-100 to-white bg-clip-text text-transparent">
                 مجموعة
               </span>
               <br />
-              <span className="bg-gradient-to-r from-amber-200 via-yellow-100 to-amber-200 bg-clip-text text-transparent font-extralight">
+              <span className="bg-gradient-to-r from-amber-200 via-yellow-200 to-amber-300 bg-clip-text text-transparent font-black">
                 استثنائية
               </span>
             </h1>
-            <div className="h-px bg-gradient-to-r from-transparent via-white/40 to-transparent w-12 sm:w-16 lg:w-20 xl:w-24 mx-auto" />
+            <div className="h-1 bg-gradient-to-r from-transparent via-white/60 to-transparent w-16 sm:w-20 lg:w-24 xl:w-28 mx-auto rounded-full shadow-lg" />
           </div>
 
           {/* Sophisticated CTA Button - Better mobile sizing */}
           <div className="relative">
             <a
               href="/products"
-              className={`group relative inline-flex items-center gap-2 sm:gap-3 lg:gap-4 bg-pink-500/90 backdrop-blur-md text-white px-4 sm:px-6 lg:px-8 xl:px-10 py-2.5 sm:py-3 lg:py-4 xl:py-5 rounded-full border border-pink-400/50 hover:border-pink-300/70 transition-all duration-700 transform ${
+              className={`group relative inline-flex items-center gap-3 sm:gap-4 lg:gap-5 bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 backdrop-blur-md text-white px-6 sm:px-8 lg:px-10 xl:px-12 py-3 sm:py-4 lg:py-5 xl:py-6 rounded-2xl border-2 border-pink-400/60 hover:border-pink-300/80 transition-all duration-500 transform ${
                 buttonLoaded ? 'translate-x-0 opacity-100' : '-translate-x-[150px] opacity-0'
-              } hover:scale-105 hover:bg-pink-500 hover:shadow-lg hover:shadow-pink-500/30 text-xs sm:text-sm lg:text-base xl:text-lg font-light shadow-xl overflow-hidden ease-[cubic-bezier(0.4,0,0.2,1)]`}
+              } hover:scale-110 hover:shadow-2xl hover:shadow-pink-500/40 text-sm sm:text-base lg:text-lg xl:text-xl font-semibold shadow-2xl overflow-hidden ease-[cubic-bezier(0.4,0,0.2,1)]`}
             >
               {/* Pink Shimmer Effect */}
               <div className="absolute inset-0 bg-gradient-to-r from-transparent via-pink-300/30 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1500 ease-out" />
@@ -207,16 +207,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
               {/* Floating Animation */}
               <div className="absolute inset-0 bg-pink-400/20 rounded-full scale-0 group-hover:scale-110 transition-transform duration-500 ease-out" />
               
-              <span className="relative z-10 text-sm sm:text-lg opacity-90">🎓</span>
-              <span className="relative z-10 tracking-wide font-light"> استكشف منتجاتنا </span>
-              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4 lg:w-5 lg:h-5 relative z-10 group-hover:translate-x-1 transition-transform duration-300" />
+              <span className="relative z-10 text-lg sm:text-xl opacity-95">✨</span>
+              <span className="relative z-10 tracking-wide font-semibold"> استكشف منتجاتنا </span>
+              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6 relative z-10 group-hover:translate-x-2 transition-transform duration-300" />
             </a>
           </div>
         </div>
       </div>
 
-      {/* Enhanced Navigation with Image Display Toggle */}
-      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 xl:bottom-12 left-1/2 transform -translate-x-1/2 z-30">
+      {/* Enhanced Navigation with Image Display Toggle - Hidden on mobile */}
+      <div className="absolute bottom-4 sm:bottom-6 lg:bottom-8 xl:bottom-12 left-1/2 transform -translate-x-1/2 z-30 hidden md:flex">
         <div className="slider-controls flex items-center gap-2 sm:gap-3 lg:gap-4 bg-white/15 backdrop-blur-xl rounded-full px-3 sm:px-4 lg:px-5 xl:px-6 py-1.5 sm:py-2 lg:py-2.5 xl:py-3 border border-white/20 shadow-lg">
           {/* Image Display Mode Toggle */}
           <button
@@ -281,20 +281,11 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </div>
       </div>
 
-      {/* Display Mode Indicator */}
-      <div className="absolute top-4 left-4 z-30">
+      {/* Display Mode Indicator - Hidden on mobile */}
+      <div className="absolute top-4 left-4 z-30 hidden md:block">
         <div className="bg-black/30 backdrop-blur-sm rounded-full px-2 sm:px-3 py-1 sm:py-1.5 border border-white/20">
           <span className="text-white/80 text-xs sm:text-sm font-light">
             {imageDisplayMode === 'contain' ? '📱 عرض كامل' : '🖥️ عرض مقصوص'}
-          </span>
-        </div>
-      </div>
-
-      {/* Mobile Swipe Indicator */}
-      <div className="absolute top-4 right-4 z-30 md:hidden">
-        <div className="bg-black/30 backdrop-blur-sm rounded-full px-2 py-1 border border-white/20">
-          <span className="text-white/80 text-xs font-light">
-            👆 اسحب للتنقل
           </span>
         </div>
       </div>

@@ -1,6 +1,7 @@
 /* Import only critical optimizations */
 @import './styles/ultraFastCart.css';
 @import './styles/instantCart.css';
+@import './styles/mobile-enhancements.css';
 
 @tailwind base;
 @tailwind components;

@@ -309,10 +309,10 @@ function Navbar() {
             {isMenuOpen ? <X size={24} className="sm:w-7 sm:h-7" /> : <Menu size={24} className="sm:w-7 sm:h-7" />}
           </button>
 
-          {/* Premium Logo - Responsive */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group">
+          {/* Premium Logo - Responsive & Centered */}
+          <Link to="/" className="flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group absolute left-1/2 transform -translate-x-1/2 lg:relative lg:left-auto lg:transform-none">
             <div className="relative">
-              <img src={logo} alt="Premium Brand Logo" className="h-12 sm:h-16 lg:h-20 w-auto drop-shadow-2xl" />
+              <img src={logo} alt="Premium Brand Logo" className="h-10 sm:h-14 lg:h-20 w-auto drop-shadow-2xl" />
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
             </div>
           </Link>
@@ -415,7 +415,7 @@ function Navbar() {
                   <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
                 {isUserMenuOpen && (
-                  <div className="absolute right-0 mt-2 sm:mt-4 w-64 sm:w-72 bg-[#f8f6ea]/95 backdrop-blur-2xl rounded-2xl sm:rounded-3xl shadow-2xl border border-gray-300/40 py-3 sm:py-4 animate-[slideInFromTop_0.3s_ease-out]">
+                  <div className="absolute left-0 mt-2 sm:mt-4 w-48 sm:w-56 bg-[#f8f6ea]/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl shadow-2xl border border-gray-300/40 py-2 sm:py-3 animate-[slideInFromTop_0.3s_ease-out]">
                     <div className="absolute inset-0 bg-gradient-to-br from-[#f8f6ea]/30 via-[#f8f6ea]/40 to-[#f8f6ea]/30 rounded-2xl sm:rounded-3xl" />
                     <div className="relative">
                       <button
@@ -432,23 +432,35 @@ function Navbar() {
             ) : (
               <button
                 onClick={openAuthModal}
-                className="relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-xl hover:shadow-2xl font-semibold group"
+                className="relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-lg hover:shadow-xl font-medium group"
               >
-                <div className="flex items-center gap-1 sm:gap-2">
-                  <User size={18} className="sm:w-5 sm:h-5 text-white" />
-                  <span className="text-sm sm:text-base">تسجيل الدخول</span>
+                <div className="flex items-center gap-1 sm:gap-1.5">
+                  <User size={16} className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
+                  <span className="text-xs sm:text-sm lg:text-base">دخول</span>
                 </div>
-                <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
             )}
           </div>
         </div>
 
-        {/* Premium Mobile Menu */}
-        <div className={`lg:hidden transition-all duration-500 ease-out ${isMenuOpen ? 'block opacity-100' : 'hidden opacity-0'}`}>
-          <div className="bg-[#f8f6ea]/95 backdrop-blur-2xl shadow-2xl border-t border-gray-300/30 p-4 sm:p-6 animate-[slideInFromTop_0.3s_ease-out]">
+        {/* Premium Mobile Menu - Vertical Sidebar */}
+        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-40 transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+          <div className="h-full bg-[#f8f6ea]/95 backdrop-blur-2xl shadow-2xl border-l border-gray-300/30 p-4 sm:p-6 overflow-y-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-[#f8f6ea]/30 via-[#f8f6ea]/40 to-[#f8f6ea]/30" />
-            <div className="relative space-y-2">
+            
+            {/* Close Button */}
+            <div className="relative flex justify-between items-center mb-6">
+              <h3 className="text-lg font-semibold text-gray-800">القائمة الرئيسية</h3>
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white/40 rounded-lg transition-all duration-300"
+              >
+                <X size={24} />
+              </button>
+            </div>
+            
+            <div className="relative space-y-3">
               {/* عرض Categories فوراً بدون شرط */}
               {categories.map((category) => (
                   <button
@@ -459,17 +471,25 @@ function Navbar() {
                       navigate(`/category/${categorySlug}`);
                       setIsMenuOpen(false);
                     }}
-                    className={`w-full text-right block px-4 sm:px-6 py-3 sm:py-4 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl sm:rounded-2xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-sm sm:text-base ${
+                    className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
                       isActive(`/category/${createCategorySlug(category.id, category.name)}`) ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
                     }`}
                   >
                     {category.name}
-                    <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                    <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                   </button>
                 ))}
             </div>
           </div>
         </div>
+        
+        {/* Overlay for mobile menu */}
+        {isMenuOpen && (
+          <div 
+            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-30"
+            onClick={() => setIsMenuOpen(false)}
+          />
+        )}
 
         {/* Ambient Light Effects */}
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-pink-400/10 rounded-full blur-3xl opacity-50" />

@@ -131,7 +131,7 @@ const App: React.FC = () => {
 
       
       {/* Premium Hero Slider */}
-      <section className="relative h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] xl:h-[800px] mb-12 sm:mb-16 lg:mb-20 overflow-hidden">
+      <section className="relative h-[400px] sm:h-[500px] md:h-[600px] lg:h-[700px] xl:h-[800px] mb-4 sm:mb-12 lg:mb-16 overflow-hidden">
         <ImageSlider images={heroImages} currentIndex={currentSlide} />
         
         {/* Modern Navigation Buttons */}
@@ -150,7 +150,7 @@ const App: React.FC = () => {
       </section>
       
       {/* Premium Collection Section */}
-      <section className="relative py-12 sm:py-16 lg:py-24 overflow-hidden">
+      <section className="relative py-6 sm:py-12 lg:py-16 overflow-hidden">
         {/* Premium Background Effects */}
         <div className="absolute inset-0 bg-gradient-to-br from-pink-100/40 via-rose-50/30 to-pink-100/40" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-pink-300/10 rounded-full blur-3xl" />
@@ -158,21 +158,21 @@ const App: React.FC = () => {
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Premium Header with Icons */}
-          <div className="text-center mb-12 sm:mb-16 lg:mb-20">
-            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-4 sm:mb-6">
-              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-pink-500 animate-pulse" />
-              <h2 className="text-3xl sm:text-4xl lg:text-5xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent">
+          <div className="text-center mb-8 sm:mb-12 lg:mb-16">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
+              <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-pink-500 animate-pulse" />
+              <h2 className="text-2xl sm:text-3xl md:text-4xl lg:text-5xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
                 مجموعاتنا المميزة
               </h2>
-              <Sparkles className="w-6 h-6 sm:w-7 sm:h-7 lg:w-8 lg:h-8 text-pink-500 animate-pulse" />
+              <Sparkles className="w-7 h-7 sm:w-8 sm:h-8 lg:w-9 lg:h-9 text-pink-500 animate-pulse" />
             </div>
-            <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-6 sm:mb-8 mx-auto w-32 sm:w-48 lg:w-64 shadow-lg" />
-            <p className="text-base sm:text-lg text-gray-700 font-medium max-w-4xl mx-auto leading-relaxed px-4">
+            <div className="h-1.5 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-4 sm:mb-6 mx-auto w-24 sm:w-32 lg:w-40 shadow-lg" />
+            <p className="text-sm sm:text-base lg:text-lg text-gray-700 font-medium max-w-3xl mx-auto leading-relaxed px-4 mb-4">
               اكتشف تشكيلة متنوعة من المجموعات الحصرية المصممة خصيصاً لتناسب جميع أذواقكم الرفيعة
             </p>
-            <div className="flex items-center justify-center gap-2 mt-4 sm:mt-6 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl shadow-lg">
-              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-pink-500" />
-              <span className="text-sm sm:text-base text-gray-700 font-semibold">{categories.length} مجموعة متاحة</span>
+            <div className="inline-flex items-center justify-center gap-2 bg-gradient-to-r from-white/90 to-pink-50/90 backdrop-blur-xl border-2 border-pink-200/60 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300">
+              <Package className="w-5 h-5 sm:w-6 sm:h-6 text-pink-500" />
+              <span className="text-sm sm:text-base text-gray-700 font-bold">{categories.length} مجموعة متاحة</span>
             </div>
           </div>
           
@@ -196,11 +196,11 @@ const App: React.FC = () => {
                       
                       <div className="relative">
                         {/* Category Image */}
-                        <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 overflow-hidden">
+                        <div className="relative h-52 sm:h-60 md:h-68 lg:h-76 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
                           <img
                             src={category.image ? `http://localhost:3001${category.image}` : `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`}
                             alt={category.name}
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                             onError={(e) => {
                               e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
                             }}
@@ -229,9 +229,9 @@ const App: React.FC = () => {
                             </p>
                             
                             {/* Luxury Button */}
-                            <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-medium hover:from-pink-600 hover:to-rose-600 shadow-lg backdrop-blur-xl border border-pink-400/30 inline-flex items-center gap-1 sm:gap-2 transition-all duration-300 hover:shadow-xl hover:scale-105 text-sm sm:text-base">
-                              <span> استكشف مجموعاتنا </span>
-                              <ChevronLeft className="w-3 h-3 sm:w-4 sm:h-4" />
+                            <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-rose-500 text-white px-5 sm:px-7 lg:px-9 py-2.5 sm:py-3.5 rounded-xl sm:rounded-2xl font-bold hover:from-pink-600 hover:to-rose-600 shadow-xl backdrop-blur-xl border-2 border-pink-400/40 inline-flex items-center gap-2 sm:gap-3 transition-all duration-300 hover:shadow-2xl hover:scale-110 text-sm sm:text-base group">
+                              <span className="group-hover:translate-x-1 transition-transform duration-300"> استكشف مجموعاتنا </span>
+                              <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform duration-300" />
                             </div>
                           </div>
                         </div>
@@ -305,47 +305,62 @@ const App: React.FC = () => {
 )}
       </main>
 
-      {/* Premium Footer */}
-      <footer className="relative bg-gradient-to-br from-white via-pink-50 to-rose-50 py-12 sm:py-16 lg:py-20 border-t border-pink-200/60 overflow-hidden">
+      {/* Premium Footer - Mobile Optimized */}
+      <footer className="relative bg-gradient-to-br from-white via-pink-50 to-rose-50 py-8 sm:py-12 lg:py-16 border-t border-pink-200/60 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-pink-100/30 via-transparent to-rose-100/30" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-pink-200/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-rose-200/15 rounded-full blur-3xl" />
         
-        <div className="relative container-responsive">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-10 lg:gap-12 mb-8 sm:mb-10 lg:mb-12">
-            <div className="text-center md:text-right">
-              <h3 className="text-responsive-xl font-black bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+          {/* Mobile: 2x2 Grid, Desktop: 3 columns */}
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-10">
+            
+            {/* Brand Section */}
+            <div className="col-span-2 md:col-span-1 text-center md:text-right mb-4 md:mb-0">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2">
                 GHEM.STORE
               </h3>
-              <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-3 sm:mb-4 w-20 sm:w-24 mx-auto md:mx-0 shadow-lg" />
-              <p className="text-responsive-sm text-gray-700 font-medium leading-relaxed">
-                متجرك المفضل لأفضل المنتجات بجودة عالية وتصميم فاخر
+              <div className="h-0.5 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-2 sm:mb-3 w-16 sm:w-20 mx-auto md:mx-0 shadow-lg" />
+              <p className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
+                متجرك المفضل لأفضل المنتجات
               </p>
             </div>
             
+            {/* Quick Links - Mobile Horizontal */}
             <div className="text-center">
-              <h4 className="font-bold text-gray-800 mb-4 sm:mb-6 text-responsive-lg">روابط سريعة</h4>
-              <ul className="space-y-3 sm:space-y-4">
-                <li><Link to="/" className="text-responsive-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl hover:bg-pink-50/80 hover:border-pink-300/70 inline-block transition-all duration-300 hover:scale-105">الرئيسية</Link></li>
-                <li><Link to="/products" className="text-responsive-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl hover:bg-pink-50/80 hover:border-pink-300/70 inline-block transition-all duration-300 hover:scale-105">المنتجات</Link></li>
-                <li><Link to="/about" className="text-responsive-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl hover:bg-pink-50/80 hover:border-pink-300/70 inline-block transition-all duration-300 hover:scale-105">من نحن</Link></li>
-                <li><Link to="/contact" className="text-responsive-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-3 sm:px-4 py-2 rounded-xl sm:rounded-2xl hover:bg-pink-50/80 hover:border-pink-300/70 inline-block transition-all duration-300 hover:scale-105">اتصل بنا</Link></li>
-              </ul>
+              <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">روابط سريعة</h4>
+              <div className="grid grid-cols-2 gap-1 sm:gap-2">
+                <Link to="/" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">الرئيسية</Link>
+                <Link to="/products" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">المنتجات</Link>
+                <Link to="/about" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">من نحن</Link>
+                <Link to="/contact" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">اتصل بنا</Link>
+              </div>
             </div>
             
+            {/* Contact Info - Mobile Horizontal */}
             <div className="text-center md:text-left">
-              <h4 className="font-bold text-gray-800 mb-4 sm:mb-6 text-responsive-lg">تواصل معنا</h4>
-              <div className="space-y-3 sm:space-y-4">
-                <p className="text-responsive-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-pink-50/50 transition-all duration-300">📞 +966547493606</p>
-                <p className="text-responsive-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-pink-50/50 transition-all duration-300">✉️ info@ghem.store</p>
-                <p className="text-responsive-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-3 sm:px-4 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-pink-50/50 transition-all duration-300">📍 المملكة العربية السعودية</p>
+              <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">تواصل معنا</h4>
+              <div className="space-y-1 sm:space-y-2">
+                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
+                  <span>📞</span>
+                  <span className="truncate">+966547493606</span>
+                </div>
+                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
+                  <span>✉️</span>
+                  <span className="truncate">info@ghem.store</span>
+                </div>
+                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
+                  <span>📍</span>
+                  <span className="truncate">السعودية</span>
+                </div>
               </div>
             </div>
           </div>
           
-          <div className="border-t border-pink-200/60 pt-6 sm:pt-8 text-center">
-            <div className="bg-gradient-to-r from-white/80 via-pink-50/90 to-white/80 backdrop-blur-xl border border-pink-200/50 rounded-xl sm:rounded-2xl p-4 sm:p-6 max-w-xs sm:max-w-sm lg:max-w-md mx-auto shadow-lg">
-              <p className="text-responsive-sm text-gray-700 font-medium">
+          {/* Copyright Section */}
+          <div className="border-t border-pink-200/60 pt-4 sm:pt-6 text-center">
+            <div className="bg-gradient-to-r from-white/80 via-pink-50/90 to-white/80 backdrop-blur-xl border border-pink-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
+              <p className="text-xs sm:text-sm text-gray-700 font-medium">
                 © 2025 GHEM.STORE. جميع الحقوق محفوظة.
               </p>
             </div>
