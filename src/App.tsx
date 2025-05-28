@@ -131,47 +131,47 @@ const App: React.FC = () => {
 
       
       {/* Premium Hero Slider */}
-      <section className="relative h-[400px] sm:h-[450px] md:h-[500px] lg:h-[600px] xl:h-[700px] mb-2 sm:mb-6 lg:mb-8 overflow-hidden">
+      <section className="relative h-[400px] sm:h-[450px] md:h-[500px] lg:h-[600px] xl:h-[700px] overflow-hidden">
         <ImageSlider images={heroImages} currentIndex={currentSlide} />
         
-        {/* Modern Navigation Buttons */}
+        {/* Modern Navigation Buttons - لون موحد رمادي */}
         <button
           onClick={prevSlide}
-          className="absolute right-4 sm:right-6 lg:right-8 top-1/2 transform -translate-y-1/2 bg-pink-500/80 backdrop-blur-xl border border-white/30 text-white p-2 sm:p-3 lg:p-4 rounded-full hover:bg-pink-600/90 shadow-2xl z-30 group transition-all duration-300"
+          className="absolute right-4 sm:right-6 lg:right-8 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
         >
           <ChevronRight className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
         </button>
         <button
           onClick={nextSlide}
-          className="absolute left-4 sm:left-6 lg:left-8 top-1/2 transform -translate-y-1/2 bg-pink-500/80 backdrop-blur-xl border border-white/30 text-white p-2 sm:p-3 lg:p-4 rounded-full hover:bg-pink-600/90 shadow-2xl z-30 group transition-all duration-300"
+          className="absolute left-4 sm:left-6 lg:left-8 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-2 sm:p-3 lg:p-4 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
         >
           <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6" />
         </button>
       </section>
       
-      {/* Premium Collection Section */}
-      <section className="relative py-4 sm:py-8 lg:py-12 overflow-hidden">
-        {/* Premium Background Effects */}
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-100/40 via-rose-50/30 to-pink-100/40" />
-        <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-pink-300/10 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-rose-300/10 rounded-full blur-3xl" />
+      {/* Premium Collection Section - تقليل الفراغات */}
+      <section className="relative py-6 sm:py-8 lg:py-10 overflow-hidden">
+        {/* Premium Background Effects - ألوان متناسقة */}
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-50/60 via-white/80 to-gray-100/60" />
+        <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-300/20 rounded-full blur-3xl" />
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Premium Header with Icons */}
-          <div className="text-center mb-6 sm:mb-10 lg:mb-12">
-            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-4 sm:mb-6">
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-pink-500 animate-pulse" />
-              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm">
+          {/* Premium Header with Icons - تقليل الهوامش */}
+          <div className="text-center mb-6 sm:mb-8 lg:mb-10">
+            <div className="flex items-center justify-center gap-3 sm:gap-4 mb-3 sm:mb-4">
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600 animate-pulse" />
+              <h2 className="text-xl sm:text-2xl md:text-3xl lg:text-4xl font-black bg-gradient-to-r from-gray-700 via-gray-800 to-gray-700 bg-clip-text text-transparent drop-shadow-sm">
                 مجموعاتنا المميزة
               </h2>
-              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-pink-500 animate-pulse" />
+              <Sparkles className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7 text-gray-600 animate-pulse" />
             </div>
-            <div className="h-1.5 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-4 sm:mb-6 mx-auto w-24 sm:w-32 lg:w-40 shadow-lg" />
+            <div className="h-1.5 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-3 sm:mb-4 mx-auto w-24 sm:w-32 lg:w-40 shadow-lg" />
             <p className="text-xs sm:text-sm lg:text-base text-gray-700 font-medium max-w-2xl mx-auto leading-relaxed px-4 mb-3">
               اكتشف تشكيلة متنوعة من المجموعات الحصرية المصممة خصيصاً لتناسب جميع أذواقكم الرفيعة
             </p>
-            <div className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-white/90 to-pink-50/90 backdrop-blur-xl border border-pink-200/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
-              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-pink-500" />
+            <div className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-white/90 to-gray-50/90 backdrop-blur-xl border border-gray-200/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
+              <Package className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
               <span className="text-xs sm:text-sm text-gray-700 font-bold">{categories.length} مجموعة متاحة</span>
             </div>
           </div>
@@ -246,37 +246,37 @@ const App: React.FC = () => {
       </section>
 
       {/* Premium Products Section */}
-      <main className="relative container-responsive py-12 sm:py-16 lg:py-20">
-        {/* Premium Background Effects */}
-        <div className="absolute inset-0 bg-gradient-to-t from-pink-50/40 via-transparent to-rose-50/40" />
-        <div className="absolute top-0 left-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 bg-pink-200/20 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 bg-rose-200/20 rounded-full blur-3xl" />
+      <main className="relative container-responsive py-8 sm:py-10 lg:py-12">
+        {/* Premium Background Effects - ألوان متناسقة */}
+        <div className="absolute inset-0 bg-gradient-to-t from-gray-50/40 via-transparent to-gray-100/40" />
+        <div className="absolute top-0 left-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 bg-gray-200/20 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-64 sm:h-64 lg:w-80 lg:h-80 bg-gray-300/20 rounded-full blur-3xl" />
         
         {/* عرض Products فوراً بدون شرط */}
         {categoryProducts.length > 0 && (
-  <div className="relative space-y-20 sm:space-y-28 lg:space-y-40">
+  <div className="relative space-y-12 sm:space-y-16 lg:space-y-20">
     {categoryProducts.map((categoryProduct, sectionIndex) => (
-      <section key={categoryProduct.category.id} className="relative py-8 sm:py-10 lg:py-12">
-        {/* Section Background */}
-        <div className="absolute inset-0 -mx-4 sm:-mx-6 lg:-mx-8 bg-gradient-to-br from-white/70 via-pink-50/40 to-white/70 rounded-2xl sm:rounded-3xl backdrop-blur-sm border border-pink-100/50 shadow-lg" />
+      <section key={categoryProduct.category.id} className="relative py-6 sm:py-8 lg:py-10">
+        {/* Section Background - ألوان متناسقة */}
+        <div className="absolute inset-0 -mx-4 sm:-mx-6 lg:-mx-8 bg-gradient-to-br from-white/70 via-gray-50/40 to-white/70 rounded-2xl sm:rounded-3xl backdrop-blur-sm border border-gray-100/50 shadow-lg" />
         
         <div className="relative z-10">
-          <div className="mb-12 sm:mb-16 lg:mb-24 text-center">
-            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-4 sm:mb-6 lg:mb-8">
-              <div className="h-px bg-gradient-to-r from-transparent via-pink-400 to-transparent w-16 sm:w-24 lg:w-32" />
-              <h2 className="text-responsive-3xl font-black bg-gradient-to-r from-pink-600 via-rose-600 to-pink-600 bg-clip-text text-transparent drop-shadow-sm px-3 sm:px-4 lg:px-6 py-1 sm:py-2">
+          <div className="mb-8 sm:mb-10 lg:mb-12 text-center">
+            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-3 sm:mb-4 lg:mb-5">
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent w-16 sm:w-24 lg:w-32" />
+              <h2 className="text-responsive-3xl font-black bg-gradient-to-r from-gray-700 via-gray-800 to-gray-700 bg-clip-text text-transparent drop-shadow-sm px-3 sm:px-4 lg:px-6 py-1 sm:py-2">
                 {categoryProduct.category.name}
               </h2>
-              <div className="h-px bg-gradient-to-r from-transparent via-pink-400 to-transparent w-16 sm:w-24 lg:w-32" />
+              <div className="h-px bg-gradient-to-r from-transparent via-gray-400 to-transparent w-16 sm:w-24 lg:w-32" />
             </div>
             
-            <div className="h-1 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-6 sm:mb-8 lg:mb-10 mx-auto w-20 sm:w-24 lg:w-32 shadow-lg" />
-            <p className="text-responsive-base text-gray-700 mb-8 sm:mb-10 lg:mb-12 max-w-2xl mx-auto leading-relaxed font-medium px-4">
+            <div className="h-1 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-4 sm:mb-5 lg:mb-6 mx-auto w-20 sm:w-24 lg:w-32 shadow-lg" />
+            <p className="text-responsive-base text-gray-700 mb-5 sm:mb-6 lg:mb-8 max-w-2xl mx-auto leading-relaxed font-medium px-4">
               {categoryProduct.category.description || 'مجموعة مختارة من أفضل المنتجات المصنوعة بعناية فائقة'}
             </p>
             <Link 
               to={`/category/${createCategorySlug(categoryProduct.category.id, categoryProduct.category.name)}`} 
-              className="inline-flex items-center text-gray-700 hover:text-pink-600 font-semibold bg-white/90 backdrop-blur-xl border border-pink-200/60 px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-pink-50/80 hover:border-pink-300/80 gap-2 sm:gap-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm sm:text-base"
+              className="inline-flex items-center text-gray-700 hover:text-gray-800 font-semibold bg-white/90 backdrop-blur-xl border border-gray-200/60 px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-gray-50/80 hover:border-gray-300/80 gap-2 sm:gap-3 shadow-lg hover:shadow-xl transition-all duration-300 hover:scale-105 text-sm sm:text-base"
             >
               <span>عرض جميع المنتجات</span>
               <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -284,7 +284,7 @@ const App: React.FC = () => {
           </div>
           
           {/* Products Container */}
-          <div className="relative py-4 sm:py-6 lg:py-8 px-2 sm:px-4 lg:px-8">
+          <div className="relative py-2 sm:py-4 lg:py-6 px-2 sm:px-4 lg:px-8">
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 sm:gap-8 md:gap-10 lg:gap-12 xl:gap-16 justify-items-center">
               {categoryProduct.products.map((product, idx) => (
                 <div
@@ -306,21 +306,21 @@ const App: React.FC = () => {
       </main>
 
       {/* Premium Footer - Mobile Optimized */}
-      <footer className="relative bg-gradient-to-br from-white via-pink-50 to-rose-50 py-8 sm:py-12 lg:py-16 border-t border-pink-200/60 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-pink-100/30 via-transparent to-rose-100/30" />
-        <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-pink-200/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-rose-200/15 rounded-full blur-3xl" />
+      <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-gray-100/30 via-transparent to-gray-200/30" />
+        <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/15 rounded-full blur-3xl" />
+        <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-300/15 rounded-full blur-3xl" />
         
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
           {/* Mobile: 2x2 Grid, Desktop: 3 columns */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-6 sm:mb-8 lg:mb-10">
+          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
             
             {/* Brand Section */}
             <div className="col-span-2 md:col-span-1 text-center md:text-right mb-4 md:mb-0">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-2">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
                 GHEM.STORE
               </h3>
-              <div className="h-0.5 bg-gradient-to-r from-pink-400 via-rose-500 to-pink-400 rounded-full mb-2 sm:mb-3 w-16 sm:w-20 mx-auto md:mx-0 shadow-lg" />
+              <div className="h-0.5 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-2 sm:mb-3 w-16 sm:w-20 mx-auto md:mx-0 shadow-lg" />
               <p className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
                 متجرك المفضل لأفضل المنتجات
               </p>
@@ -330,12 +330,12 @@ const App: React.FC = () => {
             <div className="text-center">
               <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">روابط سريعة</h4>
               <div className="grid grid-cols-2 gap-1 sm:gap-2">
-                <Link to="/" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">الرئيسية</Link>
-                <Link to="/products" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">المنتجات</Link>
-                <Link to="/about" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">من نحن</Link>
-                <Link to="/contact" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">اتصل بنا</Link>
-                <Link to="/privacy-policy" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">سياسة الخصوصية</Link>
-                <Link to="/return-policy" className="text-xs sm:text-sm text-gray-700 hover:text-pink-600 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/80 hover:border-pink-300/70 transition-all duration-300">سياسة الاسترجاع</Link>
+                <Link to="/" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 hover:border-gray-300/70 transition-all duration-300">الرئيسية</Link>
+                <Link to="/products" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 hover:border-gray-300/70 transition-all duration-300">المنتجات</Link>
+                <Link to="/about" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 hover:border-gray-300/70 transition-all duration-300">من نحن</Link>
+                <Link to="/contact" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 hover:border-gray-300/70 transition-all duration-300">اتصل بنا</Link>
+                <Link to="/privacy-policy" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 hover:border-gray-300/70 transition-all duration-300">سياسة الخصوصية</Link>
+                <Link to="/return-policy" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 hover:border-gray-300/70 transition-all duration-300">سياسة الاسترجاع</Link>
               </div>
             </div>
             
@@ -343,15 +343,15 @@ const App: React.FC = () => {
             <div className="text-center md:text-left">
               <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">تواصل معنا</h4>
               <div className="space-y-1 sm:space-y-2">
-                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
+                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
                   <span>📞</span>
                   <span className="truncate">+966547493606</span>
                 </div>
-                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
+                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
                   <span>✉️</span>
                   <span className="truncate">info@ghem.store</span>
                 </div>
-                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-pink-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-pink-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
+                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
                   <span>📍</span>
                   <span className="truncate">السعودية</span>
                 </div>
@@ -360,8 +360,8 @@ const App: React.FC = () => {
           </div>
           
           {/* Copyright Section */}
-          <div className="border-t border-pink-200/60 pt-4 sm:pt-6 text-center">
-            <div className="bg-gradient-to-r from-white/80 via-pink-50/90 to-white/80 backdrop-blur-xl border border-pink-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
+          <div className="border-t border-gray-200/60 pt-3 sm:pt-4 text-center">
+            <div className="bg-gradient-to-r from-white/80 via-gray-50/90 to-white/80 backdrop-blur-xl border border-gray-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
               <p className="text-xs sm:text-sm text-gray-700 font-medium">
                 © 2025 GHEM.STORE. جميع الحقوق محفوظة.
               </p>

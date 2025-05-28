@@ -30,7 +30,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   const [touchEnd, setTouchEnd] = useState<number | null>(null);
 
   const handleTouchStart = (e: React.TouchEvent) => {
-    setTouchEnd(null); // امسح قيمة النهاية السابقة عند بداية لمسة جديدة
+    setTouchEnd(null);
     setTouchStart(e.targetTouches[0].clientX);
   };
 
@@ -39,15 +39,15 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   };
 
   const handleTouchEnd = () => {
-    if (!touchStart || !touchEnd) return; // تأكد من وجود قيم للبداية والنهاية
+    if (!touchStart || !touchEnd) return;
     
     const distance = touchStart - touchEnd;
-    const minSwipeDistance = 50; // أقل مسافة تعتبر سحبة صالحة
+    const minSwipeDistance = 50;
 
-    if (distance > minSwipeDistance) { // سحب لليسار (لعرض الصورة التالية)
+    if (distance > minSwipeDistance) {
       setActiveIndex((prevIndex) => (prevIndex + 1) % images.length);
     }
-    if (distance < -minSwipeDistance) { // سحب لليمين (لعرض الصورة السابقة)
+    if (distance < -minSwipeDistance) {
       setActiveIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
     }
   };
@@ -55,17 +55,16 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   // في حالة عدم وجود صور
   if (!images || images.length === 0) {
     return (
-      <div className="relative w-full h-[300px] bg-gradient-to-br from-slate-50 via-gray-100 to-slate-50 flex items-center justify-center overflow-hidden rounded-2xl mt-3 mb-6"> {/* هامش علوي وسفلي */}
+      <div className="relative w-full h-[300px] bg-gradient-to-br from-slate-50 via-gray-100 to-slate-50 flex items-center justify-center overflow-hidden rounded-2xl">
         <p className="text-gray-600 text-lg font-light">لا توجد صور متاحة</p>
       </div>
     );
   }
 
   return (
-    // الحاوية الرئيسية للسلايدر
+    // الحاوية الرئيسية للسلايدر - بدون هوامش إضافية
     <div 
-      className="image-slider-container relative w-full h-[300px] overflow-hidden bg-white rounded-2xl shadow-lg 
-                 mt-3 mb-6" // هامش علوي (لتنزيل السلايدر) وهامش سفلي (لإعطاء مساحة تحته)
+      className="image-slider-container relative w-full h-full overflow-hidden bg-white shadow-lg"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
@@ -75,76 +74,95 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         <div
           key={index}
           className={`absolute inset-0 transition-opacity duration-700 ease-out ${
-            index === activeIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none' // pointer-events-none للصور غير النشطة
+            index === activeIndex ? 'opacity-100 z-10' : 'opacity-0 z-0 pointer-events-none'
           }`}
         >
           <img
             src={image}
             alt={`صورة السلايدر ${index + 1}`}
-            className="w-full h-full object-contain" // لعرض الصورة كاملة بأبعادها داخل الحاوية
-            loading={index === 0 ? 'eager' : 'lazy'} // تحميل أول صورة فوراً والباقي عند الحاجة
+            className="w-full h-full object-cover"
+            loading={index === 0 ? 'eager' : 'lazy'}
           />
         </div>
       ))}
 
-      {/* زر "استكشف منتجاتنا" (داخل السلايدر) */}
-      <div className="absolute inset-0 flex justify-center items-end pb-8 z-20 pointer-events-none">
+      {/* زر "استكشف منتجاتنا" محسن - أصغر ومتوسط */}
+      <div className="absolute inset-0 flex justify-center items-end pb-6 sm:pb-8 z-20 pointer-events-none">
         <a
-          href="/products" // يمكنك تغيير هذا الرابط
-          className={`pointer-events-auto group bg-gradient-to-r from-pink-500 to-rose-500 text-white 
-                     px-6 py-3 rounded-full shadow-lg
+          href="/products"
+          className={`pointer-events-auto group bg-gradient-to-r from-gray-800 to-gray-900 text-white 
+                     px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl shadow-lg
                      transition-all duration-300 transform 
-                     ${buttonLoaded ? 'scale-100 opacity-90' : 'scale-75 opacity-0'}
-                     hover:scale-105 hover:shadow-xl
-                     focus:outline-none focus:ring-4 focus:ring-pink-300`}
+                     ${buttonLoaded ? 'scale-100 opacity-95' : 'scale-75 opacity-0'}
+                     hover:scale-105 hover:shadow-xl hover:from-gray-700 hover:to-gray-800
+                     focus:outline-none focus:ring-4 focus:ring-gray-300
+                     text-sm sm:text-base font-medium`}
         >
           <div className="flex items-center gap-1.5">
-            <span className="text-base">✨</span>
-            <span className="font-semibold text-base">استكشف منتجاتنا</span>
-            <ChevronLeft className="w-4 h-4 group-hover:-translate-x-0.5 transition-transform duration-300" />
+            <span className="text-sm">✨</span>
+            <span>استكشف منتجاتنا</span>
+            <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 group-hover:-translate-x-0.5 transition-transform duration-300" />
           </div>
         </a>
       </div>
       
-      {/* زر إعادة التعيين (الرجوع لأول صورة) */}
-      {images.length > 1 && ( // يظهر فقط لو فيه أكثر من صورة
-        <div className="absolute top-4 left-4 z-30"> {/* z-30 لضمان ظهوره فوق العناصر الأخرى */}
+      {/* زر إعادة التعيين */}
+      {images.length > 1 && (
+        <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-30">
           <button
             onClick={resetSlider}
             aria-label="إعادة عرض الصور من البداية"
-            className="bg-black/40 backdrop-blur-sm text-white p-2.5 rounded-full hover:bg-black/60 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
+            className="bg-gray-800/70 backdrop-blur-sm text-white p-2 sm:p-2.5 rounded-full hover:bg-gray-800/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
           >
-            <RotateCcw className="w-4 h-4" />
+            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
           </button>
         </div>
       )}
 
-      {/* أسهم التنقل الجانبية (تأكد أنها ليست بينك وأنها متناسقة) */}
-      {images.length > 1 && ( // تظهر فقط لو فيه أكثر من صورة
+      {/* أسهم التنقل الجانبية - لون موحد رمادي */}
+      {images.length > 1 && (
         <>
-          {/* السهم الأيمن (للصورة السابقة في السياق العربي) */}
+          {/* السهم الأيمن */}
           <button
             onClick={() => setActiveIndex((prev) => (prev - 1 + images.length) % images.length)}
             aria-label="الصورة السابقة"
-            className="absolute right-3 top-1/2 transform -translate-y-1/2 z-30 
-                       bg-black/40 text-white p-2.5 rounded-full /* خلفية سوداء شفافة */
-                       hover:bg-black/50 transition-all duration-300 
+            className="absolute right-3 sm:right-4 top-1/2 transform -translate-y-1/2 z-30 
+                       bg-gray-800/70 text-white p-2 sm:p-2.5 rounded-full
+                       hover:bg-gray-800/90 transition-all duration-300 
                        focus:outline-none focus:ring-2 focus:ring-white/50"
           >
-            <ChevronLeft className="w-5 h-5 rotate-180" /> {/* أيقونة سهم يشير لليمين */}
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5 rotate-180" />
           </button>
-          {/* السهم الأيسر (للصورة التالية في السياق العربي) */}
+          {/* السهم الأيسر */}
           <button
             onClick={() => setActiveIndex((prev) => (prev + 1) % images.length)}
             aria-label="الصورة التالية"
-            className="absolute left-3 top-1/2 transform -translate-y-1/2 z-30 
-                       bg-black/40 text-white p-2.5 rounded-full /* خلفية سوداء شفافة */
-                       hover:bg-black/50 transition-all duration-300 
+            className="absolute left-3 sm:left-4 top-1/2 transform -translate-y-1/2 z-30 
+                       bg-gray-800/70 text-white p-2 sm:p-2.5 rounded-full
+                       hover:bg-gray-800/90 transition-all duration-300 
                        focus:outline-none focus:ring-2 focus:ring-white/50"
           >
-            <ChevronLeft className="w-5 h-5" /> {/* أيقونة سهم يشير لليسار */}
+            <ChevronLeft className="w-4 h-4 sm:w-5 sm:h-5" />
           </button>
         </>
+      )}
+
+      {/* مؤشرات الصور في الأسفل */}
+      {images.length > 1 && (
+        <div className="absolute bottom-3 left-1/2 transform -translate-x-1/2 z-30 flex gap-2">
+          {images.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setActiveIndex(index)}
+              className={`w-2 h-2 rounded-full transition-all duration-300 ${
+                index === activeIndex 
+                  ? 'bg-white shadow-lg' 
+                  : 'bg-white/50 hover:bg-white/70'
+              }`}
+              aria-label={`الانتقال للصورة ${index + 1}`}
+            />
+          ))}
+        </div>
       )}
     </div>
   );
