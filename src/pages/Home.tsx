@@ -387,15 +387,14 @@ function Home() {
                 heroLoaded ? 'opacity-100 transform-none' : 'opacity-0 translate-y-10'
               }`}
             >
-              <a 
-                href="#services" 
-                onClick={scrollToServices} 
+              <Link 
+                to="/products" 
                 className="relative gradient-button bg-gradient-to-r from-pink-500 to-pink-600 hover:from-pink-600 hover:to-pink-700 text-white py-4 px-10 rounded-2xl font-bold text-lg transition-all duration-300 shadow-lg hover:shadow-xl transform hover:-translate-y-1 hover:scale-105 flex items-center gap-3"
               >
                 <Sparkles className="w-5 h-5" />
-                استكشف خدماتنا
+                استكشف منتجاتنا
                 <ArrowLeft className="w-5 h-5 transform rotate-180" />
-              </a>
+              </Link>
             </div>
           </div>
         </div>
@@ -670,63 +669,75 @@ function Home() {
                 {products.map((product, idx) => (
                   <div
                     key={product.id}
-                    className="flex-shrink-0 w-64 snap-start"
+                    className="flex-shrink-0 w-72 snap-start"
                   >
-                    <div className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl h-full mobile-card">
-                      {/* Product Image */}
-                      <div className="relative h-40 overflow-hidden">
+                    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl h-full mobile-card group relative">
+                      {/* Gradient Border Effect */}
+                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+                      
+                      {/* Product Image - Full Aspect Ratio */}
+                      <div className="relative h-48 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
                         <img
                           src={buildImageUrl(product.mainImage)}
                           alt={product.name}
-                          className="w-full h-full object-cover transition-all duration-500 hover:scale-110"
+                          className="w-full h-full object-contain transition-all duration-700 hover:scale-105 p-3"
                           onError={(e) => {
                             e.currentTarget.src = '/placeholder-image.png';
                           }}
                         />
+                        {/* Premium Overlay */}
+                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                        
                         {/* Price Badge */}
-                        <div className="absolute top-2 right-2 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 py-1 rounded-full text-xs font-bold shadow-lg">
+                        <div className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
                           {product.price.toFixed(0)} ر.س
                         </div>
                         {/* Product Type Badge */}
                         {product.productType && (
-                          <div className="absolute top-2 left-2 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+                          <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
                             {product.productType}
                           </div>
                         )}
                       </div>
                       
-                      {/* Product Info */}
-                      <div className="p-3">
-                        <h3 className="text-sm font-bold text-gray-800 mb-2 line-clamp-2 leading-tight">
+                      {/* Product Info - Centered Layout */}
+                      <div className="p-5 flex flex-col items-center text-center space-y-3">
+                        {/* Product Name - Centered */}
+                        <h3 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight min-h-[3rem] hover:text-pink-600 transition-colors duration-300">
                           {product.name}
                         </h3>
                         
-                        {/* Price Section */}
-                        <div className="flex items-center justify-between mb-3">
-                          <div className="flex flex-col">
-                            {product.originalPrice && product.originalPrice > product.price ? (
-                              <>
-                                <div className="flex items-center gap-1">
-                                  <span className="text-xs text-gray-400 line-through">
-                                    {product.originalPrice.toFixed(0)}
-                                  </span>
-                                  <span className="bg-red-500 text-white px-1 py-0.5 rounded text-xs font-bold">
-                                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                                  </span>
-                                </div>
-                                <span className="text-sm font-bold text-pink-600">{product.price.toFixed(0)} ر.س</span>
-                              </>
-                            ) : (
-                              <span className="text-sm font-bold text-pink-600">{product.price.toFixed(0)} ر.س</span>
-                            )}
-                          </div>
+                        {/* Elegant Divider */}
+                        <div className="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent w-16"></div>
+                        
+                        {/* Price Section - Centered */}
+                        <div className="flex flex-col items-center space-y-2">
+                          {product.originalPrice && product.originalPrice > product.price ? (
+                            <>
+                              <div className="flex items-center gap-2">
+                                <span className="text-sm text-gray-400 line-through font-medium">
+                                  {product.originalPrice.toFixed(0)} ر.س
+                                </span>
+                                <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                  -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                                </span>
+                              </div>
+                              <div className="text-xl font-bold text-pink-600">
+                                {product.price.toFixed(0)} <span className="text-base text-gray-600">ر.س</span>
+                              </div>
+                            </>
+                          ) : (
+                            <div className="text-xl font-bold text-pink-600">
+                              {product.price.toFixed(0)} <span className="text-base text-gray-600">ر.س</span>
+                            </div>
+                          )}
                           
                           {/* Stock Indicator */}
-                          <div className="text-xs text-gray-500">
+                          <div className="text-sm">
                             {product.stock > 0 ? (
-                              <span className="text-green-600 font-medium">متوفر</span>
+                              <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">متوفر</span>
                             ) : (
-                              <span className="text-red-600 font-medium">نفذ</span>
+                              <span className="text-red-600 font-medium bg-red-50 px-2 py-1 rounded-full">نفذ</span>
                             )}
                           </div>
                         </div>
@@ -734,7 +745,7 @@ function Home() {
                         {/* Action Button */}
                         <Link
                           to={`/product/${createProductSlug(product.id, product.name)}`}
-                          className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-2 px-3 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-xs font-semibold text-center block"
+                          className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold text-center block hover:scale-105 hover:shadow-xl"
                         >
                           عرض التفاصيل
                         </Link>

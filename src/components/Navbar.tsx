@@ -189,7 +189,15 @@ function Navbar() {
           </button>
 
           {/* Premium Logo - Responsive & Centered */}
-          <Link to="/" className="flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group absolute left-1/2 transform -translate-x-1/2 lg:relative lg:left-auto lg:transform-none">
+          <Link 
+            to="/" 
+            onClick={() => {
+              // التأكد من الانتقال للصفحة الرئيسية
+              navigate('/');
+              setIsMenuOpen(false);
+            }}
+            className="flex items-center gap-2 sm:gap-4 transition-all duration-500 hover:scale-105 group absolute left-1/2 transform -translate-x-1/2 lg:relative lg:left-auto lg:transform-none"
+          >
             <div className="relative">
               <img src={logo} alt="Premium Brand Logo" className="h-10 sm:h-14 lg:h-20 w-auto drop-shadow-2xl" />
               <div className="absolute inset-0 rounded-full bg-gradient-to-br from-gray-300/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />

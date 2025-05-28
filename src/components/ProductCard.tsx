@@ -252,116 +252,116 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     );
   }
 
-  // ---- GRID VIEW - SIMPLE AND CLEAN ----
+  // ---- GRID VIEW - PROFESSIONAL AND MODERN ----
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-200/60 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300 hover:scale-[1.02] w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-72 h-auto min-h-[480px] sm:min-h-[520px] lg:h-[540px]">
-      {/* Product Image */}
-      <div className="relative h-48 sm:h-56 md:h-64 lg:h-72 overflow-hidden rounded-t-2xl sm:rounded-t-3xl group-hover:rounded-t-xl transition-all duration-500">
+    <div className="bg-white rounded-3xl border border-gray-100 shadow-xl overflow-hidden hover:shadow-2xl transition-all duration-500 hover:scale-[1.03] w-full max-w-xs sm:max-w-sm md:max-w-md lg:w-80 h-auto group relative">
+      {/* Gradient Border Effect */}
+      <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+      
+      {/* Product Image - Full Aspect Ratio */}
+      <div className="relative h-64 sm:h-72 md:h-80 lg:h-72 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
         <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
           <img
             src={buildImageUrl(product.mainImage)}
             alt={product.name}
-            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+            className="w-full h-full object-contain transition-all duration-700 group-hover:scale-105 p-4"
             onError={(e) => {
               e.currentTarget.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3';
             }}
           />
         </Link>
         
+        {/* Premium Overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+        
         {/* New Badge */}
-        <div className="absolute top-2 sm:top-3 left-2 sm:left-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 sm:px-2.5 py-0.5 sm:py-1 rounded-full text-xs font-semibold shadow-lg backdrop-blur-sm border border-pink-400/30">
+        <div className="absolute top-4 left-4 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg backdrop-blur-sm border border-pink-400/30 animate-pulse">
           جديد
         </div>
         
         {/* Action Buttons */}
-        <div className="absolute top-2 sm:top-3 right-2 sm:right-3 flex flex-col gap-1.5 sm:gap-2">
+        <div className="absolute top-4 right-4 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-all duration-300 transform translate-x-2 group-hover:translate-x-0">
           <button
             onClick={toggleWishlist}
             disabled={false}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white border border-white/40 transition-all duration-200"
+            className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white border border-white/40 transition-all duration-200 hover:scale-110"
           >
-            <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${isInWishlist ? 'text-red-500 fill-current' : 'text-gray-600'}`} />
+            <Heart className={`w-4 h-4 ${isInWishlist ? 'text-red-500 fill-current' : 'text-gray-600'}`} />
           </button>
           <Link
             to={`/product/${createProductSlug(product.id, product.name)}`}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-lg sm:rounded-xl bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white border border-white/40 transition-all duration-200"
+            className="w-10 h-10 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white border border-white/40 transition-all duration-200 hover:scale-110"
           >
-            <Eye className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-gray-600" />
+            <Eye className="w-4 h-4 text-gray-600" />
           </Link>
         </div>
         
         {/* Out of Stock Overlay */}
         {isOutOfStock && (
-          <div className="absolute inset-0 bg-black/60 flex items-center justify-center">
-            <span className="text-white font-semibold bg-red-600 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl text-xs sm:text-sm shadow-lg">
+          <div className="absolute inset-0 bg-black/70 flex items-center justify-center backdrop-blur-sm">
+            <span className="text-white font-bold bg-red-600 px-4 py-2 rounded-xl text-sm shadow-lg border border-red-500">
               نفذت الكمية
             </span>
           </div>
         )}
       </div>
       
-      {/* Product Info */}
-      <div className="p-3 sm:p-4 flex flex-col h-auto min-h-[200px] sm:min-h-[244px]">
+      {/* Product Info - Centered Layout */}
+      <div className="p-6 flex flex-col items-center text-center space-y-4">
+        {/* Product Name - Centered */}
         <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
-          <h3 className="text-base sm:text-lg font-semibold text-gray-800 mb-2 sm:mb-3 mt-1 sm:mt-2 leading-tight hover:text-pink-500 transition-colors duration-200 min-h-[2rem] sm:min-h-[2.5rem] line-clamp-2 text-center">
+          <h3 className="text-lg sm:text-xl font-bold text-gray-800 leading-tight hover:text-pink-600 transition-colors duration-300 line-clamp-2 min-h-[3rem]">
             {product.name}
           </h3>
         </Link>
         
         {/* Elegant Divider */}
-        <div className="h-0.5 bg-gradient-to-r from-transparent via-pink-300 to-transparent rounded-full mb-2 mx-auto w-10 sm:w-12" />
+        <div className="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent w-16"></div>
         
-        {/* Price */}
-        <div className="flex flex-col items-center text-center gap-1 mb-2 sm:mb-3">
+        {/* Price - Centered and Prominent */}
+        <div className="flex flex-col items-center space-y-2">
           {product.originalPrice && product.originalPrice > product.price ? (
-            <div className="flex flex-col gap-1">
-              <div className="flex items-baseline justify-center gap-1 sm:gap-2">
-                <span className="text-xs sm:text-sm text-gray-400 line-through font-medium">
-                  {product.originalPrice.toFixed(2)}
+            <>
+              <div className="flex items-center gap-2">
+                <span className="text-sm text-gray-400 line-through font-medium">
+                  {product.originalPrice.toFixed(0)} ر.س
                 </span>
-                <span className="text-xs text-gray-400">ر.س</span>
-                <span className="bg-red-500 text-white px-1 sm:px-1.5 py-0.5 rounded-full text-xs font-bold">
+                <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
                   -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
                 </span>
               </div>
-              <div className="flex items-baseline justify-center gap-1">
-                <span className="text-base sm:text-lg font-bold text-pink-600">
-                  {product.price.toFixed(2)}
-                </span>
-                <span className="text-xs sm:text-sm text-gray-600">ر.س</span>
+              <div className="text-2xl font-bold text-pink-600">
+                {product.price.toFixed(0)} <span className="text-lg text-gray-600">ر.س</span>
               </div>
-            </div>
+            </>
           ) : (
-            <div className="flex items-baseline justify-center gap-1">
-              <span className="text-base sm:text-lg font-bold text-pink-600">
-                {product.price.toFixed(2)}
-              </span>
-              <span className="text-xs sm:text-sm text-gray-600">ر.س</span>
+            <div className="text-2xl font-bold text-pink-600">
+              {product.price.toFixed(0)} <span className="text-lg text-gray-600">ر.س</span>
             </div>
           )}
         </div>
         
         {isOutOfStock && (
-          <p className="text-xs sm:text-sm font-semibold text-red-600 mb-2 sm:mb-3">نفذت الكمية</p>
+          <p className="text-sm font-bold text-red-600 bg-red-50 px-3 py-1 rounded-full">نفذت الكمية</p>
         )}
         
         {/* Actions */}
         {!isOutOfStock && (
-          <div className="mt-auto space-y-2 sm:space-y-2.5">
+          <div className="w-full space-y-3 mt-4">
             {/* Quantity Controls */}
-            <div className="flex items-center justify-center gap-2">
+            <div className="flex items-center justify-center gap-3">
               <button
                 onClick={decreaseQuantity}
                 disabled={quantity <= 1}
-                className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold text-xs sm:text-sm transition-colors duration-200"
+                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
               >
                 -
               </button>
-              <span className="w-6 sm:w-8 text-center font-semibold text-gray-800 text-xs sm:text-sm">{quantity}</span>
+              <span className="w-12 text-center font-bold text-gray-800 text-lg bg-gray-50 py-1 rounded-lg">{quantity}</span>
               <button
                 onClick={increaseQuantity}
                 disabled={quantity >= product.stock}
-                className="w-6 h-6 sm:w-7 sm:h-7 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold text-xs sm:text-sm transition-colors duration-200"
+                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
               >
                 +
               </button>
@@ -371,17 +371,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
             <button
               onClick={addToCart}
               disabled={false}
-              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm shadow-lg hover:from-pink-600 hover:to-rose-600 disabled:opacity-50 transition-all duration-200 backdrop-blur-sm border border-pink-400/30 flex items-center justify-center gap-1 sm:gap-2"
+              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-xl font-bold text-sm shadow-lg hover:from-pink-600 hover:to-rose-600 disabled:opacity-50 transition-all duration-300 backdrop-blur-sm border border-pink-400/30 hover:scale-105 hover:shadow-xl"
             >
-              <span>إضافة للسلة</span>
+              إضافة للسلة
             </button>
             
             {/* View Details Button */}
             <Link
               to={`/product/${createProductSlug(product.id, product.name)}`}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl font-semibold text-xs sm:text-sm shadow-lg transition-all duration-200 flex items-center justify-center gap-1 sm:gap-2"
+              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-xl font-semibold text-sm shadow-md transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105"
             >
-              <Eye className="w-3 h-3 sm:w-4 sm:h-4" />
+              <Eye className="w-4 h-4" />
               <span>عرض التفاصيل</span>
             </Link>
           </div>
