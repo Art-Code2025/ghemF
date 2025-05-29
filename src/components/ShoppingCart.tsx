@@ -3,6 +3,9 @@ import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ShoppingCart as CartIcon, Plus, Minus, Trash2, Package, Sparkles, ArrowRight, Heart, Edit3, X, Check, Upload, Image as ImageIcon } from 'lucide-react';
 import { apiCall, API_ENDPOINTS, buildImageUrl, buildApiUrl } from '../config/api';
+import size1Image from '../assets/size1.png';
+import size2Image from '../assets/size2.png';
+import size3Image from '../assets/size3.png';
 
 interface CartItem {
   id: number;
@@ -59,12 +62,13 @@ const ShoppingCart: React.FC = () => {
 
   // دالة لتحديد صورة المقاس المناسبة من assets
   const getSizeGuideImage = (productType: string): string => {
+    // استخدام الصور الأصلية من مجلد src/assets
     const sizeGuideImages = {
-      'جاكيت': '/src/assets/size1.png',
-      'عباية تخرج': '/src/assets/size2.png', 
-      'مريول مدرسي': '/src/assets/size3.png'
+      'جاكيت': size1Image,
+      'عباية تخرج': size2Image, 
+      'مريول مدرسي': size3Image
     };
-    return sizeGuideImages[productType as keyof typeof sizeGuideImages] || '/src/assets/size1.png';
+    return sizeGuideImages[productType as keyof typeof sizeGuideImages] || size1Image;
   };
 
   // دالة لتحويل أسماء الحقول للعربية
@@ -830,6 +834,10 @@ const ShoppingCart: React.FC = () => {
                   src={getSizeGuideImage(showSizeGuide.productType)}
                   alt="دليل المقاسات"
                   className="max-w-full max-h-[70vh] mx-auto rounded-lg shadow-xl border border-gray-600"
+                  onError={(e) => {
+                    // في حالة فشل تحميل الصورة، استخدام صورة بديلة
+                    e.currentTarget.src = size1Image;
+                  }}
                 />
                 <p className="text-gray-400 mt-6 text-lg font-medium">
                   اضغط في أي مكان خارج الصورة للإغلاق

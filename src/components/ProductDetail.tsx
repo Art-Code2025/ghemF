@@ -31,6 +31,10 @@ import {
 import WhatsAppButton from './WhatsAppButton';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 import { addToCartUnified, addToWishlistUnified, removeFromWishlistUnified } from '../utils/cartUtils';
+// استيراد صور جدول المقاسات
+import size1Image from '../assets/size1.png';
+import size2Image from '../assets/size2.png';
+import size3Image from '../assets/size3.png';
 
 interface Product {
   id: number;
@@ -111,12 +115,13 @@ const ProductDetail: React.FC = () => {
   const productId = slug ? extractIdFromSlug(slug).toString() : id;
 
   const getSizeGuideImage = (productType: string): string => {
+    // استخدام الصور الأصلية من مجلد src/assets
     const sizeGuideImages = {
-      'جاكيت': '/src/assets/size1.png',
-      'عباية تخرج': '/src/assets/size2.png', 
-      'مريول مدرسي': '/src/assets/size3.png'
+      'جاكيت': size1Image,
+      'عباية تخرج': size2Image, 
+      'مريول مدرسي': size3Image
     };
-    return sizeGuideImages[productType as keyof typeof sizeGuideImages] || '/src/assets/size1.png';
+    return sizeGuideImages[productType as keyof typeof sizeGuideImages] || size1Image;
   };
 
   useEffect(() => {
@@ -837,6 +842,10 @@ const ProductDetail: React.FC = () => {
                   src={getSizeGuideImage(product.productType || '')}
                   alt="دليل المقاسات"
                   className="max-w-full max-h-[70vh] mx-auto rounded-lg shadow-xl"
+                  onError={(e) => {
+                    // في حالة فشل تحميل الصورة، استخدام صورة بديلة
+                    e.currentTarget.src = size1Image;
+                  }}
                 />
                 <p className="text-gray-600 mt-6 text-lg font-medium">
                   اضغط في أي مكان خارج الصورة للإغلاق
