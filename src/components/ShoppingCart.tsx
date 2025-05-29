@@ -88,43 +88,42 @@ const ShoppingCart: React.FC = () => {
   // تحميل السلة من الخادم
   const fetchCart = useCallback(async () => {
     try {
-      console.log('🛒 Loading cart...');
-      setError(null);
-      
+      setLoading(true);
       const userData = localStorage.getItem('user');
       if (!userData) {
-        console.log('👤 No user logged in');
         setCartItems([]);
-        setIsInitialLoading(false);
-        setLoading(false);
         return;
       }
 
       const user = JSON.parse(userData);
-      console.log('👤 User found:', user);
-
+      console.log('🛒 [Cart] Fetching cart for user:', user.id);
+      
       const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
-      console.log('✅ Cart data received:', data);
+      console.log('📦 [Cart] Raw API response:', data);
       
-      // تسجيل تفاصيل كل عنصر في السلة
-      data.forEach((item: CartItem, index: number) => {
-        console.log(`🛒 Cart Item ${index + 1}:`, {
-          id: item.id,
-          productName: item.product?.name,
-          selectedOptions: item.selectedOptions,
-          optionsPricing: item.optionsPricing,
-          attachments: item.attachments,
-          quantity: item.quantity
+      if (Array.isArray(data)) {
+        console.log('✅ [Cart] Cart items loaded:', data.length);
+        data.forEach((item, index) => {
+          console.log(`📦 [Cart] Item ${index + 1}:`, {
+            id: item.id,
+            productId: item.productId,
+            productName: item.product?.name,
+            quantity: item.quantity,
+            selectedOptions: item.selectedOptions,
+            optionsPricing: item.optionsPricing,
+            attachments: item.attachments
+          });
         });
-      });
-      
-      setCartItems(Array.isArray(data) ? data : []);
+        setCartItems(data);
+      } else {
+        console.log('⚠️ [Cart] Unexpected data format:', data);
+        setCartItems([]);
+      }
     } catch (error) {
-      console.error('❌ Error loading cart:', error);
-      setError('خطأ في تحميل السلة. تأكد من الاتصال بالإنترنت.');
+      console.error('❌ [Cart] Error fetching cart:', error);
+      toast.error('فشل في تحميل السلة');
       setCartItems([]);
     } finally {
-      setIsInitialLoading(false);
       setLoading(false);
     }
   }, []);

@@ -1,5 +1,6 @@
+import React from 'react';
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { Heart, Eye } from 'lucide-react';
 import { createProductSlug } from '../utils/slugify';
@@ -32,6 +33,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   const [isInWishlist, setIsInWishlist] = useState(false);
   // No loading states - instant actions
   const [quantity, setQuantity] = useState(1);
+  const navigate = useNavigate();
 
   useEffect(() => {
     checkWishlistStatus();
@@ -127,6 +129,14 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     }
   };
 
+  const handleProductClick = (e: React.MouseEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    const productPath = `/product/${createProductSlug(product.id, product.name)}`;
+    console.log('🔗 [ProductCard] Navigating to:', productPath);
+    navigate(productPath);
+  };
+
   // ---- LIST VIEW ----
   if (viewMode === 'list') {
     return (
@@ -139,6 +149,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
                 alt={product.name}
                 className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
                 loading="lazy"
+                onClick={handleProductClick}
               />
               <div className="absolute top-2 sm:top-3 md:top-4 left-2 sm:left-3 md:left-4 bg-pink-500 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-md">
                 جديد
@@ -165,7 +176,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
           <div className="flex-1 flex flex-col justify-between min-h-0">
             <div>
               <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
-                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-2 sm:mb-3 leading-tight hover:text-pink-500 transition-colors duration-200">
+                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-2 sm:mb-3 leading-tight hover:text-pink-500 transition-colors duration-200"
+                    onClick={handleProductClick}>
                   {product.name}
                 </h3>
               </Link>
@@ -256,6 +268,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
             onError={(e) => {
               e.currentTarget.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3';
             }}
+            onClick={handleProductClick}
           />
         </Link>
         
@@ -292,7 +305,8 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
       <div className="p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4">
         {/* Product Name - Smaller on mobile */}
         <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
-          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 leading-tight hover:text-pink-600 transition-colors duration-300 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 leading-tight hover:text-pink-600 transition-colors duration-300 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]"
+              onClick={handleProductClick}>
             {product.name}
           </h3>
         </Link>

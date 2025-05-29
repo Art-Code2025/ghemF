@@ -24,18 +24,31 @@ export const addToCartUnified = async (
 
     console.log('🛒 Adding to cart:', { productId, productName, quantity, selectedOptions, attachments });
 
+    // التحقق من المواصفات قبل الإرسال
+    if (selectedOptions && Object.keys(selectedOptions).length > 0) {
+      console.log('✅ [Cart] Valid selectedOptions found:', selectedOptions);
+    } else {
+      console.log('⚠️ [Cart] No selectedOptions provided - this might be okay for simple products');
+    }
+
     const requestBody: any = {
       productId,
       quantity
     };
 
+    // فقط أضف selectedOptions إذا كانت موجودة وليست فارغة
     if (selectedOptions && Object.keys(selectedOptions).length > 0) {
       requestBody.selectedOptions = selectedOptions;
+      console.log('📝 [Cart] Including selectedOptions in request:', selectedOptions);
     }
 
-    if (attachments) {
+    // فقط أضف attachments إذا كانت موجودة
+    if (attachments && (attachments.images?.length > 0 || attachments.text?.trim())) {
       requestBody.attachments = attachments;
+      console.log('📎 [Cart] Including attachments in request:', attachments);
     }
+
+    console.log('📤 [Cart] Final request body:', requestBody);
 
     const response = await fetch(buildApiUrl(`/user/${user.id}/cart`), {
       method: 'POST',

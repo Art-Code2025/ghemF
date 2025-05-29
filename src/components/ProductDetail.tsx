@@ -376,6 +376,14 @@ const ProductDetail: React.FC = () => {
       return;
     }
 
+    console.log('🛒 [ProductDetail] addToCart called with:', {
+      productId: product.id,
+      productName: product.name,
+      quantity,
+      selectedOptions,
+      attachments
+    });
+
     if (!validateForm()) {
       toast.error('يرجى إكمال جميع البيانات المطلوبة قبل الإضافة للسلة');
       return;
@@ -389,6 +397,14 @@ const ProductDetail: React.FC = () => {
         text: attachments.text
       };
 
+      console.log('🛒 [ProductDetail] Calling addToCartUnified with:', {
+        productId: product.id,
+        productName: product.name,
+        quantity,
+        selectedOptions,
+        attachmentsData
+      });
+
       const success = await addToCartUnified(
         product.id, 
         product.name, 
@@ -398,7 +414,10 @@ const ProductDetail: React.FC = () => {
       );
       
       if (success) {
+        console.log('✅ [ProductDetail] Successfully added to cart');
         // يمكن إضافة أي منطق إضافي هنا إذا لزم الأمر
+      } else {
+        console.log('❌ [ProductDetail] Failed to add to cart');
       }
     } catch (error) {
       console.error('❌ Error in addToCart:', error);

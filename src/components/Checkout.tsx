@@ -407,28 +407,30 @@ const Checkout: React.FC = () => {
 
       console.log('💾 Order data saved to localStorage:', thankYouOrder);
 
-      // مسح السلة والتوجيه لصفحة Thank You
-      setTimeout(async () => {
-        try {
-          // مسح السلة أولاً
-          await apiCall(API_ENDPOINTS.USER_CART(user.id), {
-            method: 'DELETE'
-          });
-          window.dispatchEvent(new Event('cartUpdated'));
-          console.log('🧹 Cart cleared successfully');
-          
-          // التوجيه لصفحة Thank You
-          navigate('/thank-you', { 
-            state: { order: thankYouOrder },
-            replace: true 
-          });
-          console.log('✅ Navigated to Thank You page');
-        } catch (error) {
-          console.error('❌ Error during cleanup/navigation:', error);
-          // في حالة الخطأ، استخدم window.location
+      // التوجيه المباشر بدون setTimeout
+      try {
+        // مسح السلة أولاً
+        await apiCall(API_ENDPOINTS.USER_CART(user.id), {
+          method: 'DELETE'
+        });
+        window.dispatchEvent(new Event('cartUpdated'));
+        console.log('🧹 Cart cleared successfully');
+        
+        // التوجيه المباشر لصفحة Thank You
+        console.log('🔄 Navigating to Thank You page...');
+        navigate('/thank-you', { 
+          state: { order: thankYouOrder },
+          replace: true 
+        });
+        console.log('✅ Navigation completed successfully');
+      } catch (error) {
+        console.error('❌ Error during cleanup/navigation:', error);
+        // في حالة الخطأ، استخدم window.location بعد delay قصير
+        setTimeout(() => {
+          console.log('🔄 Using window.location fallback...');
           window.location.href = '/thank-you';
-        }
-      }, 1500);
+        }, 1000);
+      }
 
     } catch (error) {
       console.error('💥 Error placing order:', error);
