@@ -699,11 +699,11 @@ const App: React.FC = () => {
               <div className="space-y-1 sm:space-y-2">
                 <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
                   <span>📞</span>
-                  <span className="truncate">+966547493606</span>
+                  <span className="truncate">+966551064118</span>
                 </div>
                 <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
                   <span>✉️</span>
-                  <span className="truncate">info@ghem.store</span>
+                  <span className="truncate">support@ghem.store</span>
                 </div>
                 <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/50 transition-all duration-300 flex items-center justify-center md:justify-start gap-1">
                   <span>📍</span>
@@ -717,8 +717,7 @@ const App: React.FC = () => {
           <div className="border-t border-gray-200/60 pt-3 sm:pt-4 text-center">
             <div className="bg-gradient-to-r from-white/80 via-gray-50/90 to-white/80 backdrop-blur-xl border border-gray-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
               <p className="text-xs sm:text-sm text-gray-700 font-medium">
-                © 2025 GHEM.STORE. جميع الحقوق محفوظة.
-              </p>
+              Copyright © 2025 Ghem Store By Art-code </p>
             </div>
           </div>
         </div>
