@@ -419,47 +419,47 @@ function Navbar() {
             </div>
 
           {/* Premium Icons Section - أعلى z-index */}
-          <div className="mobile-icons-area flex items-center gap-2 sm:gap-3 lg:gap-4 z-[60] relative">
+          <div className="mobile-icons-area flex items-center gap-1 sm:gap-2 lg:gap-3 z-[60] relative">
             {/* Cart Icon */}
             <Link 
               to="/cart" 
-              className="mobile-touch-target relative p-2 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl group z-[60] no-select"
+              className="mobile-touch-target relative p-1.5 sm:p-2 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg group z-[60] no-select"
               style={{ 
                 pointerEvents: 'auto',
                 touchAction: 'manipulation'
               }}
             >
-              <ShoppingCart className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-5 lg:h-5" />
               {cartItemsCount > 0 && (
                 <span 
                   data-cart-count
-                  className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse"
+                  className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse"
                 >
                   {cartItemsCount}
                 </span>
               )}
-              <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
 
             {/* Wishlist Icon */}
             <Link 
               to="/wishlist" 
-              className="mobile-touch-target relative p-2 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-xl sm:rounded-2xl shadow-lg hover:shadow-xl group z-[60] no-select"
+              className="mobile-touch-target relative p-1.5 sm:p-2 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/40 backdrop-blur-xl border border-gray-300/40 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg group z-[60] no-select"
               style={{ 
                 pointerEvents: 'auto',
                 touchAction: 'manipulation'
               }}
             >
-              <Heart className="w-5 h-5 sm:w-6 sm:h-6 lg:w-7 lg:h-7" />
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5 lg:w-5 lg:h-5" />
               {wishlistItemsCount > 0 && (
                 <span 
                   data-wishlist-count
-                  className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-full w-5 h-5 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse"
+                  className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-rose-600 text-white rounded-full w-4 h-4 sm:w-5 sm:h-5 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse"
                 >
                   {wishlistItemsCount}
                 </span>
               )}
-              <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-[#f8f6ea]/20 to-[#f8f6ea]/30 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
 
             {/* User Menu */}
@@ -467,18 +467,17 @@ function Navbar() {
               <div className="relative z-[60]">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="mobile-touch-target flex items-center gap-2 sm:gap-3 text-gray-700 px-3 sm:px-4 lg:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl bg-gradient-to-r from-white/60 to-[#f8f6ea]/60 backdrop-blur-xl border border-gray-300/40 hover:bg-gradient-to-r hover:from-white/80 hover:to-[#f8f6ea]/80 transition-all duration-300 ease-out transform hover:scale-105 shadow-xl hover:shadow-2xl group z-[60] no-select"
+                  className="mobile-touch-target flex items-center gap-1 sm:gap-2 text-gray-700 px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl bg-gradient-to-r from-white/60 to-[#f8f6ea]/60 backdrop-blur-xl border border-gray-300/40 hover:bg-gradient-to-r hover:from-white/80 hover:to-[#f8f6ea]/80 transition-all duration-300 ease-out transform hover:scale-105 shadow-md hover:shadow-lg group z-[60] no-select"
                   style={{ 
                     pointerEvents: 'auto',
                     touchAction: 'manipulation'
                   }}
                 >
-                  <User size={20} className="sm:w-6 sm:h-6 text-pink-500" />
+                  <User size={16} className="sm:w-5 sm:h-5 text-pink-500" />
                   <div className="text-right hidden sm:block">
-                    <span className="font-semibold text-gray-800 text-sm lg:text-base">مرحبًا يا {user.name?.split(' ')[0] || user.firstName || 'عزيزي العميل'}</span>
-                    <div className="text-xs text-gray-600 font-light hidden lg:block">أهلاً بك في تجربتك الفاخرة</div>
+                    <span className="font-semibold text-gray-800 text-xs lg:text-sm">{user.name?.split(' ')[0] || user.firstName || 'عميل'}</span>
                   </div>
-                  <div className="absolute inset-0 rounded-xl sm:rounded-2xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
                 {isUserMenuOpen && (
                   <div className="absolute left-0 mt-2 sm:mt-4 w-48 sm:w-56 bg-[#f8f6ea]/95 backdrop-blur-2xl rounded-xl sm:rounded-2xl shadow-2xl border border-gray-300/40 py-2 sm:py-3 animate-[slideInFromTop_0.3s_ease-out] z-[70]">
@@ -498,17 +497,17 @@ function Navbar() {
             ) : (
               <button
                 onClick={openAuthModal}
-                className="mobile-touch-target relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 sm:px-3 lg:px-4 py-1.5 sm:py-2 lg:py-2.5 rounded-lg sm:rounded-xl backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-lg hover:shadow-xl font-medium group z-[60] no-select"
+                className="mobile-touch-target relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-2 sm:px-3 lg:px-3 py-1 sm:py-1.5 lg:py-2 rounded-md sm:rounded-lg backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-md hover:shadow-lg font-medium group z-[60] no-select"
                 style={{ 
                   pointerEvents: 'auto',
                   touchAction: 'manipulation'
                 }}
               >
-                <div className="flex items-center gap-1 sm:gap-1.5">
-                  <User size={16} className="sm:w-4 sm:h-4 lg:w-5 lg:h-5 text-white" />
-                  <span className="text-xs sm:text-sm lg:text-base">دخول</span>
+                <div className="flex items-center gap-1">
+                  <User size={14} className="sm:w-4 sm:h-4 lg:w-4 lg:h-4 text-white" />
+                  <span className="text-xs sm:text-sm lg:text-sm">دخول</span>
                 </div>
-                <div className="absolute inset-0 rounded-lg sm:rounded-xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-md sm:rounded-lg bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
             )}
           </div>

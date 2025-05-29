@@ -278,7 +278,7 @@ const App: React.FC = () => {
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
       
       {/* Premium Hero Slider - أبعاد مضبوطة بدون فراغات */}
-      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
+      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden -mt-16 sm:-mt-20 lg:-mt-24">
         <div className="absolute inset-0">
           <ImageSlider images={heroImages} currentIndex={currentSlide} />
         </div>

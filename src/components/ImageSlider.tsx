@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import { ChevronLeft, RotateCcw } from 'lucide-react';
+import { ChevronLeft } from 'lucide-react';
 // تأكد أن مسار ملف الـ CSS هذا صحيح، وأنه لا يحتوي على ستايلات تتعارض مع أسهم السلايدر
 // import '../styles/mobile-slider.css'; 
 
@@ -21,10 +21,6 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
     const timer = setTimeout(() => setButtonLoaded(true), 200);
     return () => clearTimeout(timer);
   }, []);
-
-  const resetSlider = () => {
-    setActiveIndex(0);
-  };
 
   // خاصية اللمس للسحب على الموبايل
   const [touchStart, setTouchStart] = useState<number | null>(null);
@@ -119,19 +115,6 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
         </Link>
       </div>
       
-      {/* زر إعادة التعيين */}
-      {images.length > 1 && (
-        <div className="absolute top-3 sm:top-4 left-3 sm:left-4 z-30">
-          <button
-            onClick={resetSlider}
-            aria-label="إعادة عرض الصور من البداية"
-            className="bg-gray-800/70 backdrop-blur-sm text-white p-2 sm:p-2.5 rounded-full hover:bg-gray-800/90 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white/50"
-          >
-            <RotateCcw className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
-          </button>
-        </div>
-      )}
-
       {/* أسهم التنقل الجانبية - لون موحد رمادي */}
       {images.length > 1 && (
         <>
