@@ -11,6 +11,12 @@ interface OrderItem {
   mainImage: string;
   selectedOptions?: { [key: string]: string };
   optionsPricing?: { [key: string]: number };
+  attachments?: {
+    images?: string[];
+    text?: string;
+  };
+  productType?: string;
+  totalPrice?: number;
 }
 
 interface Order {
@@ -180,15 +186,28 @@ const ThankYou: React.FC = () => {
                       />
                       <div className="flex-1 min-w-0">
                         <h3 className="text-lg font-bold text-gray-900 mb-2">{item.name}</h3>
-                        <p className="text-emerald-600 font-semibold mb-3">
-                          {item.price.toFixed(2)} ر.س × {item.quantity} = {(item.price * item.quantity).toFixed(2)} ر.س
-                        </p>
+                        
+                        {/* Price Display with Options */}
+                        <div className="mb-3">
+                          <p className="text-emerald-600 font-semibold">
+                            {item.price.toFixed(2)} ر.س (أساسي) × {item.quantity}
+                            {/* Options pricing */}
+                            {item.optionsPricing && Object.values(item.optionsPricing).some(price => price > 0) && (
+                              <span className="block text-sm text-gray-600">
+                                + إضافات: {Object.values(item.optionsPricing).reduce((sum, price) => sum + (price || 0), 0).toFixed(2)} ر.س × {item.quantity}
+                              </span>
+                            )}
+                            <span className="block text-lg font-bold text-gray-900 mt-1">
+                              = {(item.totalPrice || (item.price * item.quantity)).toFixed(2)} ر.س
+                            </span>
+                          </p>
+                        </div>
                         
                         {/* Dynamic Options */}
                         {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
-                          <div className="space-y-2">
+                          <div className="space-y-2 mb-3">
                             <p className="text-sm font-semibold text-gray-700 mb-2">المواصفات المختارة:</p>
-                            <div className="grid grid-cols-2 gap-3">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                               {Object.entries(item.selectedOptions).map(([optionName, value]) => (
                                 <div key={optionName} className="bg-white px-3 py-2 rounded-lg border border-gray-200">
                                   <p className="text-xs text-gray-500">{formatOptionName(optionName)}</p>
@@ -203,6 +222,36 @@ const ThankYou: React.FC = () => {
                                 </div>
                               ))}
                             </div>
+                          </div>
+                        )}
+
+                        {/* Attachments Display */}
+                        {item.attachments && (
+                          <div className="space-y-3">
+                            {/* Text Attachments */}
+                            {item.attachments.text && (
+                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                                <p className="text-xs text-blue-600 font-medium mb-1">نص مرفق:</p>
+                                <p className="text-sm text-blue-800">{item.attachments.text}</p>
+                              </div>
+                            )}
+                            
+                            {/* Image Attachments */}
+                            {item.attachments.images && item.attachments.images.length > 0 && (
+                              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
+                                <p className="text-xs text-purple-600 font-medium mb-2">صور مرفقة:</p>
+                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                                  {item.attachments.images.map((imgUrl, imgIndex) => (
+                                    <img
+                                      key={imgIndex}
+                                      src={imgUrl}
+                                      alt={`مرفق ${imgIndex + 1}`}
+                                      className="w-full h-16 object-cover rounded-md border border-purple-300"
+                                    />
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         )}
                       </div>

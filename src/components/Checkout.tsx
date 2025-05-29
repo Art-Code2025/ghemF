@@ -289,18 +289,28 @@ const Checkout: React.FC = () => {
         return;
       }
 
-      // إنشاء بيانات الطلب
+      // إنشاء بيانات الطلب - مع التأكد من تمرير جميع البيانات بشكل صحيح
       const orderPayload = {
-        items: cartItems.map(item => ({
-          productId: item.productId,
-          productName: item.product?.name || 'منتج غير معروف',
-          price: item.product?.price || 0,
-          quantity: item.quantity,
-          totalPrice: (item.product?.price || 0) * item.quantity,
-          selectedOptions: item.selectedOptions || {},
-          optionsPricing: item.optionsPricing || {},
-          productImage: item.product?.mainImage || ''
-        })),
+        items: cartItems.map(item => {
+          // حساب السعر مع الإضافات
+          const basePrice = item.product?.price || 0;
+          const optionsPrice = item.optionsPricing ? 
+            Object.values(item.optionsPricing).reduce((sum, price) => sum + (price || 0), 0) : 0;
+          const totalItemPrice = (basePrice + optionsPrice) * item.quantity;
+
+          return {
+            productId: item.productId,
+            productName: item.product?.name || 'منتج غير معروف',
+            price: basePrice,
+            quantity: item.quantity,
+            totalPrice: totalItemPrice,
+            selectedOptions: item.selectedOptions || {},
+            optionsPricing: item.optionsPricing || {},
+            productImage: item.product?.mainImage || '',
+            attachments: item.attachments || {}, // إضافة المرفقات
+            productType: item.product?.productType || '' // إضافة نوع المنتج
+          };
+        }),
         customerInfo: {
           name: customerInfo.name,
           email: customerInfo.email,
@@ -350,7 +360,7 @@ const Checkout: React.FC = () => {
         throw new Error(result.message || 'فشل في إتمام الطلب');
       }
 
-      // تحضير بيانات الطلب لصفحة Thank You
+      // تحضير بيانات الطلب لصفحة Thank You - مع كامل التفاصيل
       const thankYouOrder = {
         id: result.orderId || result.order?.id || Date.now(),
         customerName: customerInfo.name,
@@ -358,15 +368,25 @@ const Checkout: React.FC = () => {
         customerPhone: customerInfo.phone,
         address: customerInfo.address,
         city: customerInfo.city,
-        items: cartItems.map(item => ({
-          id: item.product?.id || item.productId,
-          name: item.product?.name || 'منتج غير معروف',
-          price: item.product?.price || 0,
-          quantity: item.quantity,
-          mainImage: item.product?.mainImage || '',
-          selectedOptions: item.selectedOptions || {},
-          optionsPricing: item.optionsPricing || {}
-        })),
+        items: cartItems.map(item => {
+          // حساب السعر مع الإضافات لعرضه في Thank You
+          const basePrice = item.product?.price || 0;
+          const optionsPrice = item.optionsPricing ? 
+            Object.values(item.optionsPricing).reduce((sum, price) => sum + (price || 0), 0) : 0;
+          
+          return {
+            id: item.product?.id || item.productId,
+            name: item.product?.name || 'منتج غير معروف',
+            price: basePrice,
+            quantity: item.quantity,
+            mainImage: item.product?.mainImage || '',
+            selectedOptions: item.selectedOptions || {},
+            optionsPricing: item.optionsPricing || {},
+            attachments: item.attachments || {},
+            productType: item.product?.productType || '',
+            totalPrice: (basePrice + optionsPrice) * item.quantity
+          };
+        }),
         totalAmount: getTotalPrice(),
         couponDiscount: getDiscountAmount(),
         deliveryFee: getShippingCost(),

@@ -429,28 +429,28 @@ function Navbar() {
         </div>
 
         {/* Premium Mobile Menu - Vertical Sidebar */}
-        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-[90] transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
-          <div className="h-full bg-[#f8f6ea]/98 backdrop-blur-3xl shadow-2xl border-l border-gray-300/30 p-4 sm:p-6 overflow-y-auto">
+        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-[9999] transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+          <div className="h-full bg-[#f8f6ea]/98 backdrop-blur-3xl shadow-2xl border-l border-gray-300/30 p-4 sm:p-6 overflow-y-auto relative z-[9999]">
             <div className="absolute inset-0 bg-gradient-to-br from-[#f8f6ea]/30 via-[#f8f6ea]/40 to-[#f8f6ea]/30" />
             
             {/* Close Button */}
-            <div className="relative flex justify-between items-center mb-6 bg-white/60 backdrop-blur-sm rounded-xl p-3">
+            <div className="relative flex justify-between items-center mb-6 bg-white/60 backdrop-blur-sm rounded-xl p-3 z-[9999]">
               <h3 className="text-lg font-bold text-gray-800">القائمة الرئيسية</h3>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white/60 rounded-lg transition-all duration-300 z-[95]"
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white/60 rounded-lg transition-all duration-300 z-[9999] relative"
               >
                 <X size={24} />
               </button>
             </div>
             
             {/* Navigation Links */}
-            <div className="relative space-y-3 mb-6">
+            <div className="relative space-y-3 mb-6 z-[9999]">
               {/* الرئيسية */}
               <Link
                 to="/"
                 onClick={() => setIsMenuOpen(false)}
-                className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
+                className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base relative z-[9999] ${
                   isActive('/') ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
                 }`}
               >
@@ -464,7 +464,7 @@ function Navbar() {
               <Link
                 to="/products"
                 onClick={() => setIsMenuOpen(false)}
-                className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
+                className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base relative z-[9999] ${
                   isActive('/products') ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
                 }`}
               >
@@ -477,7 +477,7 @@ function Navbar() {
 
             {/* Categories Section */}
             {categories.length > 0 && (
-              <div className="relative">
+              <div className="relative z-[9999]">
                 <h4 className="text-sm font-semibold text-gray-600 mb-3 px-2">التصنيفات</h4>
                 <div className="space-y-2">
                   {categories.map((category) => (
@@ -489,7 +489,7 @@ function Navbar() {
                         navigate(`/category/${categorySlug}`);
                         setIsMenuOpen(false);
                       }}
-                      className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base ${
+                      className={`w-full text-right block px-4 py-3 text-gray-700 hover:text-gray-800 hover:bg-white/40 rounded-xl transition-all duration-300 ease-out backdrop-blur-xl border border-transparent hover:border-gray-300/30 group cursor-pointer text-base relative z-[9999] ${
                         isActive(`/category/${createCategorySlug(category.id, category.name)}`) ? 'bg-white/60 border-gray-300/50 text-gray-800' : ''
                       }`}
                     >
@@ -510,7 +510,7 @@ function Navbar() {
 
             {/* Empty State */}
             {categories.length === 0 && (
-              <div className="relative text-center py-8">
+              <div className="relative text-center py-8 z-[9999]">
                 <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                   <Package className="w-8 h-8 text-gray-400" />
                 </div>
@@ -523,7 +523,7 @@ function Navbar() {
         {/* Overlay for mobile menu */}
         {isMenuOpen && (
           <div 
-            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[85]"
+            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[9998]"
             onClick={() => setIsMenuOpen(false)}
           />
         )}

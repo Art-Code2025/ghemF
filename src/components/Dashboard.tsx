@@ -63,6 +63,13 @@ interface Order {
   total: number;
   status: string;
   createdAt: string;
+  items?: OrderItem[];
+}
+
+interface OrderItem {
+  productName: string;
+  quantity: number;
+  selectedOptions?: any;
 }
 
 interface Coupon {
@@ -701,15 +708,23 @@ const Dashboard: React.FC = () => {
           </div>
         </div>
 
-        {/* Products Section - Compact Mobile Design */}
+        {/* Products Section - Enhanced Professional Mobile Design */}
         <div className={`${activeMobileSection === 'products' ? 'block' : 'hidden'} lg:block slide-up`}>
           <div className="bg-white rounded-lg lg:rounded-xl shadow-sm border border-gray-100 mb-4 lg:mb-6">
             <div className="px-3 lg:px-6 py-2 lg:py-4 border-b border-gray-200">
               <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-2 lg:gap-3">
-                <h2 className="text-base lg:text-xl font-semibold text-gray-900">المنتجات</h2>
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-gradient-to-r from-blue-500 to-blue-600 rounded-lg flex items-center justify-center">
+                    <Package className="w-4 h-4 text-white" />
+                  </div>
+                  <div>
+                    <h2 className="text-base lg:text-xl font-semibold text-gray-900">المنتجات</h2>
+                    <p className="text-xs text-gray-500 lg:hidden">{products.length} منتج</p>
+                  </div>
+                </div>
                 <button
                   onClick={() => setShowAddModal(true)}
-                  className="bg-blue-600 text-white px-2 lg:px-4 py-1.5 lg:py-2 rounded-md lg:rounded-lg hover:bg-blue-700 flex items-center justify-center text-xs lg:text-sm transition-colors duration-200 mobile-action-button"
+                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-3 lg:px-4 py-2 lg:py-2 rounded-lg lg:rounded-lg hover:from-blue-600 hover:to-blue-700 flex items-center justify-center text-xs lg:text-sm transition-all duration-300 mobile-action-button shadow-lg hover:shadow-xl transform hover:scale-105"
                 >
                   <Plus className="h-3 w-3 lg:h-4 lg:w-4 ml-1" />
                   إضافة منتج
@@ -719,119 +734,246 @@ const Dashboard: React.FC = () => {
             
             <div className="p-3 lg:p-6">
               {loading ? (
-                <div className="text-center py-6 lg:py-8">
-                  <RefreshCw className="h-6 w-6 lg:h-8 lg:w-8 animate-spin mx-auto text-gray-400" />
-                  <p className="text-gray-500 mt-2 text-sm">جاري التحميل...</p>
+                <div className="text-center py-8 lg:py-12">
+                  <div className="w-12 h-12 lg:w-16 lg:h-16 border-4 border-blue-500 border-t-transparent rounded-full animate-spin mx-auto mb-4"></div>
+                  <p className="text-gray-500 mt-2 text-sm font-medium">جاري تحميل المنتجات...</p>
                 </div>
               ) : products.length === 0 ? (
-                <div className="text-center py-6 lg:py-8">
-                  <Package className="h-8 w-8 lg:h-12 lg:w-12 mx-auto text-gray-400 mb-3 lg:mb-4" />
-                  <p className="text-gray-500 text-sm">لا توجد منتجات متاحة</p>
+                <div className="text-center py-8 lg:py-12">
+                  <div className="w-16 h-16 lg:w-24 lg:h-24 bg-gradient-to-br from-blue-50 to-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <Package className="h-8 w-8 lg:h-12 lg:w-12 text-blue-500" />
+                  </div>
+                  <h3 className="text-lg font-semibold text-gray-900 mb-2">لا توجد منتجات</h3>
+                  <p className="text-gray-500 text-sm">ابدأ بإضافة منتجاتك الأولى</p>
+                  <button
+                    onClick={() => setShowAddModal(true)}
+                    className="mt-4 bg-gradient-to-r from-blue-500 to-blue-600 text-white px-6 py-3 rounded-lg hover:from-blue-600 hover:to-blue-700 transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                  >
+                    إضافة منتج جديد
+                  </button>
                 </div>
               ) : (
                 <>
-                  {/* Mobile Compact Cards View */}
-                  <div className="block lg:hidden space-y-2">
-                    {products.map((product) => (
-                      <div key={product.id} className="mobile-compact-card">
-                        <div className="flex items-center gap-3">
-                          <img
-                            src={buildImageUrl(product.mainImage)}
-                            alt={product.name}
-                            className="mobile-image-thumb"
-                          />
-                          <div className="flex-1 min-w-0">
-                            <h3 className="compact-title text-gray-900 mb-1 line-clamp-1">{product.name}</h3>
-                            <div className="flex items-center justify-between mb-2">
-                              <span className="compact-text font-bold text-blue-600">{product.price} ر.س</span>
-                              <span className="compact-badge bg-gray-100 text-gray-700">مخزون: {product.stock}</span>
+                  {/* Mobile Professional Cards View */}
+                  <div className="block lg:hidden space-y-4">
+                    {products.map((product, index) => (
+                      <div 
+                        key={product.id} 
+                        className="bg-gradient-to-r from-white to-gray-50 rounded-xl border border-gray-200 shadow-md hover:shadow-xl transition-all duration-300 overflow-hidden group"
+                        style={{ 
+                          animationDelay: `${index * 50}ms`,
+                          animation: 'slideUp 0.3s ease-out forwards'
+                        }}
+                      >
+                        {/* Product Header */}
+                        <div className="flex items-start gap-3 p-4">
+                          {/* Product Image */}
+                          <div className="relative flex-shrink-0">
+                            <img
+                              src={buildImageUrl(product.mainImage)}
+                              alt={product.name}
+                              className="w-16 h-16 sm:w-20 sm:h-20 rounded-xl object-cover border-2 border-white shadow-lg group-hover:scale-105 transition-transform duration-300"
+                            />
+                            {/* Stock Badge */}
+                            <div className={`absolute -top-2 -right-2 w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold text-white shadow-lg ${
+                              product.stock > 10 ? 'bg-green-500' : 
+                              product.stock > 0 ? 'bg-yellow-500' : 'bg-red-500'
+                            }`}>
+                              {product.stock}
                             </div>
                           </div>
-                          <div className="flex flex-col gap-1">
-                            <button
-                              onClick={() => {
-                                setEditingProduct(product);
-                                setShowEditModal(true);
-                              }}
-                              className="compact-button bg-blue-50 text-blue-600 hover:bg-blue-100 transition-colors duration-200 flex items-center justify-center"
-                            >
-                              <Edit className="h-3 w-3" />
-                            </button>
-                            <button
-                              onClick={() => handleDeleteProduct(product.id)}
-                              className="compact-button bg-red-50 text-red-600 hover:bg-red-100 transition-colors duration-200 flex items-center justify-center"
-                            >
-                              <Trash2 className="h-3 w-3" />
-                            </button>
+
+                          {/* Product Info */}
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-start justify-between mb-2">
+                              <h3 className="font-bold text-gray-900 text-sm leading-tight line-clamp-2 flex-1 ml-2">
+                                {product.name}
+                              </h3>
+                              <div className="flex items-center gap-1">
+                                <button
+                                  onClick={() => {
+                                    setEditingProduct(product);
+                                    setShowEditModal(true);
+                                  }}
+                                  className="w-8 h-8 bg-blue-50 text-blue-600 hover:bg-blue-100 rounded-lg flex items-center justify-center transition-colors duration-200 transform hover:scale-110"
+                                >
+                                  <Edit className="h-4 w-4" />
+                                </button>
+                                <button
+                                  onClick={() => handleDeleteProduct(product.id)}
+                                  className="w-8 h-8 bg-red-50 text-red-600 hover:bg-red-100 rounded-lg flex items-center justify-center transition-colors duration-200 transform hover:scale-110"
+                                >
+                                  <Trash2 className="h-4 w-4" />
+                                </button>
+                              </div>
+                            </div>
+
+                            {/* Category */}
+                            {product.categoryId && (
+                              <div className="mb-2">
+                                <span className="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-600">
+                                  {categories.find(cat => cat.id === product.categoryId)?.name || 'فئة غير محددة'}
+                                </span>
+                              </div>
+                            )}
+
+                            {/* Price and Stock Info */}
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="text-lg font-bold text-green-600">
+                                  {product.price} ر.س
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-1 text-xs">
+                                <Package className="w-3 h-3 text-gray-400" />
+                                <span className={`font-medium ${
+                                  product.stock > 10 ? 'text-green-600' : 
+                                  product.stock > 0 ? 'text-yellow-600' : 'text-red-600'
+                                }`}>
+                                  {product.stock > 0 ? `${product.stock} متوفر` : 'نفد المخزون'}
+                                </span>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Product Description */}
+                        {product.description && (
+                          <div className="px-4 pb-4">
+                            <div className="bg-gray-50 rounded-lg p-3 border border-gray-100">
+                              <p className="text-xs text-gray-600 leading-relaxed line-clamp-2">
+                                {product.description}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Product Specs Preview */}
+                        {product.specifications && product.specifications.length > 0 && (
+                          <div className="px-4 pb-4">
+                            <div className="bg-blue-50 rounded-lg p-3 border border-blue-100">
+                              <div className="flex items-center gap-2 mb-2">
+                                <Settings className="w-3 h-3 text-blue-600" />
+                                <span className="text-xs font-medium text-blue-700">المواصفات</span>
+                              </div>
+                              <div className="flex flex-wrap gap-1">
+                                {product.specifications.slice(0, 3).map((spec, idx) => (
+                                  <span 
+                                    key={idx}
+                                    className="inline-flex items-center px-2 py-1 rounded-full text-xs bg-white text-blue-700 border border-blue-200"
+                                  >
+                                    {spec.name}: {spec.value}
+                                  </span>
+                                ))}
+                                {product.specifications.length > 3 && (
+                                  <span className="text-xs text-blue-600 font-medium">
+                                    +{product.specifications.length - 3} أخرى
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Quick Actions Bar */}
+                        <div className="bg-gray-50 px-4 py-3 border-t border-gray-100">
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-2 text-xs text-gray-500">
+                              <Calendar className="w-3 h-3" />
+                              <span>تم الإنشاء منذ {Math.floor((Date.now() - new Date().getTime()) / (1000 * 60 * 60 * 24))} يوم</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <span className={`w-2 h-2 rounded-full ${
+                                product.stock > 0 ? 'bg-green-500' : 'bg-red-500'
+                              }`}></span>
+                              <span className="text-xs font-medium text-gray-600">
+                                {product.stock > 0 ? 'متاح' : 'غير متاح'}
+                              </span>
+                            </div>
                           </div>
                         </div>
                       </div>
                     ))}
                   </div>
 
-                  {/* Desktop Table View */}
+                  {/* Desktop Table View - Enhanced */}
                   <div className="hidden lg:block overflow-x-auto custom-scrollbar">
                     <table className="min-w-full divide-y divide-gray-200">
-                      <thead className="bg-gray-50">
+                      <thead className="bg-gradient-to-r from-gray-50 to-gray-100">
                         <tr>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            الصورة
+                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-gray-200">
+                            المنتج
                           </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
-                            الاسم
+                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-gray-200">
+                            الفئة
                           </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-gray-200">
                             السعر
                           </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-gray-200">
                             المخزون
                           </th>
-                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          <th className="px-6 py-4 text-right text-xs font-bold text-gray-700 uppercase tracking-wider border-b-2 border-gray-200">
                             الإجراءات
                           </th>
                         </tr>
                       </thead>
                       <tbody className="bg-white divide-y divide-gray-200">
-                        {products.map((product) => (
-                          <tr key={product.id} className="hover:bg-gray-50 transition-colors duration-200">
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <img
-                                src={buildImageUrl(product.mainImage)}
-                                alt={product.name}
-                                className="h-10 w-10 rounded-lg object-cover"
-                              />
+                        {products.map((product, index) => (
+                          <tr 
+                            key={product.id} 
+                            className="hover:bg-gradient-to-r hover:from-blue-50 hover:to-indigo-50 transition-all duration-300 group"
+                          >
+                            <td className="px-6 py-6 whitespace-nowrap">
+                              <div className="flex items-center">
+                                <img
+                                  src={buildImageUrl(product.mainImage)}
+                                  alt={product.name}
+                                  className="h-16 w-16 rounded-xl object-cover border-2 border-gray-200 shadow-md group-hover:shadow-lg transition-shadow duration-300"
+                                />
+                                <div className="mr-4">
+                                  <div className="text-sm font-bold text-gray-900 mb-1">{product.name}</div>
+                                  {product.description && (
+                                    <div className="text-xs text-gray-500 line-clamp-2 max-w-xs">
+                                      {product.description}
+                                    </div>
+                                  )}
+                                </div>
+                              </div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm font-medium text-gray-900 line-clamp-1">{product.name}</div>
+                            <td className="px-6 py-6 whitespace-nowrap">
+                              <span className="inline-flex px-3 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">
+                                {categories.find(cat => cat.id === product.categoryId)?.name || 'غير محدد'}
+                              </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <div className="text-sm text-gray-900 font-semibold">{product.price} ر.س</div>
+                            <td className="px-6 py-6 whitespace-nowrap">
+                              <div className="text-lg font-bold text-green-600">{product.price} ر.س</div>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap">
-                              <span className={`inline-flex px-2 py-1 text-xs font-semibold rounded-full ${
+                            <td className="px-6 py-6 whitespace-nowrap">
+                              <span className={`inline-flex px-3 py-1 text-xs font-bold rounded-full ${
                                 product.stock > 10 
                                   ? 'bg-green-100 text-green-800' 
                                   : product.stock > 0
                                   ? 'bg-yellow-100 text-yellow-800'
                                   : 'bg-red-100 text-red-800'
                               }`}>
-                                {product.stock}
+                                {product.stock} قطعة
                               </span>
                             </td>
-                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                              <div className="flex items-center gap-2">
+                            <td className="px-6 py-6 whitespace-nowrap text-sm font-medium">
+                              <div className="flex items-center gap-3">
                                 <button
                                   onClick={() => {
                                     setEditingProduct(product);
                                     setShowEditModal(true);
                                   }}
-                                  className="text-blue-600 hover:text-blue-900 p-1 rounded hover:bg-blue-50 transition-colors duration-200"
+                                  className="bg-blue-50 text-blue-600 hover:bg-blue-100 p-2 rounded-lg transition-colors duration-200 transform hover:scale-110 shadow-md hover:shadow-lg"
                                 >
                                   <Edit className="h-4 w-4" />
                                 </button>
                                 <button
                                   onClick={() => handleDeleteProduct(product.id)}
-                                  className="text-red-600 hover:text-red-900 p-1 rounded hover:bg-red-50 transition-colors duration-200"
+                                  className="bg-red-50 text-red-600 hover:bg-red-100 p-2 rounded-lg transition-colors duration-200 transform hover:scale-110 shadow-md hover:shadow-lg"
                                 >
                                   <Trash2 className="h-4 w-4" />
                                 </button>
@@ -1086,6 +1228,29 @@ const Dashboard: React.FC = () => {
                                  order.status === 'delivered' ? 'تم التسليم' : 'ملغي'}
                               </span>
                             </div>
+                            {/* Order Items Preview */}
+                            {order.items && order.items.length > 0 && (
+                              <div className="mt-2 bg-gray-50 rounded p-2">
+                                <p className="compact-text text-gray-600 mb-1">المنتجات:</p>
+                                {order.items.slice(0, 2).map((item, idx) => (
+                                  <div key={idx} className="flex items-center gap-2 mb-1">
+                                    <span className="compact-text font-medium">{item.productName}</span>
+                                    <span className="compact-text text-gray-500">×{item.quantity}</span>
+                                    {/* Selected Options Preview */}
+                                    {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
+                                      <span className="compact-badge bg-blue-100 text-blue-800">
+                                        مع مواصفات
+                                      </span>
+                                    )}
+                                  </div>
+                                ))}
+                                {order.items.length > 2 && (
+                                  <span className="compact-text text-gray-500">
+                                    +{order.items.length - 2} منتج آخر
+                                  </span>
+                                )}
+                              </div>
+                            )}
                           </div>
                         </div>
                       </div>
@@ -1102,6 +1267,9 @@ const Dashboard: React.FC = () => {
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                             اسم العميل
+                          </th>
+                          <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                            المنتجات والمواصفات
                           </th>
                           <th className="px-6 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
                             المجموع
@@ -1125,6 +1293,55 @@ const Dashboard: React.FC = () => {
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm text-gray-900">{order.customerName}</div>
+                            </td>
+                            <td className="px-6 py-4">
+                              <div className="max-w-xs">
+                                {order.items && order.items.length > 0 ? (
+                                  <div className="space-y-2">
+                                    {order.items.slice(0, 3).map((item, idx) => (
+                                      <div key={idx} className="bg-gray-50 rounded-lg p-2">
+                                        <div className="flex items-center justify-between mb-1">
+                                          <span className="text-sm font-medium text-gray-900 truncate">
+                                            {item.productName}
+                                          </span>
+                                          <span className="text-xs text-gray-500 ml-2">×{item.quantity}</span>
+                                        </div>
+                                        {/* Selected Options */}
+                                        {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
+                                          <div className="space-y-1">
+                                            {Object.entries(item.selectedOptions).slice(0, 2).map(([optionName, value]) => (
+                                              <div key={optionName} className="flex items-center gap-1">
+                                                <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded">
+                                                  {optionName === 'size' ? 'مقاس' : 
+                                                   optionName === 'color' ? 'لون' :
+                                                   optionName === 'nameOnSash' ? 'الاسم' :
+                                                   optionName === 'embroideryColor' ? 'لون التطريز' :
+                                                   optionName}
+                                                </span>
+                                                <span className="text-xs text-gray-700 truncate max-w-20">
+                                                  {String(value)}
+                                                </span>
+                                              </div>
+                                            ))}
+                                            {Object.keys(item.selectedOptions).length > 2 && (
+                                              <span className="text-xs text-gray-500">
+                                                +{Object.keys(item.selectedOptions).length - 2} مواصفة أخرى
+                                              </span>
+                                            )}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                    {order.items.length > 3 && (
+                                      <div className="text-xs text-gray-500 text-center py-1">
+                                        +{order.items.length - 3} منتج آخر
+                                      </div>
+                                    )}
+                                  </div>
+                                ) : (
+                                  <span className="text-sm text-gray-500">لا توجد تفاصيل</span>
+                                )}
+                              </div>
                             </td>
                             <td className="px-6 py-4 whitespace-nowrap">
                               <div className="text-sm font-semibold text-green-600">{order.total} ر.س</div>
