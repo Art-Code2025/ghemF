@@ -275,8 +275,8 @@ function Navbar() {
             /* Mobile Touch Optimization */
             @media (max-width: 1024px) {
               .mobile-touch-target {
-                min-height: 48px;
-                min-width: 48px;
+                min-height: 40px;
+                min-width: 40px;
                 touch-action: manipulation;
                 -webkit-touch-callout: none;
                 -webkit-user-select: none;
@@ -294,15 +294,15 @@ function Navbar() {
                 z-index: 50;
                 pointer-events: auto;
                 touch-action: manipulation;
-                padding: 12px;
-                border-radius: 16px;
+                padding: 8px;
+                border-radius: 12px;
               }
               
               .mobile-icons-area {
                 position: relative;
                 z-index: 60;
                 pointer-events: auto;
-                gap: 8px;
+                gap: 4px;
               }
               
               .mobile-menu-button {
@@ -332,16 +332,16 @@ function Navbar() {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-gray-400/40 to-transparent" />
         
         <div className="relative flex items-center justify-between h-20 sm:h-20 lg:h-24 px-4 sm:px-6 lg:px-12">
-          {/* Menu Button for Mobile - محسن للموبايل */}
+          {/* Menu Button for Mobile - حجم مصغر ومتناسق */}
           <button
             onClick={() => setIsMenuOpen(!isMenuOpen)}
-            className="mobile-menu-button mobile-touch-target text-gray-800 hover:text-gray-600 p-3 sm:p-3 rounded-2xl lg:hidden transition-all duration-300 ease-out transform hover:scale-110 bg-white/60 backdrop-blur-xl border border-gray-300/50 shadow-lg hover:shadow-xl z-[60] relative no-select"
+            className="mobile-menu-button mobile-touch-target text-gray-800 hover:text-gray-600 p-2 sm:p-2.5 rounded-xl lg:hidden transition-all duration-300 ease-out transform hover:scale-110 bg-white/60 backdrop-blur-xl border border-gray-300/50 shadow-md hover:shadow-lg z-[60] relative no-select"
             style={{ 
-              minWidth: '48px',
-              minHeight: '48px'
+              minWidth: '40px',
+              minHeight: '40px'
             }}
           >
-            {isMenuOpen ? <X size={26} className="sm:w-7 sm:h-7" /> : <Menu size={26} className="sm:w-7 sm:h-7" />}
+            {isMenuOpen ? <X size={20} className="sm:w-5 sm:h-5" /> : <Menu size={20} className="sm:w-5 sm:h-5" />}
           </button>
 
           {/* Premium Logo - Fixed Center with proper z-index */}
@@ -426,81 +426,81 @@ function Navbar() {
               ))}
             </div>
 
-          {/* Premium Icons Section - محسن للموبايل */}
-          <div className="mobile-icons-area flex items-center gap-2 sm:gap-3 lg:gap-4 z-[60] relative">
-            {/* Cart Icon - محسن للموبايل */}
+          {/* Premium Icons Section - أحجام أصغر ومتناسقة */}
+          <div className="mobile-icons-area flex items-center gap-1 sm:gap-2 lg:gap-3 z-[60] relative">
+            {/* Cart Icon - حجم مصغر */}
             <Link 
               to="/cart" 
-              className="mobile-touch-target relative p-3 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/60 backdrop-blur-xl border border-gray-300/50 rounded-2xl shadow-lg hover:shadow-xl group z-[60] no-select"
+              className="mobile-touch-target relative p-2 sm:p-2.5 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/60 backdrop-blur-xl border border-gray-300/50 rounded-xl shadow-md hover:shadow-lg group z-[60] no-select"
               style={{ 
                 pointerEvents: 'auto',
                 touchAction: 'manipulation',
-                minWidth: '48px',
-                minHeight: '48px'
+                minWidth: '40px',
+                minHeight: '40px'
               }}
             >
-              <ShoppingCart className="w-6 h-6 sm:w-6 sm:h-6 lg:w-6 lg:h-6" />
+              <ShoppingCart className="w-4 h-4 sm:w-5 sm:h-5" />
               {cartItemsCount > 0 && (
                 <span 
                   data-cart-count
-                  className="absolute -top-2 -right-2 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full w-6 h-6 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse border-2 border-white"
+                  className="absolute -top-1 -right-1 bg-gradient-to-r from-red-500 to-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse border border-white"
                 >
                   {cartItemsCount > 99 ? '99+' : cartItemsCount}
                 </span>
               )}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
 
-            {/* Wishlist Icon - محسن للموبايل */}
+            {/* Wishlist Icon - حجم مصغر */}
             <Link 
               to="/wishlist" 
-              className="mobile-touch-target relative p-3 sm:p-3 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/60 backdrop-blur-xl border border-gray-300/50 rounded-2xl shadow-lg hover:shadow-xl group z-[60] no-select"
+              className="mobile-touch-target relative p-2 sm:p-2.5 text-gray-700 hover:text-gray-800 transition-all duration-300 ease-out transform hover:scale-110 bg-white/60 backdrop-blur-xl border border-gray-300/50 rounded-xl shadow-md hover:shadow-lg group z-[60] no-select"
               style={{ 
                 pointerEvents: 'auto',
                 touchAction: 'manipulation',
-                minWidth: '48px',
-                minHeight: '48px'
+                minWidth: '40px',
+                minHeight: '40px'
               }}
             >
-              <Heart className="w-6 h-6 sm:w-6 sm:h-6 lg:w-6 lg:h-6" />
+              <Heart className="w-4 h-4 sm:w-5 sm:h-5" />
               {wishlistItemsCount > 0 && (
                 <span 
                   data-wishlist-count
-                  className="absolute -top-2 -right-2 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-full w-6 h-6 sm:w-6 sm:h-6 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse border-2 border-white"
+                  className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-pink-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs font-bold shadow-lg animate-pulse border border-white"
                 >
                   {wishlistItemsCount > 99 ? '99+' : wishlistItemsCount}
                 </span>
               )}
-              <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+              <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-500/10 to-rose-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
             </Link>
 
-            {/* User Menu - محسن للموبايل */}
+            {/* User Menu - حجم مصغر */}
             {user ? (
               <div className="relative z-[60]">
                 <button
                   onClick={() => setIsUserMenuOpen(!isUserMenuOpen)}
-                  className="mobile-touch-target flex items-center gap-2 sm:gap-2 text-gray-700 px-3 sm:px-4 lg:px-4 py-3 sm:py-3 rounded-2xl bg-gradient-to-r from-white/70 to-gray-50/70 backdrop-blur-xl border border-gray-300/50 hover:bg-gradient-to-r hover:from-white/90 hover:to-gray-50/90 transition-all duration-300 ease-out transform hover:scale-105 shadow-lg hover:shadow-xl group z-[60] no-select"
+                  className="mobile-touch-target flex items-center gap-1 sm:gap-2 text-gray-700 px-2 sm:px-3 py-2 sm:py-2.5 rounded-xl bg-gradient-to-r from-white/70 to-gray-50/70 backdrop-blur-xl border border-gray-300/50 hover:bg-gradient-to-r hover:from-white/90 hover:to-gray-50/90 transition-all duration-300 ease-out transform hover:scale-105 shadow-md hover:shadow-lg group z-[60] no-select"
                   style={{ 
                     pointerEvents: 'auto',
                     touchAction: 'manipulation',
-                    minHeight: '48px'
+                    minHeight: '40px'
                   }}
                 >
-                  <User size={20} className="sm:w-6 sm:h-6 text-gray-700" />
+                  <User size={16} className="sm:w-5 sm:h-5 text-gray-700" />
                   <div className="text-right hidden sm:block">
-                    <span className="font-semibold text-gray-800 text-sm lg:text-sm">{user.name?.split(' ')[0] || user.firstName || 'عميل'}</span>
+                    <span className="font-semibold text-gray-800 text-xs">{user.name?.split(' ')[0] || user.firstName || 'عميل'}</span>
                   </div>
-                  <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-gray-400/10 to-gray-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-gray-400/10 to-gray-500/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
                 </button>
                 {isUserMenuOpen && (
-                  <div className="absolute left-0 mt-3 w-56 bg-white/95 backdrop-blur-2xl rounded-2xl shadow-2xl border border-gray-200/60 py-3 animate-[slideInFromTop_0.3s_ease-out] z-[70]">
-                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-gray-50/30 to-white/40 rounded-2xl" />
+                  <div className="absolute left-0 mt-2 w-48 bg-white/95 backdrop-blur-2xl rounded-xl shadow-xl border border-gray-200/60 py-2 animate-[slideInFromTop_0.3s_ease-out] z-[70]">
+                    <div className="absolute inset-0 bg-gradient-to-br from-white/40 via-gray-50/30 to-white/40 rounded-xl" />
                     <div className="relative">
                       <button
                         onClick={handleLogout}
-                        className="w-full text-right px-6 py-4 text-sm text-gray-700 hover:text-gray-800 hover:bg-gray-50/60 flex items-center gap-4 transition-all duration-300 ease-out group"
+                        className="w-full text-right px-4 py-3 text-sm text-gray-700 hover:text-gray-800 hover:bg-gray-50/60 flex items-center gap-3 transition-all duration-300 ease-out group"
                       >
-                        <LogOut size={20} className="group-hover:scale-110 transition-transform duration-300 text-red-500" />
+                        <LogOut size={16} className="group-hover:scale-110 transition-transform duration-300 text-red-500" />
                         <span className="font-medium">تسجيل خروج</span>
                       </button>
                     </div>
@@ -510,170 +510,20 @@ function Navbar() {
             ) : (
               <button
                 onClick={openAuthModal}
-                className="mobile-touch-target relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 sm:px-5 lg:px-5 py-3 sm:py-3 lg:py-3 rounded-2xl backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-lg hover:shadow-xl font-medium group z-[60] no-select"
+                className="mobile-touch-target relative bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 sm:px-4 py-2 sm:py-2.5 rounded-xl backdrop-blur-xl border border-pink-400/30 hover:from-pink-600 hover:to-rose-600 transition-all duration-300 ease-out transform hover:scale-105 shadow-md hover:shadow-lg font-medium group z-[60] no-select"
                 style={{ 
                   pointerEvents: 'auto',
                   touchAction: 'manipulation',
-                  minHeight: '48px'
+                  minHeight: '40px'
                 }}
               >
-                <div className="flex items-center gap-2">
-                  <User size={18} className="sm:w-5 sm:h-5 lg:w-5 lg:h-5 text-white" />
-                  <span className="text-sm sm:text-sm lg:text-sm font-semibold">دخول</span>
+                <div className="flex items-center gap-1">
+                  <User size={14} className="sm:w-4 sm:h-4 text-white" />
+                  <span className="text-xs sm:text-sm font-semibold">دخول</span>
                 </div>
-                <div className="absolute inset-0 rounded-2xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-pink-400/20 to-rose-400/20 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </button>
             )}
-          </div>
-        </div>
-
-        {/* Premium Mobile Menu - احترافي ومحسن */}
-        <div className={`lg:hidden fixed inset-0 z-[99999] transition-all duration-500 ease-out ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
-          {/* Backdrop Overlay - خلفية معتمة */}
-          <div 
-            className={`absolute inset-0 bg-black/60 backdrop-blur-lg transition-all duration-500 ease-out ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
-            onClick={() => setIsMenuOpen(false)}
-          />
-          
-          {/* Mobile Menu Panel - لوحة القائمة */}
-          <div className={`absolute top-0 right-0 h-full w-80 sm:w-96 bg-white/95 backdrop-blur-3xl shadow-2xl border-l border-gray-200/60 transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
-            {/* Premium Background Effects */}
-            <div className="absolute inset-0 bg-gradient-to-br from-white/90 via-gray-50/70 to-white/90" />
-            <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-gray-100/30 to-transparent" />
-            
-            {/* Content Container */}
-            <div className="relative h-full flex flex-col overflow-y-auto">
-              {/* Header Section */}
-              <div className="relative bg-gradient-to-r from-gray-50/80 to-white/80 backdrop-blur-sm border-b border-gray-200/50 p-6">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 bg-gradient-to-br from-gray-600 to-gray-800 rounded-2xl flex items-center justify-center shadow-lg">
-                      <Menu className="w-6 h-6 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-gray-800">القائمة الرئيسية</h3>
-                      <p className="text-sm text-gray-600">تصفح أقسام المتجر</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => setIsMenuOpen(false)}
-                    className="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100/60 rounded-2xl transition-all duration-300 group"
-                  >
-                    <X size={24} className="group-hover:rotate-90 transition-transform duration-300" />
-                  </button>
-                </div>
-              </div>
-
-              {/* Navigation Links Section */}
-              <div className="relative p-6 space-y-3">
-                <div className="mb-6">
-                  <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 px-2">التنقل السريع</h4>
-                  
-                  {/* الرئيسية */}
-                  <Link
-                    to="/"
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`group w-full text-right block px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100/50 rounded-2xl transition-all duration-300 ease-out backdrop-blur-sm border border-transparent hover:border-gray-200/50 cursor-pointer text-base transform hover:scale-[1.02] ${
-                      isActive('/') ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-200/60 text-gray-900 shadow-md' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                        <Home className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <span className="font-semibold">الرئيسية</span>
-                        <div className="text-xs text-gray-500 mt-0.5">العودة للصفحة الرئيسية</div>
-                      </div>
-                      <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:-translate-x-1 transition-all duration-300" />
-                    </div>
-                  </Link>
-
-                  {/* جميع المنتجات */}
-                  <Link
-                    to="/products"
-                    onClick={() => setIsMenuOpen(false)}
-                    className={`group w-full text-right block px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100/50 rounded-2xl transition-all duration-300 ease-out backdrop-blur-sm border border-transparent hover:border-gray-200/50 cursor-pointer text-base transform hover:scale-[1.02] ${
-                      isActive('/products') ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-200/60 text-gray-900 shadow-md' : ''
-                    }`}
-                  >
-                    <div className="flex items-center gap-4">
-                      <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                        <Package className="w-5 h-5 text-white" />
-                      </div>
-                      <div className="flex-1">
-                        <span className="font-semibold">جميع المنتجات</span>
-                        <div className="text-xs text-gray-500 mt-0.5">تصفح كامل للمنتجات</div>
-                      </div>
-                      <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:-translate-x-1 transition-all duration-300" />
-                    </div>
-                  </Link>
-                </div>
-
-                {/* Categories Section */}
-                {categories.length > 0 && (
-                  <div>
-                    <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 px-2 flex items-center gap-2">
-                      <span>التصنيفات</span>
-                      <div className="flex-1 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
-                      <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">{categories.length}</span>
-                    </h4>
-                    <div className="space-y-2">
-                      {categories.map((category, index) => (
-                        <button
-                          key={category.id}
-                          onClick={() => {
-                            console.log('📱 Mobile Category clicked:', category.name, 'ID:', category.id);
-                            const categorySlug = createCategorySlug(category.id, category.name);
-                            navigate(`/category/${categorySlug}`);
-                            setIsMenuOpen(false);
-                          }}
-                          className={`group w-full text-right block px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100/50 rounded-2xl transition-all duration-300 ease-out backdrop-blur-sm border border-transparent hover:border-gray-200/50 cursor-pointer text-base transform hover:scale-[1.02] ${
-                            isActive(`/category/${createCategorySlug(category.id, category.name)}`) ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-200/60 text-gray-900 shadow-md' : ''
-                          }`}
-                        >
-                          <div className="flex items-center gap-4">
-                            <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
-                              <span className="text-white text-sm font-bold">
-                                {category.name.charAt(0)}
-                              </span>
-                            </div>
-                            <div className="flex-1">
-                              <span className="font-semibold">{category.name}</span>
-                              <div className="text-xs text-gray-500 mt-0.5">استكشف مجموعة {category.name}</div>
-                            </div>
-                            <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:-translate-x-1 transition-all duration-300" />
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
-
-                {/* Empty State للتصنيفات */}
-                {categories.length === 0 && (
-                  <div className="text-center py-12">
-                    <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                      <Package className="w-8 h-8 text-gray-400" />
-                    </div>
-                    <h3 className="font-bold text-gray-600 mb-2">لا توجد تصنيفات</h3>
-                    <p className="text-gray-500 text-sm">سيتم إضافة التصنيفات قريباً</p>
-                  </div>
-                )}
-              </div>
-
-              {/* Footer Section */}
-              <div className="relative mt-auto border-t border-gray-200/50 bg-gradient-to-r from-gray-50/50 to-white/50 p-6">
-                <div className="text-center">
-                  <div className="text-sm text-gray-600 mb-2">
-                    مرحباً بك في متجر
-                  </div>
-                  <div className="text-lg font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
-                    GHEM.STORE
-                  </div>
-                </div>
-              </div>
-            </div>
           </div>
         </div>
 
@@ -681,6 +531,156 @@ function Navbar() {
         <div className="absolute top-0 left-1/4 w-64 h-64 bg-pink-400/10 rounded-full blur-3xl opacity-50" />
         <div className="absolute top-0 right-1/4 w-64 h-64 bg-rose-400/10 rounded-full blur-3xl opacity-50" />
       </nav>
+
+      {/* Premium Mobile Menu - خارج النافبار لأعلى z-index */}
+      <div className={`lg:hidden fixed inset-0 z-[999999] transition-all duration-500 ease-out ${isMenuOpen ? 'opacity-100 visible' : 'opacity-0 invisible pointer-events-none'}`}>
+        {/* Backdrop Overlay - خلفية معتمة */}
+        <div 
+          className={`absolute inset-0 bg-black/70 backdrop-blur-lg transition-all duration-500 ease-out ${isMenuOpen ? 'opacity-100' : 'opacity-0'}`}
+          onClick={() => setIsMenuOpen(false)}
+        />
+        
+        {/* Mobile Menu Panel - لوحة القائمة */}
+        <div className={`absolute top-0 right-0 h-full w-80 sm:w-96 bg-white/98 backdrop-blur-3xl shadow-2xl border-l border-gray-200/60 transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0' : 'translate-x-full'}`}>
+          {/* Premium Background Effects */}
+          <div className="absolute inset-0 bg-gradient-to-br from-white/95 via-gray-50/80 to-white/95" />
+          <div className="absolute top-0 left-0 w-full h-32 bg-gradient-to-b from-gray-100/40 to-transparent" />
+          
+          {/* Content Container */}
+          <div className="relative h-full flex flex-col overflow-y-auto">
+            {/* Header Section */}
+            <div className="relative bg-gradient-to-r from-gray-50/90 to-white/90 backdrop-blur-sm border-b border-gray-200/60 p-6">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 bg-gradient-to-br from-gray-700 to-gray-900 rounded-2xl flex items-center justify-center shadow-lg">
+                    <Menu className="w-6 h-6 text-white" />
+                  </div>
+                  <div>
+                    <h3 className="text-xl font-bold text-gray-800">القائمة الرئيسية</h3>
+                    <p className="text-sm text-gray-600">تصفح أقسام المتجر</p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => setIsMenuOpen(false)}
+                  className="p-3 text-gray-600 hover:text-gray-800 hover:bg-gray-100/60 rounded-2xl transition-all duration-300 group"
+                >
+                  <X size={24} className="group-hover:rotate-90 transition-transform duration-300" />
+                </button>
+              </div>
+            </div>
+
+            {/* Navigation Links Section */}
+            <div className="relative p-6 space-y-3">
+              <div className="mb-6">
+                <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 px-2">التنقل السريع</h4>
+                
+                {/* الرئيسية */}
+                <Link
+                  to="/"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`group w-full text-right block px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100/50 rounded-2xl transition-all duration-300 ease-out backdrop-blur-sm border border-transparent hover:border-gray-200/50 cursor-pointer text-base transform hover:scale-[1.02] ${
+                    isActive('/') ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-200/60 text-gray-900 shadow-md' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-blue-500 to-blue-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                      <Home className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold">الرئيسية</span>
+                      <div className="text-xs text-gray-500 mt-0.5">العودة للصفحة الرئيسية</div>
+                    </div>
+                    <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:-translate-x-1 transition-all duration-300" />
+                  </div>
+                </Link>
+
+                {/* جميع المنتجات */}
+                <Link
+                  to="/products"
+                  onClick={() => setIsMenuOpen(false)}
+                  className={`group w-full text-right block px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100/50 rounded-2xl transition-all duration-300 ease-out backdrop-blur-sm border border-transparent hover:border-gray-200/50 cursor-pointer text-base transform hover:scale-[1.02] ${
+                    isActive('/products') ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-200/60 text-gray-900 shadow-md' : ''
+                  }`}
+                >
+                  <div className="flex items-center gap-4">
+                    <div className="w-10 h-10 bg-gradient-to-br from-green-500 to-green-600 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                      <Package className="w-5 h-5 text-white" />
+                    </div>
+                    <div className="flex-1">
+                      <span className="font-semibold">جميع المنتجات</span>
+                      <div className="text-xs text-gray-500 mt-0.5">تصفح كامل للمنتجات</div>
+                    </div>
+                    <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:-translate-x-1 transition-all duration-300" />
+                  </div>
+                </Link>
+              </div>
+
+              {/* Categories Section */}
+              {categories.length > 0 && (
+                <div>
+                  <h4 className="text-sm font-bold text-gray-500 uppercase tracking-wider mb-4 px-2 flex items-center gap-2">
+                    <span>التصنيفات</span>
+                    <div className="flex-1 h-px bg-gradient-to-r from-gray-300 to-transparent"></div>
+                    <span className="text-xs bg-gray-100 px-2 py-1 rounded-full">{categories.length}</span>
+                  </h4>
+                  <div className="space-y-2">
+                    {categories.map((category, index) => (
+                      <button
+                        key={category.id}
+                        onClick={() => {
+                          console.log('📱 Mobile Category clicked:', category.name, 'ID:', category.id);
+                          const categorySlug = createCategorySlug(category.id, category.name);
+                          navigate(`/category/${categorySlug}`);
+                          setIsMenuOpen(false);
+                        }}
+                        className={`group w-full text-right block px-4 py-4 text-gray-700 hover:text-gray-900 hover:bg-gradient-to-r hover:from-gray-50 hover:to-gray-100/50 rounded-2xl transition-all duration-300 ease-out backdrop-blur-sm border border-transparent hover:border-gray-200/50 cursor-pointer text-base transform hover:scale-[1.02] ${
+                          isActive(`/category/${createCategorySlug(category.id, category.name)}`) ? 'bg-gradient-to-r from-gray-100 to-gray-50 border-gray-200/60 text-gray-900 shadow-md' : ''
+                        }`}
+                      >
+                        <div className="flex items-center gap-4">
+                          <div className="w-10 h-10 bg-gradient-to-br from-pink-500 to-rose-500 rounded-xl flex items-center justify-center shadow-lg group-hover:shadow-xl transition-all duration-300">
+                            <span className="text-white text-sm font-bold">
+                              {category.name.charAt(0)}
+                            </span>
+                          </div>
+                          <div className="flex-1">
+                            <span className="font-semibold">{category.name}</span>
+                            <div className="text-xs text-gray-500 mt-0.5">استكشف مجموعة {category.name}</div>
+                          </div>
+                          <ChevronLeft className="w-5 h-5 text-gray-400 group-hover:text-gray-600 group-hover:-translate-x-1 transition-all duration-300" />
+                        </div>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Empty State للتصنيفات */}
+              {categories.length === 0 && (
+                <div className="text-center py-12">
+                  <div className="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                    <Package className="w-8 h-8 text-gray-400" />
+                  </div>
+                  <h3 className="font-bold text-gray-600 mb-2">لا توجد تصنيفات</h3>
+                  <p className="text-gray-500 text-sm">سيتم إضافة التصنيفات قريباً</p>
+                </div>
+              )}
+            </div>
+
+            {/* Footer Section */}
+            <div className="relative mt-auto border-t border-gray-200/50 bg-gradient-to-r from-gray-50/60 to-white/60 p-6">
+              <div className="text-center">
+                <div className="text-sm text-gray-600 mb-2">
+                  مرحباً بك في متجر
+                </div>
+                <div className="text-lg font-bold bg-gradient-to-r from-gray-700 to-gray-900 bg-clip-text text-transparent">
+                  GHEM.STORE
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
       
       <AuthModal
         isOpen={isAuthModalOpen}
