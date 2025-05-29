@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ChevronLeft, ChevronRight, Package, Sparkles } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, Search, ShoppingCart, Heart, User, Package, Gift, Sparkles, ArrowLeft, Plus, Minus } from 'lucide-react';
 
 // Import components directly for debugging
 import ImageSlider from './components/ImageSlider';
@@ -13,6 +13,7 @@ import { createCategorySlug, createProductSlug } from './utils/slugify';
 import cover2 from './assets/cover2.jpg';
 import cover3 from './assets/cover3.jpg';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from './config/api';
+import { addToCartUnified } from './utils/cartUtils';
 
 interface Product {
   id: number;
@@ -49,43 +50,140 @@ interface CartItem {
 }
 
 const App: React.FC = () => {
-  // تحميل البيانات فوراً من localStorage لتجنب الفلاش
-  const [categoryProducts, setCategoryProducts] = useState<CategoryProducts[]>(() => {
-    const saved = localStorage.getItem('cachedCategoryProducts');
-    try {
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-  const [categories, setCategories] = useState<Category[]>(() => {
-    const saved = localStorage.getItem('cachedCategories');
-    try {
-      return saved ? JSON.parse(saved) : [];
-    } catch {
-      return [];
-    }
-  });
-  const [loading, setLoading] = useState<boolean>(false);
-  const [initialLoad, setInitialLoad] = useState<boolean>(true);
-  const [currentSlide, setCurrentSlide] = useState<number>(0);
+  const [currentSlide, setCurrentSlide] = useState(0);
+  const [categoryProducts, setCategoryProducts] = useState<CategoryProducts[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [cartCount, setCartCount] = useState(0);
+  // Add quantity state for mobile cards
+  const [quantities, setQuantities] = useState<{[key: number]: number}>({});
 
   const heroImages = [cover1, cover2, cover3];
 
+  // Load cart count from localStorage
   useEffect(() => {
-    fetchCategoriesWithProducts();
-    
-    // Listen for categories updates
-    const handleCategoriesUpdate = () => {
-      fetchCategoriesWithProducts();
+    const updateCartCount = () => {
+      const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+      const totalCount = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
+      setCartCount(totalCount);
     };
+
+    updateCartCount();
     
-    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
+    // Listen for cart updates
+    window.addEventListener('cartUpdated', updateCartCount);
     
     return () => {
-      window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
+      window.removeEventListener('cartUpdated', updateCartCount);
     };
   }, []);
+
+  const handleCategoriesUpdate = () => {
+    fetchCategoriesWithProducts();
+  };
+
+  useEffect(() => {
+    fetchCategoriesWithProducts();
+
+    // Add event listeners for real-time updates
+    window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
+    window.addEventListener('productsUpdated', handleCategoriesUpdate);
+
+    return () => {
+      window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
+      window.removeEventListener('productsUpdated', handleCategoriesUpdate);
+    };
+  }, []);
+
+  const fetchCategoriesWithProducts = async () => {
+    try {
+      setLoading(true);
+      setError(null);
+
+      // Fetch categories and products
+      const [categoriesData, productsData] = await Promise.all([
+        apiCall(API_ENDPOINTS.CATEGORIES),
+        apiCall(API_ENDPOINTS.PRODUCTS)
+      ]);
+
+      // Group products by category and sort by creation date
+      const categoryProductsMap: { [key: number]: Product[] } = {};
+
+      productsData.forEach((product: Product) => {
+        if (product.categoryId) {
+          if (!categoryProductsMap[product.categoryId]) {
+            categoryProductsMap[product.categoryId] = [];
+          }
+          categoryProductsMap[product.categoryId].push(product);
+        }
+      });
+
+      // Sort products within each category by creation date (newest first)
+      Object.keys(categoryProductsMap).forEach(categoryId => {
+        categoryProductsMap[parseInt(categoryId)].sort((a, b) => {
+          const dateA = new Date(a.createdAt || 0).getTime();
+          const dateB = new Date(b.createdAt || 0).getTime();
+          return dateB - dateA;
+        });
+      });
+
+      // Create category products array with products
+      const categoryProductsArray: CategoryProducts[] = categoriesData
+        .filter((category: Category) => categoryProductsMap[category.id] && categoryProductsMap[category.id].length > 0)
+        .map((category: Category) => ({
+          category,
+          products: categoryProductsMap[category.id].slice(0, 8) // Limit to 8 products per category
+        }));
+
+      setCategoryProducts(categoryProductsArray);
+      
+      // Initialize quantities for all products
+      const initialQuantities: {[key: number]: number} = {};
+      categoryProductsArray.forEach(cp => {
+        cp.products.forEach(product => {
+          initialQuantities[product.id] = 1;
+        });
+      });
+      setQuantities(initialQuantities);
+      
+    } catch (error) {
+      console.error('Error fetching data:', error);
+      setError('حدث خطأ أثناء جلب البيانات');
+      toast.error('فشل في جلب البيانات');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Quantity handlers for mobile cards
+  const handleQuantityDecrease = (productId: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [productId]: Math.max(1, (prev[productId] || 1) - 1)
+    }));
+  };
+
+  const handleQuantityIncrease = (productId: number, maxStock: number) => {
+    setQuantities(prev => ({
+      ...prev,
+      [productId]: Math.min(maxStock, (prev[productId] || 1) + 1)
+    }));
+  };
+
+  const handleAddToCart = async (product: Product) => {
+    const quantity = quantities[product.id] || 1;
+    try {
+      const success = await addToCartUnified(product.id, product.name, quantity);
+      if (success) {
+        // Update cart count
+        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
+        const totalCount = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
+        setCartCount(totalCount);
+      }
+    } catch (error) {
+      console.error('Error adding to cart:', error);
+    }
+  };
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -93,41 +191,6 @@ const App: React.FC = () => {
     }, 3000); // Faster slide transition
     return () => clearInterval(timer);
   }, [heroImages.length]);
-
-  const fetchCategoriesWithProducts = async () => {
-    try {
-      setLoading(true);
-      
-      // استخدام النظام الجديد للـ API calls
-      const [categoriesData, products] = await Promise.all([
-        apiCall(API_ENDPOINTS.CATEGORIES),
-        apiCall(API_ENDPOINTS.PRODUCTS)
-      ]);
-      
-      setCategories(categoriesData);
-      
-      const categoryProductsData: CategoryProducts[] = categoriesData.map((category: Category) => ({
-        category,
-        products: products.filter((product: Product) => product.categoryId === category.id).slice(0, 4),
-      })).filter((cp: CategoryProducts) => cp.products.length > 0);
-      setCategoryProducts(categoryProductsData);
-      
-      // حفظ في localStorage لتجنب الفلاش في المرة القادمة
-      localStorage.setItem('cachedCategories', JSON.stringify(categoriesData));
-      localStorage.setItem('cachedCategoryProducts', JSON.stringify(categoryProductsData));
-      
-      setInitialLoad(false);
-    } catch (error) {
-      console.error('Error fetching data:', error);
-      // في حالة الخطأ، إذا كان لدينا بيانات محفوظة، نستخدمها
-      if (categories.length === 0) {
-        toast.error('فشل في تحميل البيانات. يرجى إعادة المحاولة.');
-      }
-      setInitialLoad(false);
-    } finally {
-      setLoading(false);
-    }
-  };
 
   const nextSlide = () => setCurrentSlide((prev) => (prev + 1) % heroImages.length);
   const prevSlide = () => setCurrentSlide((prev) => (prev - 1 + heroImages.length) % heroImages.length);
@@ -258,26 +321,26 @@ const App: React.FC = () => {
             </p>
             <div className="inline-flex items-center justify-center gap-1.5 bg-gradient-to-r from-white/90 to-gray-50/90 backdrop-blur-xl border border-gray-200/60 px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-md hover:shadow-lg transition-all duration-300">
               <Package className="w-4 h-4 sm:w-5 sm:h-5 text-gray-600" />
-              <span className="text-xs sm:text-sm text-gray-700 font-bold">{categories.length} مجموعة متاحة</span>
+              <span className="text-xs sm:text-sm text-gray-700 font-bold">{categoryProducts.length} مجموعة متاحة</span>
             </div>
           </div>
           
           {/* عرض Categories فوراً بدون شرط */}
-          {categories.length > 0 ? (
+          {categoryProducts.length > 0 ? (
             <>
               {/* Mobile: Horizontal Scroll */}
               <div className="block sm:hidden">
                 <div className="flex gap-4 overflow-x-auto pb-4 px-2 scrollbar-hide snap-x snap-mandatory" style={{ scrollBehavior: 'smooth', WebkitOverflowScrolling: 'touch' }}>
-                  {categories.map((category, index) => (
-                    <div key={category.id} className="flex-shrink-0 w-72 snap-start">
-                      <Link to={`/category/${createCategorySlug(category.id, category.name)}`}>
+                  {categoryProducts.map((categoryProduct, index) => (
+                    <div key={categoryProduct.category.id} className="flex-shrink-0 w-72 snap-start">
+                      <Link to={`/category/${createCategorySlug(categoryProduct.category.id, categoryProduct.category.name)}`}>
                         <div className="relative bg-gradient-to-br from-white via-pink-50/50 to-white backdrop-blur-xl rounded-2xl overflow-hidden border border-pink-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-pink-300/80">
                           <div className="relative">
                             {/* Category Image - Taller */}
                             <div className="relative h-64 overflow-hidden rounded-t-2xl">
                               <img
-                                src={buildImageUrl(category.image)}
-                                alt={category.name}
+                                src={buildImageUrl(categoryProduct.category.image)}
+                                alt={categoryProduct.category.name}
                                 className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                                 onError={(e) => {
                                   e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
@@ -297,13 +360,13 @@ const App: React.FC = () => {
                             <div className="relative p-4 bg-gradient-to-b from-white to-pink-50/30">
                               <div className="text-center">
                                 <h3 className="text-lg font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3">
-                                  {category.name}
+                                  {categoryProduct.category.name}
                                 </h3>
                                 
                                 <div className="h-0.5 bg-gradient-to-r from-transparent via-pink-400 to-transparent rounded-full mb-3 mx-auto w-12" />
                                 
                                 <p className="text-sm text-gray-600 leading-relaxed mb-4 line-clamp-2">
-                                  {category.description || 'اكتشف مجموعة متنوعة من المنتجات عالية الجودة'}
+                                  {categoryProduct.category.description || 'اكتشف مجموعة متنوعة من المنتجات عالية الجودة'}
                                 </p>
                                 
                                 {/* Luxury Button */}
@@ -323,7 +386,7 @@ const App: React.FC = () => {
                 {/* Scroll Indicators */}
                 <div className="flex justify-center mt-2">
                   <div className="flex gap-1">
-                    {categories.map((_, idx) => (
+                    {categoryProducts.map((_, idx) => (
                       <div key={idx} className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-pink-500"></div>
                     ))}
                   </div>
@@ -332,23 +395,23 @@ const App: React.FC = () => {
 
               {/* Desktop: Grid */}
               <div className={`hidden sm:grid gap-4 sm:gap-6 lg:gap-8 ${
-                categories.length === 1 ? 'grid-cols-1 max-w-sm sm:max-w-md mx-auto' :
-                categories.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl sm:max-w-4xl mx-auto' :
-                categories.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
-                categories.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
+                categoryProducts.length === 1 ? 'grid-cols-1 max-w-sm sm:max-w-md mx-auto' :
+                categoryProducts.length === 2 ? 'grid-cols-1 sm:grid-cols-2 max-w-2xl sm:max-w-4xl mx-auto' :
+                categoryProducts.length === 3 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-3' :
+                categoryProducts.length === 4 ? 'grid-cols-1 sm:grid-cols-2 lg:grid-cols-4' :
                 'grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5'
               }`}>
-                {categories.map((category, index) => (
-                  <div key={category.id} className="relative group">
-                    <Link to={`/category/${createCategorySlug(category.id, category.name)}`}>
+                {categoryProducts.map((categoryProduct, index) => (
+                  <div key={categoryProduct.category.id} className="relative group">
+                    <Link to={`/category/${createCategorySlug(categoryProduct.category.id, categoryProduct.category.name)}`}>
                       <div className="relative bg-gradient-to-br from-white via-pink-50/50 to-white backdrop-blur-xl rounded-2xl sm:rounded-3xl overflow-hidden border border-pink-200/60 shadow-xl hover:shadow-2xl transition-all duration-300 hover:scale-[1.02] hover:border-pink-300/80">
                         
                         <div className="relative">
                           {/* Category Image - Taller */}
                           <div className="relative h-60 sm:h-68 md:h-76 lg:h-84 overflow-hidden rounded-t-2xl sm:rounded-t-3xl">
                             <img
-                              src={buildImageUrl(category.image)}
-                              alt={category.name}
+                              src={buildImageUrl(categoryProduct.category.image)}
+                              alt={categoryProduct.category.name}
                               className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
                               onError={(e) => {
                                 e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
@@ -368,13 +431,13 @@ const App: React.FC = () => {
                           <div className="relative p-4 sm:p-6 lg:p-8 bg-gradient-to-b from-white to-pink-50/30">
                             <div className="text-center">
                               <h3 className="text-lg sm:text-xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent mb-3 sm:mb-4">
-                                {category.name}
+                                {categoryProduct.category.name}
                               </h3>
                               
                               <div className="h-0.5 bg-gradient-to-r from-transparent via-pink-400 to-transparent rounded-full mb-3 sm:mb-4 mx-auto w-12 sm:w-16" />
                               
                               <p className="text-responsive-sm text-gray-600 leading-relaxed mb-4 sm:mb-6 line-clamp-2">
-                                {category.description || 'اكتشف مجموعة متنوعة من المنتجات عالية الجودة'}
+                                {categoryProduct.category.description || 'اكتشف مجموعة متنوعة من المنتجات عالية الجودة'}
                               </p>
                               
                               {/* Luxury Button */}
@@ -391,7 +454,7 @@ const App: React.FC = () => {
                 ))}
               </div>
             </>
-          ) : !initialLoad && !loading ? (
+          ) : !loading && !error ? (
             <div className="text-center py-12">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
                 <span className="text-2xl">📂</span>
@@ -452,109 +515,124 @@ const App: React.FC = () => {
                     key={product.id}
                     className="flex-shrink-0 w-72 snap-start"
                   >
-                    <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-500 transform hover:scale-105 h-full mobile-card group relative">
-                      {/* Gradient Border Effect */}
-                      <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
-                      
-                      {/* Product Image - Taller for mobile */}
-                      <div className="relative h-72 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
-                        <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
+                    <Link to={`/product/${createProductSlug(product.id, product.name)}`} className="block">
+                      <div className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-all duration-500 transform hover:scale-105 h-full mobile-card group relative cursor-pointer">
+                        {/* Gradient Border Effect */}
+                        <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
+                        
+                        {/* Product Image - Taller for mobile */}
+                        <div className="relative h-72 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
                           <img
                             src={buildImageUrl(product.mainImage)}
                             alt={product.name}
-                            className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
+                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
                             onError={(e) => {
                               e.currentTarget.src = '/placeholder-image.png';
                             }}
                           />
-                        </Link>
-                        {/* Premium Overlay */}
-                        <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                        
-                        {/* New Badge */}
-                        <div className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
-                          جديد
-                        </div>
-                        {/* Product Type Badge */}
-                        {product.productType && (
-                          <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                            {product.productType}
+                          {/* Premium Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                          
+                          {/* New Badge */}
+                          <div className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                            جديد
                           </div>
-                        )}
-                      </div>
-                      
-                      {/* Product Info - Centered Layout */}
-                      <div className="p-5 flex flex-col items-center text-center space-y-3">
-                        {/* Product Name - Centered */}
-                        <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
+                          {/* Product Type Badge */}
+                          {product.productType && (
+                            <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
+                              {product.productType}
+                            </div>
+                          )}
+                        </div>
+                        
+                        {/* Product Info - Centered Layout */}
+                        <div className="p-5 flex flex-col items-center text-center space-y-3">
+                          {/* Product Name - Centered */}
                           <h3 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight min-h-[3rem] hover:text-pink-600 transition-colors duration-300">
                             {product.name}
                           </h3>
-                        </Link>
-                        
-                        {/* Elegant Divider */}
-                        <div className="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent w-16"></div>
-                        
-                        {/* Price Section - Centered */}
-                        <div className="flex flex-col items-center space-y-2">
-                          {product.originalPrice && product.originalPrice > product.price ? (
-                            <>
-                              <div className="flex items-center gap-2">
-                                <span className="text-sm text-gray-400 line-through font-medium">
-                                  {product.originalPrice.toFixed(0)} ر.س
-                                </span>
-                                <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                                  -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
-                                </span>
-                              </div>
+                          
+                          {/* Elegant Divider */}
+                          <div className="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent w-16"></div>
+                          
+                          {/* Price Section - Centered */}
+                          <div className="flex flex-col items-center space-y-2">
+                            {product.originalPrice && product.originalPrice > product.price ? (
+                              <>
+                                <div className="flex items-center gap-2">
+                                  <span className="text-sm text-gray-400 line-through font-medium">
+                                    {product.originalPrice.toFixed(0)} ر.س
+                                  </span>
+                                  <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                                    -{Math.round(((product.originalPrice - product.price) / product.originalPrice) * 100)}%
+                                  </span>
+                                </div>
+                                <div className="text-xl font-bold text-pink-600">
+                                  {product.price.toFixed(0)} <span className="text-base text-gray-600">ر.س</span>
+                                </div>
+                              </>
+                            ) : (
                               <div className="text-xl font-bold text-pink-600">
                                 {product.price.toFixed(0)} <span className="text-base text-gray-600">ر.س</span>
                               </div>
-                            </>
-                          ) : (
-                            <div className="text-xl font-bold text-pink-600">
-                              {product.price.toFixed(0)} <span className="text-base text-gray-600">ر.س</span>
+                            )}
+                            
+                            {/* Stock Indicator */}
+                            <div className="text-sm">
+                              {product.stock > 0 ? (
+                                <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">متوفر</span>
+                              ) : (
+                                <span className="text-red-600 font-medium bg-red-50 px-2 py-1 rounded-full">نفذ</span>
+                              )}
+                            </div>
+                          </div>
+                          
+                          {/* Actions - Add to Cart instead of View Details */}
+                          {product.stock > 0 && (
+                            <div className="w-full space-y-3">
+                              {/* Quantity Controls */}
+                              <div className="flex items-center justify-center gap-3">
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleQuantityDecrease(product.id);
+                                  }}
+                                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
+                                >
+                                  -
+                                </button>
+                                <span className="w-12 text-center font-bold text-gray-800 text-lg bg-gray-50 py-1 rounded-lg">
+                                  {quantities[product.id] || 1}
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleQuantityIncrease(product.id, product.stock);
+                                  }}
+                                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              
+                              {/* Add to Cart Button */}
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleAddToCart(product);
+                                }}
+                                className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold hover:scale-105 hover:shadow-xl"
+                              >
+                                إضافة للسلة
+                              </button>
                             </div>
                           )}
-                          
-                          {/* Stock Indicator */}
-                          <div className="text-sm">
-                            {product.stock > 0 ? (
-                              <span className="text-green-600 font-medium bg-green-50 px-2 py-1 rounded-full">متوفر</span>
-                            ) : (
-                              <span className="text-red-600 font-medium bg-red-50 px-2 py-1 rounded-full">نفذ</span>
-                            )}
-                          </div>
                         </div>
-                        
-                        {/* Actions - Add to Cart instead of View Details */}
-                        {product.stock > 0 && (
-                          <div className="w-full space-y-3">
-                            {/* Quantity Controls */}
-                            <div className="flex items-center justify-center gap-3">
-                              <button
-                                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
-                              >
-                                -
-                              </button>
-                              <span className="w-12 text-center font-bold text-gray-800 text-lg bg-gray-50 py-1 rounded-lg">1</span>
-                              <button
-                                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
-                              >
-                                +
-                              </button>
-                            </div>
-                            
-                            {/* Add to Cart Button */}
-                            <button
-                              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold hover:scale-105 hover:shadow-xl"
-                            >
-                              إضافة للسلة
-                            </button>
-                          </div>
-                        )}
                       </div>
-                    </div>
+                    </Link>
                   </div>
                 ))}
               </div>

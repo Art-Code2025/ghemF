@@ -4,9 +4,9 @@ export const API_CONFIG = {
   development: {
     baseURL: 'http://localhost:3001',
   },
-  // للإنتاج
+  // للإنتاج - PRODUCTION READY 🚀
   production: {
-    baseURL: 'https://ghemb.onrender.com', // رابط الباك إند على Render
+    baseURL: 'https://api.ghem.store', // Custom domain for backend
   }
 };
 

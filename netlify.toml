@@ -3,7 +3,7 @@
   command = "npm run build"
 
 [build.environment]
-  VITE_API_BASE_URL = "https://ghemb.onrender.com"
+  VITE_API_BASE_URL = "https://api.ghem.store"
   VITE_NODE_ENV = "production"
 
 [[redirects]]
@@ -12,13 +12,11 @@
   status = 200
 
 [context.production.environment]
-  VITE_API_BASE_URL = "https://ghemb.onrender.com"
-  VITE_NODE_ENV = "production"
+  VITE_API_BASE_URL = "https://api.ghem.store"
 
 [context.deploy-preview.environment]
-  VITE_API_BASE_URL = "https://ghemb.onrender.com"
-  VITE_NODE_ENV = "production"
+  VITE_API_BASE_URL = "https://api.ghem.store"
 
 [context.branch-deploy.environment]
-  VITE_API_BASE_URL = "https://ghemb.onrender.com"
+  VITE_API_BASE_URL = "https://api.ghem.store"
   VITE_NODE_ENV = "production" 
