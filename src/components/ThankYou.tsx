@@ -220,6 +220,15 @@ const ThankYou: React.FC = () => {
                           </div>
                         )}
                         
+                        {/* عرض رسالة إذا لم تكن هناك مواصفات */}
+                        {(!item.selectedOptions || Object.keys(item.selectedOptions).length === 0) && (
+                          <div className="mb-4">
+                            <div className="bg-gray-50 border border-gray-200 rounded-lg p-3">
+                              <span className="text-gray-600 text-sm">📦 منتج عادي بدون مواصفات إضافية</span>
+                            </div>
+                          </div>
+                        )}
+                        
                         {/* Attachments */}
                         {item.attachments && (item.attachments.text || (item.attachments.images && item.attachments.images.length > 0)) && (
                           <div className="mb-4">

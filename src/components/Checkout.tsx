@@ -289,7 +289,13 @@ const Checkout: React.FC = () => {
         return;
       }
 
-      // إنشاء بيانات الطلب - مع التأكد من تمرير جميع البيانات بشكل صحيح
+      // معالجة الدفع أولاً إذا كان مطلوباً
+      const paymentResult = await processPayment({});
+      if (!paymentResult.success) {
+        throw new Error('فشل في معالجة الدفع');
+      }
+
+      // إنشاء بيانات الطلب بالتنسيق الصحيح الذي يتوقعه الباك إند
       const orderPayload = {
         items: cartItems.map(item => {
           // حساب السعر مع الإضافات
@@ -307,8 +313,8 @@ const Checkout: React.FC = () => {
             selectedOptions: item.selectedOptions || {},
             optionsPricing: item.optionsPricing || {},
             productImage: item.product?.mainImage || '',
-            attachments: item.attachments || {}, // إضافة المرفقات
-            productType: item.product?.productType || '' // إضافة نوع المنتج
+            attachments: item.attachments || {},
+            productType: item.product?.productType || ''
           };
         }),
         customerInfo: {
@@ -328,41 +334,33 @@ const Checkout: React.FC = () => {
           code: appliedCoupon.coupon?.code || '',
           discount: getDiscountAmount()
         } : null,
-        userId: user.id
+        userId: user.id,
+        // إضافة معرف الدفع إذا كان متوفراً
+        ...(paymentResult.paymentId && { 
+          paymentId: paymentResult.paymentId,
+          paymentStatus: 'paid'
+        }),
+        ...(!paymentResult.paymentId && { 
+          paymentStatus: 'pending'
+        })
       };
 
       console.log('🛒 Placing order with payload:', orderPayload);
       
-      // معالجة الدفع أولاً إذا كان مطلوباً
-      const paymentResult = await processPayment(orderPayload);
-      if (!paymentResult.success) {
-        throw new Error('فشل في معالجة الدفع');
-      }
-      
-      // إضافة معرف الدفع إذا كان متوفراً
-      const finalOrderPayload = {
-        ...orderPayload,
-        ...(paymentResult.paymentId && { 
-          paymentId: paymentResult.paymentId,
-          paymentStatus: 'paid' as const
-        }),
-        ...(!paymentResult.paymentId && { 
-          paymentStatus: 'pending' as const 
-        })
-      };
-      
       const result = await apiCall(API_ENDPOINTS.CHECKOUT, {
         method: 'POST',
-        body: JSON.stringify(finalOrderPayload)
+        body: JSON.stringify(orderPayload)
       });
 
-      if (!result.success) {
-        throw new Error(result.message || 'فشل في إتمام الطلب');
+      console.log('✅ Order result:', result);
+
+      if (!result || !result.orderId) {
+        throw new Error(result?.message || 'فشل في إتمام الطلب');
       }
 
       // تحضير بيانات الطلب لصفحة Thank You - مع كامل التفاصيل
       const thankYouOrder = {
-        id: result.orderId || result.order?.id || Date.now(),
+        id: result.orderId,
         customerName: customerInfo.name,
         customerEmail: customerInfo.email,
         customerPhone: customerInfo.phone,
@@ -407,7 +405,9 @@ const Checkout: React.FC = () => {
         autoClose: 2000,
       });
 
-      // انتظار قصير ثم التوجيه
+      console.log('💾 Order data saved to localStorage:', thankYouOrder);
+
+      // مسح السلة والتوجيه لصفحة Thank You
       setTimeout(async () => {
         try {
           // مسح السلة أولاً
@@ -417,15 +417,15 @@ const Checkout: React.FC = () => {
           window.dispatchEvent(new Event('cartUpdated'));
           console.log('🧹 Cart cleared successfully');
           
-          // محاولة التوجيه باستخدام React Router
+          // التوجيه لصفحة Thank You
           navigate('/thank-you', { 
             state: { order: thankYouOrder },
             replace: true 
           });
-          console.log('✅ Navigation successful with React Router');
-        } catch (navError) {
-          console.error('❌ React Router navigation failed:', navError);
-          // في حالة فشل React Router، استخدم window.location
+          console.log('✅ Navigated to Thank You page');
+        } catch (error) {
+          console.error('❌ Error during cleanup/navigation:', error);
+          // في حالة الخطأ، استخدم window.location
           window.location.href = '/thank-you';
         }
       }, 1500);
