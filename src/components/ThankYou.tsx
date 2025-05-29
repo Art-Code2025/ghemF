@@ -186,60 +186,61 @@ const ThankYou: React.FC = () => {
                             {/* Options pricing */}
                             {item.optionsPricing && Object.values(item.optionsPricing).some(price => price > 0) && (
                               <span className="block text-sm text-gray-600">
-                                + إضافات: {Object.values(item.optionsPricing).reduce((sum, price) => sum + (price || 0), 0).toFixed(2)} ر.س × {item.quantity}
+                                + إضافات: {Object.values(item.optionsPricing).reduce((sum, price) => sum + (price || 0), 0)} ر.س
                               </span>
                             )}
-                            <span className="block text-lg font-bold text-gray-900 mt-1">
-                              = {(item.totalPrice || (item.price * item.quantity)).toFixed(2)} ر.س
+                            {/* Total price */}
+                            <span className="block text-lg font-bold text-emerald-700 mt-1">
+                              الإجمالي: {item.totalPrice?.toFixed(2) || ((item.price + (item.optionsPricing ? Object.values(item.optionsPricing).reduce((sum, price) => sum + (price || 0), 0) : 0)) * item.quantity).toFixed(2)} ر.س
                             </span>
                           </p>
                         </div>
                         
-                        {/* Dynamic Options */}
+                        {/* Selected Options */}
                         {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
-                          <div className="space-y-2 mb-3">
-                            <p className="text-sm font-semibold text-gray-700 mb-2">المواصفات المختارة:</p>
-                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                              {Object.entries(item.selectedOptions).map(([optionName, value]) => (
-                                <div key={optionName} className="bg-white px-3 py-2 rounded-lg border border-gray-200">
-                                  <p className="text-xs text-gray-500">{formatOptionName(optionName)}</p>
-                                  <p className="font-medium text-gray-900">
-                                    {value}
-                                    {item.optionsPricing?.[optionName] && item.optionsPricing[optionName] > 0 && (
-                                      <span className="text-emerald-600 text-xs mr-1">
-                                        (+{item.optionsPricing[optionName]} ر.س)
-                                      </span>
-                                    )}
-                                  </p>
+                          <div className="mb-4">
+                            <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                              <span className="text-blue-500">⚙️</span>
+                              المواصفات المختارة:
+                            </h4>
+                            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                              {Object.entries(item.selectedOptions).map(([key, value]) => (
+                                <div key={key} className="bg-blue-50 border border-blue-200 rounded-lg p-2">
+                                  <span className="text-xs text-blue-600 font-medium block">{formatOptionName(key)}:</span>
+                                  <span className="font-bold text-blue-800 text-sm">{value}</span>
+                                  {/* عرض السعر الإضافي إذا كان موجود */}
+                                  {item.optionsPricing && item.optionsPricing[key] && item.optionsPricing[key] > 0 && (
+                                    <span className="block text-xs text-green-600 mt-1">
+                                      +{item.optionsPricing[key]} ر.س
+                                    </span>
+                                  )}
                                 </div>
                               ))}
                             </div>
                           </div>
                         )}
-
-                        {/* Attachments Display */}
-                        {item.attachments && (
-                          <div className="space-y-3">
-                            {/* Text Attachments */}
+                        
+                        {/* Attachments */}
+                        {item.attachments && (item.attachments.text || (item.attachments.images && item.attachments.images.length > 0)) && (
+                          <div className="mb-4">
+                            <h4 className="font-bold text-gray-800 mb-2 flex items-center gap-2">
+                              <span className="text-purple-500">📎</span>
+                              المرفقات والملاحظات:
+                            </h4>
                             {item.attachments.text && (
-                              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                                <p className="text-xs text-blue-600 font-medium mb-1">نص مرفق:</p>
-                                <p className="text-sm text-blue-800">{item.attachments.text}</p>
+                              <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mb-2">
+                                <span className="text-xs text-purple-600 font-medium block mb-1">ملاحظات خاصة:</span>
+                                <p className="text-purple-800 text-sm">{item.attachments.text}</p>
                               </div>
                             )}
-                            
-                            {/* Image Attachments */}
                             {item.attachments.images && item.attachments.images.length > 0 && (
                               <div className="bg-purple-50 border border-purple-200 rounded-lg p-3">
-                                <p className="text-xs text-purple-600 font-medium mb-2">صور مرفقة:</p>
-                                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
-                                  {item.attachments.images.map((imgUrl, imgIndex) => (
-                                    <img
-                                      key={imgIndex}
-                                      src={imgUrl}
-                                      alt={`مرفق ${imgIndex + 1}`}
-                                      className="w-full h-16 object-cover rounded-md border border-purple-300"
-                                    />
+                                <span className="text-xs text-purple-600 font-medium block mb-2">صور مرفقة ({item.attachments.images.length}):</span>
+                                <div className="grid grid-cols-3 gap-2">
+                                  {item.attachments.images.slice(0, 3).map((img, idx) => (
+                                    <div key={idx} className="w-full h-16 bg-purple-100 rounded border border-purple-200 flex items-center justify-center">
+                                      <span className="text-purple-600 text-xs">📷 صورة {idx + 1}</span>
+                                    </div>
                                   ))}
                                 </div>
                               </div>

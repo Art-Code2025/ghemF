@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ShoppingCart as CartIcon, Plus, Minus, Trash2, Package, Sparkles, ArrowRight, Heart, Edit3, X, Check, Upload, Image as ImageIcon } from 'lucide-react';
+import { ShoppingCart as CartIcon, Plus, Minus, Trash2, Package, Sparkles, ArrowRight, Heart, Edit3, X, Check, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
 import { apiCall, API_ENDPOINTS, buildImageUrl, buildApiUrl } from '../config/api';
 import size1Image from '../assets/size1.png';
 import size2Image from '../assets/size2.png';
@@ -104,7 +104,20 @@ const ShoppingCart: React.FC = () => {
       console.log('👤 User found:', user);
 
       const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
-      console.log('✅ Cart data:', data);
+      console.log('✅ Cart data received:', data);
+      
+      // تسجيل تفاصيل كل عنصر في السلة
+      data.forEach((item: CartItem, index: number) => {
+        console.log(`🛒 Cart Item ${index + 1}:`, {
+          id: item.id,
+          productName: item.product?.name,
+          selectedOptions: item.selectedOptions,
+          optionsPricing: item.optionsPricing,
+          attachments: item.attachments,
+          quantity: item.quantity
+        });
+      });
+      
       setCartItems(Array.isArray(data) ? data : []);
     } catch (error) {
       console.error('❌ Error loading cart:', error);
@@ -600,19 +613,49 @@ const ShoppingCart: React.FC = () => {
 
                             {/* Selected Options Summary */}
                             {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
-                              <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl border-2 border-gray-700 shadow-lg">
-                                <h5 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                  <Check className="w-6 h-6 text-green-400" />
-                                  الخيارات المختارة
+                              <div className="bg-gradient-to-br from-blue-800 to-blue-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-blue-700 shadow-lg mb-4">
+                                <h5 className="text-lg sm:text-xl font-bold text-white mb-3 sm:mb-4 flex items-center gap-2">
+                                  <Check className="w-5 h-5 sm:w-6 sm:h-6 text-green-400" />
+                                  المواصفات المختارة
                                 </h5>
-                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4">
                                   {Object.entries(item.selectedOptions).map(([key, value]) => (
-                                    <div key={key} className="bg-gray-700 p-4 rounded-xl border border-gray-600 shadow-sm">
-                                      <span className="text-sm text-gray-300 font-medium block">{getOptionDisplayName(key)}:</span>
-                                      <span className="font-bold text-white text-lg">{value}</span>
+                                    <div key={key} className="bg-blue-700 p-3 sm:p-4 rounded-lg sm:rounded-xl border border-blue-600 shadow-sm">
+                                      <span className="text-xs sm:text-sm text-blue-200 font-medium block mb-1">{getOptionDisplayName(key)}:</span>
+                                      <span className="font-bold text-white text-sm sm:text-lg">{value}</span>
+                                      {/* عرض السعر الإضافي إذا كان موجود */}
+                                      {item.optionsPricing && item.optionsPricing[key] && item.optionsPricing[key] > 0 && (
+                                        <span className="block text-xs text-green-300 mt-1">
+                                          +{item.optionsPricing[key]} ر.س
+                                        </span>
+                                      )}
                                     </div>
                                   ))}
                                 </div>
+                                {/* إجمالي السعر مع الإضافات */}
+                                {item.optionsPricing && Object.values(item.optionsPricing).some(price => price > 0) && (
+                                  <div className="mt-3 sm:mt-4 p-2 sm:p-3 bg-green-700 rounded-lg sm:rounded-xl border border-green-600">
+                                    <span className="text-xs sm:text-sm text-green-200 font-medium">إجمالي الإضافات:</span>
+                                    <span className="font-bold text-white text-sm sm:text-lg mr-2">
+                                      {Object.values(item.optionsPricing).reduce((sum, price) => sum + (price || 0), 0)} ر.س
+                                    </span>
+                                  </div>
+                                )}
+                              </div>
+                            )}
+
+                            {/* رسالة تحذيرية إذا لم يتم اختيار مواصفات مطلوبة */}
+                            {(!item.selectedOptions || Object.keys(item.selectedOptions).length === 0) && 
+                             item.product.dynamicOptions && 
+                             item.product.dynamicOptions.some(option => option.required) && (
+                              <div className="bg-gradient-to-br from-red-800 to-red-900 p-4 sm:p-6 rounded-xl sm:rounded-2xl border-2 border-red-700 shadow-lg mb-4">
+                                <h5 className="text-lg sm:text-xl font-bold text-white mb-3 flex items-center gap-2">
+                                  <AlertCircle className="w-5 h-5 sm:w-6 sm:h-6 text-red-400" />
+                                  مواصفات مطلوبة
+                                </h5>
+                                <p className="text-red-200 text-sm sm:text-base">
+                                  يجب تحديد المقاسات والمواصفات المطلوبة لهذا المنتج قبل المتابعة
+                                </p>
                               </div>
                             )}
 
