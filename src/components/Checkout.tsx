@@ -126,10 +126,36 @@ const Checkout: React.FC = () => {
       }
 
       const user = JSON.parse(userData);
+      console.log('🛒 [Checkout] Fetching cart for user:', user.id);
+      
       const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
-      setCartItems(Array.isArray(data) ? data : []);
+      console.log('📦 [Checkout] Raw cart data:', data);
+      
+      if (Array.isArray(data)) {
+        data.forEach((item, index) => {
+          console.log(`🛒 [Checkout] Item ${index + 1}:`, {
+            id: item.id,
+            productId: item.productId,
+            productName: item.product?.name,
+            quantity: item.quantity,
+            selectedOptions: item.selectedOptions,
+            optionsPricing: item.optionsPricing,
+            attachments: item.attachments
+          });
+          
+          if (item.selectedOptions && Object.keys(item.selectedOptions).length > 0) {
+            console.log(`✅ [Checkout] Item ${item.id} has selectedOptions:`, item.selectedOptions);
+          } else {
+            console.log(`❌ [Checkout] Item ${item.id} has NO selectedOptions!`);
+          }
+        });
+        setCartItems(data);
+      } else {
+        console.log('❌ [Checkout] Invalid cart data format:', data);
+        setCartItems([]);
+      }
     } catch (error) {
-      console.error('Error fetching cart:', error);
+      console.error('❌ [Checkout] Error fetching cart:', error);
       toast.error('فشل في تحميل السلة');
       setCartItems([]);
     } finally {

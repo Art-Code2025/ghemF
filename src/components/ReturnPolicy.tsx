@@ -52,7 +52,7 @@ const ReturnPolicy: React.FC = () => {
                   <div className="flex items-center gap-3 mb-4">
                     <Clock className="w-6 h-6 text-green-600" />
                     <span className="text-lg font-bold text-green-800">
-                      يحق للعميل طلب استرجاع المنتج خلال مدة لا تتجاوز 7 أيام من تاريخ الاستلام
+                      يحق للعميل طلب استرجاع المنتج خلال مدة لا تتجاوز ساعتين  من وقت الاستلام
                     </span>
                   </div>
                 </div>
@@ -104,7 +104,7 @@ const ReturnPolicy: React.FC = () => {
                   <div className="flex items-center gap-3 mb-4">
                     <Clock className="w-6 h-6 text-blue-600" />
                     <span className="text-lg font-bold text-blue-800">
-                      يتم قبول طلبات الاستبدال خلال 7 أيام من تاريخ الاستلام
+                      يتم قبول طلبات الاستبدال خلال ساعتين من وقت الاستلام بشروط معينة
                     </span>
                   </div>
                 </div>
@@ -260,7 +260,7 @@ const ReturnPolicy: React.FC = () => {
                     <div className="flex items-center gap-3">
                       <Phone className="w-5 h-5 text-blue-600" />
                       <span className="text-gray-800">رقم الجوال / واتساب: </span>
-                      <span className="font-bold text-blue-600">+966XXXXXXXXX</span>
+                      <span className="font-bold text-blue-600">+966551064118</span>
                     </div>
                     <div className="flex items-center gap-3">
                       <Clock className="w-5 h-5 text-blue-600" />

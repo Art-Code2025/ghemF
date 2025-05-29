@@ -72,16 +72,29 @@ export const addToCartUnified = async (
     
     // 2. تحديث فوري للكونتر في الـ DOM مباشرة
     const updateCartCountInDOM = () => {
+      // تحديث العداد في النافيجيشن بار
       const cartCountElements = document.querySelectorAll('[data-cart-count]');
       cartCountElements.forEach(element => {
         element.textContent = newCartCount.toString();
-        console.log('🔄 Updated cart counter in DOM directly:', newCartCount);
+        console.log('🔄 [CartUtils] Updated cart counter in Navbar:', newCartCount);
       });
       
       // تحديث أي عناصر أخرى قد تحتوي على عدد السلة
       const cartBadges = document.querySelectorAll('.cart-counter-badge, .cart-badge, [class*="cart-count"]');
       cartBadges.forEach(element => {
         element.textContent = newCartCount.toString();
+        console.log('🔄 [CartUtils] Updated cart badge:', newCartCount);
+      });
+      
+      // تحديث أي spans أخرى قد تحتوي على العداد
+      const spans = document.querySelectorAll('span');
+      spans.forEach(span => {
+        if (span.parentElement?.querySelector('.w-5.h-5.sm\\:w-6.sm\\:h-6.lg\\:w-7.lg\\:h-7') || 
+            span.classList.contains('cart-count') ||
+            span.getAttribute('data-cart-count') !== null) {
+          span.textContent = newCartCount.toString();
+          console.log('🔄 [CartUtils] Updated span cart counter:', newCartCount);
+        }
       });
     };
     
@@ -207,16 +220,29 @@ export const addToWishlistUnified = async (productId: number, productName: strin
     
     // تحديث فوري للكونتر في الـ DOM مباشرة
     const updateWishlistCountInDOM = () => {
+      // تحديث العداد في النافيجيشن بار
       const wishlistCountElements = document.querySelectorAll('[data-wishlist-count]');
       wishlistCountElements.forEach(element => {
         element.textContent = newWishlistCount.toString();
-        console.log('🔄 Updated wishlist counter in DOM directly:', newWishlistCount);
+        console.log('🔄 [CartUtils] Updated wishlist counter in Navbar:', newWishlistCount);
       });
       
       // تحديث أي عناصر أخرى قد تحتوي على عدد المفضلة
       const wishlistBadges = document.querySelectorAll('.wishlist-counter-badge, .wishlist-badge, [class*="wishlist-count"]');
       wishlistBadges.forEach(element => {
         element.textContent = newWishlistCount.toString();
+        console.log('🔄 [CartUtils] Updated wishlist badge:', newWishlistCount);
+      });
+      
+      // تحديث أي spans أخرى قد تحتوي على العداد
+      const spans = document.querySelectorAll('span');
+      spans.forEach(span => {
+        if (span.parentElement?.querySelector('svg[data-lucide="heart"]') || 
+            span.classList.contains('wishlist-count') ||
+            span.getAttribute('data-wishlist-count') !== null) {
+          span.textContent = newWishlistCount.toString();
+          console.log('🔄 [CartUtils] Updated span wishlist counter:', newWishlistCount);
+        }
       });
     };
     
@@ -304,7 +330,7 @@ export const removeFromWishlistUnified = async (productId: number, productName: 
 
     console.log('💔 Removing from wishlist:', { productId, productName });
 
-    const response = await fetch(buildApiUrl(`/user/${user.id}/wishlist/${productId}`), {
+    const response = await fetch(buildApiUrl(`/user/${user.id}/wishlist/product/${productId}`), {
       method: 'DELETE',
       headers: { 'Content-Type': 'application/json' }
     });
@@ -322,16 +348,29 @@ export const removeFromWishlistUnified = async (productId: number, productName: 
     
     // تحديث فوري للكونتر في الـ DOM مباشرة
     const updateWishlistCountInDOM = () => {
+      // تحديث العداد في النافيجيشن بار
       const wishlistCountElements = document.querySelectorAll('[data-wishlist-count]');
       wishlistCountElements.forEach(element => {
         element.textContent = newWishlistCount.toString();
-        console.log('🔄 Updated wishlist counter in DOM directly after removal:', newWishlistCount);
+        console.log('🔄 [CartUtils] Updated wishlist counter in Navbar:', newWishlistCount);
       });
       
       // تحديث أي عناصر أخرى قد تحتوي على عدد المفضلة
       const wishlistBadges = document.querySelectorAll('.wishlist-counter-badge, .wishlist-badge, [class*="wishlist-count"]');
       wishlistBadges.forEach(element => {
         element.textContent = newWishlistCount.toString();
+        console.log('🔄 [CartUtils] Updated wishlist badge:', newWishlistCount);
+      });
+      
+      // تحديث أي spans أخرى قد تحتوي على العداد
+      const spans = document.querySelectorAll('span');
+      spans.forEach(span => {
+        if (span.parentElement?.querySelector('svg[data-lucide="heart"]') || 
+            span.classList.contains('wishlist-count') ||
+            span.getAttribute('data-wishlist-count') !== null) {
+          span.textContent = newWishlistCount.toString();
+          console.log('🔄 [CartUtils] Updated span wishlist counter:', newWishlistCount);
+        }
       });
     };
     

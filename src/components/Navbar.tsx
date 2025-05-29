@@ -64,18 +64,84 @@ function Navbar() {
     fetchWishlistCount();
     fetchCategories();
     
-    const handleCartUpdate = () => fetchCartCount();
-    const handleWishlistUpdate = () => fetchWishlistCount();
+    // إضافة مستمعين أكثر للأحداث لضمان دقة العداد
+    const handleCartUpdate = () => {
+      console.log('🔄 [Navbar] Cart update event received');
+      fetchCartCount();
+    };
+    
+    const handleWishlistUpdate = () => {
+      console.log('🔄 [Navbar] Wishlist update event received');
+      fetchWishlistCount();
+    };
+    
     const handleCategoriesUpdate = () => fetchCategories();
     
-    window.addEventListener('cartUpdated', handleCartUpdate);
-    window.addEventListener('wishlistUpdated', handleWishlistUpdate);
+    // استماع لكل الأحداث المختلفة من cartUtils
+    const cartEvents = [
+      'cartUpdated',
+      'productAddedToCart',
+      'cartCountChanged',
+      'forceCartUpdate'
+    ];
+    
+    const wishlistEvents = [
+      'wishlistUpdated',
+      'productAddedToWishlist',
+      'productRemovedFromWishlist'
+    ];
+    
+    // إضافة مستمعين للأحداث
+    cartEvents.forEach(event => {
+      window.addEventListener(event, handleCartUpdate);
+    });
+    
+    wishlistEvents.forEach(event => {
+      window.addEventListener(event, handleWishlistUpdate);
+    });
+    
     window.addEventListener('categoriesUpdated', handleCategoriesUpdate);
     
+    // استماع للتغييرات في localStorage أيضاً
+    const handleStorageChange = (e: StorageEvent) => {
+      if (e.key === 'cartUpdated' || e.key === 'lastCartUpdate' || e.key === 'forceCartRefresh') {
+        console.log('🔄 [Navbar] Storage cart update detected');
+        handleCartUpdate();
+      }
+      if (e.key === 'wishlistUpdated' || e.key === 'lastWishlistUpdate') {
+        console.log('🔄 [Navbar] Storage wishlist update detected');
+        handleWishlistUpdate();
+      }
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+    
+    // تحديث فوري من localStorage للمستخدم الحالي
+    const user = JSON.parse(localStorage.getItem('user') || '{}');
+    if (user?.id) {
+      const savedCartCount = localStorage.getItem(`cartCount_${user.id}`);
+      const savedWishlistCount = localStorage.getItem(`wishlistCount_${user.id}`);
+      
+      if (savedCartCount) {
+        setCartItemsCount(parseInt(savedCartCount));
+      }
+      if (savedWishlistCount) {
+        setWishlistItemsCount(parseInt(savedWishlistCount));
+      }
+    }
+    
     return () => {
-      window.removeEventListener('cartUpdated', handleCartUpdate);
-      window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
+      // إزالة جميع المستمعين
+      cartEvents.forEach(event => {
+        window.removeEventListener(event, handleCartUpdate);
+      });
+      
+      wishlistEvents.forEach(event => {
+        window.removeEventListener(event, handleWishlistUpdate);
+      });
+      
       window.removeEventListener('categoriesUpdated', handleCategoriesUpdate);
+      window.removeEventListener('storage', handleStorageChange);
     };
   }, []);
 
@@ -84,23 +150,33 @@ function Navbar() {
       const userData = localStorage.getItem('user');
       if (!userData) {
         setCartItemsCount(0);
+        localStorage.setItem('lastCartCount', '0');
         return;
       }
       
       const user = JSON.parse(userData);
       if (!user?.id) {
         setCartItemsCount(0);
+        localStorage.setItem('lastCartCount', '0');
         return;
       }
       
+      console.log('🔄 [Navbar] Fetching cart count for user:', user.id);
       const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
       const totalItems = data.reduce((sum: number, item: any) => sum + item.quantity, 0);
+      
+      console.log('📊 [Navbar] Cart count fetched:', totalItems);
       setCartItemsCount(totalItems);
-      // حفظ العدد محلياً للمستخدم الحالي فقط
+      
+      // حفظ العداد في localStorage بنفس طريقة cartUtils
+      localStorage.setItem('lastCartCount', totalItems.toString());
       localStorage.setItem(`cartCount_${user.id}`, totalItems.toString());
+      
+      console.log('💾 [Navbar] Cart count saved to localStorage:', totalItems);
     } catch (error) {
-      console.error('Error fetching cart count:', error);
+      console.error('❌ [Navbar] Error fetching cart count:', error);
       setCartItemsCount(0);
+      localStorage.setItem('lastCartCount', '0');
     }
   };
 
@@ -109,22 +185,32 @@ function Navbar() {
       const userData = localStorage.getItem('user');
       if (!userData) {
         setWishlistItemsCount(0);
+        localStorage.setItem('lastWishlistCount', '0');
         return;
       }
       
       const user = JSON.parse(userData);
       if (!user?.id) {
         setWishlistItemsCount(0);
+        localStorage.setItem('lastWishlistCount', '0');
         return;
       }
       
+      console.log('🔄 [Navbar] Fetching wishlist count for user:', user.id);
       const data = await apiCall(API_ENDPOINTS.USER_WISHLIST(user.id));
+      
+      console.log('📊 [Navbar] Wishlist count fetched:', data.length);
       setWishlistItemsCount(data.length);
-      // حفظ العدد محلياً للمستخدم الحالي فقط
+      
+      // حفظ العداد في localStorage بنفس طريقة cartUtils
+      localStorage.setItem('lastWishlistCount', data.length.toString());
       localStorage.setItem(`wishlistCount_${user.id}`, data.length.toString());
+      
+      console.log('💾 [Navbar] Wishlist count saved to localStorage:', data.length);
     } catch (error) {
-      console.error('Error fetching wishlist count:', error);
+      console.error('❌ [Navbar] Error fetching wishlist count:', error);
       setWishlistItemsCount(0);
+      localStorage.setItem('lastWishlistCount', '0');
     }
   };
 

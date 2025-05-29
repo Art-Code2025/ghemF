@@ -36,7 +36,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-800 text-sm sm:text-base">رقم الهاتف</h3>
-                    <p className="text-gray-600 text-sm sm:text-base">+966547493606</p>
+                    <p className="text-gray-600 text-sm sm:text-base">+966551064118</p>
                   </div>
                 </div>
                 
@@ -46,7 +46,7 @@ const Contact: React.FC = () => {
                   </div>
                   <div>
                     <h3 className="font-bold text-gray-800 text-sm sm:text-base">البريد الإلكتروني</h3>
-                    <p className="text-gray-600 text-sm sm:text-base break-all">info@zahristore.com</p>
+                    <p className="text-gray-600 text-sm sm:text-base break-all">support@ghem.store</p>
                   </div>
                 </div>
                 

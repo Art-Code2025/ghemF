@@ -74,23 +74,30 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     e.preventDefault(); // منع فتح صفحة المنتج
     e.stopPropagation(); // منع انتشار الحدث
     
-    // No loading state - instant action
+    console.log('🤍 [ProductCard] toggleWishlist called:', { productId: product.id, currentState: isInWishlist });
+    
     try {
       if (isInWishlist) {
+        console.log('💔 [ProductCard] Removing from wishlist...');
         const success = await removeFromWishlistUnified(product.id, product.name);
         if (success) {
           setIsInWishlist(false);
+          console.log('✅ [ProductCard] Product removed from wishlist successfully');
+        } else {
+          console.log('❌ [ProductCard] Failed to remove from wishlist');
         }
       } else {
+        console.log('❤️ [ProductCard] Adding to wishlist...');
         const success = await addToWishlistUnified(product.id, product.name);
         if (success) {
           setIsInWishlist(true);
+          console.log('✅ [ProductCard] Product added to wishlist successfully');
+        } else {
+          console.log('❌ [ProductCard] Failed to add to wishlist');
         }
       }
     } catch (error) {
-      console.error('Error in toggleWishlist:', error);
-    } finally {
-      // No loading state needed
+      console.error('❌ [ProductCard] Error in toggleWishlist:', error);
     }
   };
 
@@ -100,16 +107,17 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     e.preventDefault(); // منع فتح صفحة المنتج
     e.stopPropagation(); // منع انتشار الحدث
     
-    // No loading state - instant action
+    console.log('🛒 [ProductCard] addToCart called:', { productId: product.id, quantity });
+    
     try {
       const success = await addToCartUnified(product.id, product.name, quantity);
       if (success) {
-        // يمكن إضافة أي منطق إضافي هنا إذا لزم الأمر
+        console.log('✅ [ProductCard] Product added to cart successfully');
+      } else {
+        console.log('❌ [ProductCard] Failed to add to cart');
       }
     } catch (error) {
-      console.error('Error in addToCart:', error);
-    } finally {
-      // No loading state needed
+      console.error('❌ [ProductCard] Error in addToCart:', error);
     }
   };
 
@@ -140,28 +148,28 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   // ---- LIST VIEW ----
   if (viewMode === 'list') {
     return (
-      <div className="bg-white rounded-xl sm:rounded-2xl md:rounded-3xl border border-gray-100 shadow-md sm:shadow-lg overflow-hidden hover:shadow-lg sm:hover:shadow-xl transition-all duration-300">
+      <div 
+        className="bg-white rounded-xl sm:rounded-2xl md:rounded-3xl border border-gray-100 shadow-md sm:shadow-lg overflow-hidden hover:shadow-lg sm:hover:shadow-xl transition-all duration-300 cursor-pointer"
+        onClick={handleProductClick}
+      >
         <div className="flex flex-col md:flex-row p-3 sm:p-4 md:p-6 gap-3 sm:gap-4 md:gap-6">
           <div className="relative w-full md:w-40 lg:w-48 xl:w-64 h-48 sm:h-56 md:h-64 lg:h-72 flex-shrink-0 bg-gray-50 rounded-lg sm:rounded-xl md:rounded-2xl overflow-hidden">
-            <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
-              <img
-                src={buildImageUrl(product.mainImage)}
-                alt={product.name}
-                className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
-                loading="lazy"
-                onClick={handleProductClick}
-              />
-              <div className="absolute top-2 sm:top-3 md:top-4 left-2 sm:left-3 md:left-4 bg-pink-500 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-md">
-                جديد
+            <img
+              src={buildImageUrl(product.mainImage)}
+              alt={product.name}
+              className="w-full h-full object-cover hover:scale-105 transition-transform duration-300"
+              loading="lazy"
+            />
+            <div className="absolute top-2 sm:top-3 md:top-4 left-2 sm:left-3 md:left-4 bg-pink-500 text-white px-2 sm:px-3 py-1 sm:py-1.5 rounded-full text-xs sm:text-sm font-semibold shadow-md">
+              جديد
+            </div>
+            {isOutOfStock && (
+              <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg sm:rounded-xl md:rounded-2xl">
+                <span className="text-white font-semibold bg-red-600 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-lg text-xs sm:text-sm">
+                  نفذت الكمية
+                </span>
               </div>
-              {isOutOfStock && (
-                <div className="absolute inset-0 bg-black/60 flex items-center justify-center rounded-lg sm:rounded-xl md:rounded-2xl">
-                  <span className="text-white font-semibold bg-red-600 px-2 sm:px-3 md:px-4 py-1 sm:py-1.5 md:py-2 rounded-lg text-xs sm:text-sm">
-                    نفذت الكمية
-                  </span>
-                </div>
-              )}
-            </Link>
+            )}
             <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4">
               <button
                 onClick={toggleWishlist}
@@ -175,12 +183,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
           
           <div className="flex-1 flex flex-col justify-between min-h-0">
             <div>
-              <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
-                <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-2 sm:mb-3 leading-tight hover:text-pink-500 transition-colors duration-200"
-                    onClick={handleProductClick}>
-                  {product.name}
-                </h3>
-              </Link>
+              <h3 className="text-base sm:text-lg md:text-xl lg:text-2xl font-semibold text-gray-800 mb-2 sm:mb-3 leading-tight hover:text-pink-500 transition-colors duration-200">
+                {product.name}
+              </h3>
               <div className="flex flex-col items-start gap-1 mb-2 sm:mb-3">
                 {product.originalPrice && product.originalPrice > product.price ? (
                   <div className="flex flex-col gap-1">
@@ -254,23 +259,23 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
 
   // ---- GRID VIEW - PROFESSIONAL AND MODERN ----
   return (
-    <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-lg sm:shadow-xl overflow-hidden hover:shadow-xl sm:hover:shadow-2xl transition-all duration-300 sm:duration-500 hover:scale-[1.02] sm:hover:scale-[1.03] w-full max-w-[280px] sm:max-w-xs md:max-w-sm lg:w-80 h-auto group relative mx-auto">
+    <div 
+      className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-lg sm:shadow-xl overflow-hidden hover:shadow-xl sm:hover:shadow-2xl transition-all duration-300 sm:duration-500 hover:scale-[1.02] sm:hover:scale-[1.03] w-full max-w-[280px] sm:max-w-xs md:max-w-sm lg:w-80 h-auto group relative mx-auto cursor-pointer"
+      onClick={handleProductClick}
+    >
       {/* Gradient Border Effect */}
       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/10 sm:from-pink-500/20 via-transparent to-purple-500/10 sm:to-purple-500/20 rounded-2xl sm:rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500 -z-10"></div>
       
       {/* Product Image - Taller for mobile, even taller for desktop */}
       <div className="relative h-[280px] sm:h-[320px] md:h-[380px] lg:h-[420px] overflow-hidden rounded-t-2xl sm:rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
-        <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
-          <img
-            src={buildImageUrl(product.mainImage)}
-            alt={product.name}
-            className="w-full h-full object-cover transition-all duration-500 sm:duration-700 group-hover:scale-105"
-            onError={(e) => {
-              e.currentTarget.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3';
-            }}
-            onClick={handleProductClick}
-          />
-        </Link>
+        <img
+          src={buildImageUrl(product.mainImage)}
+          alt={product.name}
+          className="w-full h-full object-cover transition-all duration-500 sm:duration-700 group-hover:scale-105"
+          onError={(e) => {
+            e.currentTarget.src = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3';
+          }}
+        />
         
         {/* Premium Overlay */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/5 sm:from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 sm:duration-500"></div>
@@ -304,12 +309,9 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
       {/* Product Info - Smaller padding on mobile */}
       <div className="p-4 sm:p-6 flex flex-col items-center text-center space-y-3 sm:space-y-4">
         {/* Product Name - Smaller on mobile */}
-        <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
-          <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 leading-tight hover:text-pink-600 transition-colors duration-300 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]"
-              onClick={handleProductClick}>
-            {product.name}
-          </h3>
-        </Link>
+        <h3 className="text-base sm:text-lg md:text-xl font-bold text-gray-800 leading-tight hover:text-pink-600 transition-colors duration-300 line-clamp-2 min-h-[2.5rem] sm:min-h-[3rem]">
+          {product.name}
+        </h3>
         
         {/* Elegant Divider - Smaller on mobile */}
         <div className="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent w-12 sm:w-16"></div>

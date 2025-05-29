@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { ShoppingCart as CartIcon, Plus, Minus, Trash2, Package, Sparkles, ArrowRight, Heart, Edit3, X, Check, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
@@ -59,6 +59,9 @@ const ShoppingCart: React.FC = () => {
   const [promoCode, setPromoCode] = useState('');
   const [showSizeGuide, setShowSizeGuide] = useState<{show: boolean, productType: string}>({show: false, productType: ''});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  
+  // إضافة ref للـ timeout
+  const textSaveTimeoutRef = useRef<number | null>(null);
 
   // دالة لتحديد صورة المقاس المناسبة من assets
   const getSizeGuideImage = (productType: string): string => {
@@ -89,13 +92,36 @@ const ShoppingCart: React.FC = () => {
   const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
+      setError(null);
+      
       const userData = localStorage.getItem('user');
+      console.log('👤 [Cart] User data from localStorage:', userData);
+      
       if (!userData) {
+        console.log('❌ [Cart] No user data found in localStorage');
         setCartItems([]);
+        setIsInitialLoading(false);
         return;
       }
 
-      const user = JSON.parse(userData);
+      let user;
+      try {
+        user = JSON.parse(userData);
+        console.log('👤 [Cart] Parsed user:', user);
+      } catch (parseError) {
+        console.error('❌ [Cart] Error parsing user data:', parseError);
+        setCartItems([]);
+        setIsInitialLoading(false);
+        return;
+      }
+
+      if (!user || !user.id) {
+        console.log('❌ [Cart] Invalid user object or missing ID');
+        setCartItems([]);
+        setIsInitialLoading(false);
+        return;
+      }
+
       console.log('🛒 [Cart] Fetching cart for user:', user.id);
       
       const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
@@ -113,6 +139,21 @@ const ShoppingCart: React.FC = () => {
             optionsPricing: item.optionsPricing,
             attachments: item.attachments
           });
+          
+          // تحقق مفصل من الاختيارات
+          if (item.selectedOptions) {
+            console.log(`🎯 [Cart] Item ${item.id} selectedOptions:`, item.selectedOptions);
+            Object.entries(item.selectedOptions).forEach(([key, value]) => {
+              console.log(`  ✅ ${key}: ${value}`);
+            });
+          } else {
+            console.log(`⚠️ [Cart] Item ${item.id} has NO selectedOptions`);
+          }
+          
+          // تحقق من الملاحظات
+          if (item.attachments?.text) {
+            console.log(`📝 [Cart] Item ${item.id} has text: "${item.attachments.text}"`);
+          }
         });
         setCartItems(data);
       } else {
@@ -123,34 +164,54 @@ const ShoppingCart: React.FC = () => {
       console.error('❌ [Cart] Error fetching cart:', error);
       toast.error('فشل في تحميل السلة');
       setCartItems([]);
+      setError(`فشل في تحميل السلة: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
     } finally {
       setLoading(false);
+      setIsInitialLoading(false);
+      console.log('✅ [Cart] fetchCart completed, isInitialLoading set to false');
     }
   }, []);
 
   useEffect(() => {
+    console.log('🔄 [Cart] useEffect triggered, calling fetchCart...');
     fetchCart();
   }, [fetchCart]);
 
   // تحديث كمية المنتج
   const updateQuantity = async (itemId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
-
+      
     const userData = localStorage.getItem('user');
     if (!userData) return;
 
     try {
       const user = JSON.parse(userData);
+      
+      // الحصول على البيانات الحالية للمنتج
+      const currentItem = cartItems.find(item => item.id === itemId);
+      if (!currentItem) return;
+
+      // تحضير البيانات المحدثة مع الحفاظ على selectedOptions و attachments
+      const updateData = {
+        quantity: newQuantity,
+        selectedOptions: currentItem.selectedOptions || {},
+        attachments: currentItem.attachments || {}
+      };
+
+      console.log('🔢 [Cart] Updating quantity with preserved data:', { itemId, newQuantity, updateData });
+
       await apiCall(API_ENDPOINTS.USER_CART(user.id) + `/${itemId}`, {
         method: 'PUT',
-        body: JSON.stringify({ quantity: newQuantity })
+        body: JSON.stringify(updateData)
       });
       
       setCartItems(prev => prev.map(item => 
         item.id === itemId ? { ...item, quantity: newQuantity } : item
       ));
+      
+      console.log('✅ [Cart] Quantity updated successfully while preserving options');
     } catch (error) {
-      console.error('Error updating quantity:', error);
+      console.error('❌ [Cart] Error updating quantity:', error);
       toast.error('فشل في تحديث الكمية');
     }
   };
@@ -188,22 +249,51 @@ const ShoppingCart: React.FC = () => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   }, [cartItems]);
 
-  // التحقق من صحة البيانات المطلوبة
+  // التحقق من صحة البيانات المطلوبة - محدثة وأكثر صرامة
   const validateCartItems = () => {
-    const incompleteItems = cartItems.filter(item => {
-      if (!item.product.dynamicOptions) return false;
+    const incompleteItems: Array<{
+      item: CartItem;
+      missingOptions: string[];
+      missingRequiredCount: number;
+    }> = [];
+
+    cartItems.forEach(item => {
+      if (!item.product.dynamicOptions || item.product.dynamicOptions.length === 0) {
+        return; // منتج بدون خيارات مطلوبة
+      }
       
       const requiredOptions = item.product.dynamicOptions.filter(option => option.required);
-      return requiredOptions.some(option => 
-        !item.selectedOptions || !item.selectedOptions[option.optionName]
-      );
+      if (requiredOptions.length === 0) {
+        return; // لا توجد خيارات مطلوبة
+      }
+
+      const missingOptions: string[] = [];
+      
+      requiredOptions.forEach(option => {
+        const isOptionFilled = item.selectedOptions && 
+                              item.selectedOptions[option.optionName] && 
+                              item.selectedOptions[option.optionName].trim() !== '';
+        
+        if (!isOptionFilled) {
+          missingOptions.push(getOptionDisplayName(option.optionName));
+        }
+      });
+
+      if (missingOptions.length > 0) {
+        incompleteItems.push({
+          item,
+          missingOptions,
+          missingRequiredCount: missingOptions.length
+        });
+      }
     });
     
+    console.log('🔍 [Cart Validation] Incomplete items:', incompleteItems);
     return incompleteItems;
   };
 
-  const incompleteItems = validateCartItems();
-  const canProceedToCheckout = incompleteItems.length === 0;
+  const incompleteItemsDetailed = validateCartItems();
+  const canProceedToCheckout = incompleteItemsDetailed.length === 0;
 
   // رفع الصور
   const handleImageUpload = async (files: FileList) => {
@@ -267,7 +357,107 @@ const ShoppingCart: React.FC = () => {
     totalItemsCount,
   });
 
+  // إضافة تشخيص إضافي
+  console.log('🔍 [Cart Debug] Current states:', {
+    loading,
+    isInitialLoading,
+    error,
+    cartItemsLength: cartItems.length,
+    userData: !!localStorage.getItem('user')
+  });
+
+  // دالة محدثة لحفظ البيانات فوراً
+  const saveOptionsToBackend = async (itemId: number, field: string, value: any) => {
+    try {
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        toast.error('يجب تسجيل الدخول أولاً');
+        return false;
+      }
+
+      const user = JSON.parse(userData);
+      
+      // الحصول على البيانات الحالية للمنتج
+      const currentItem = cartItems.find(item => item.id === itemId);
+      if (!currentItem) {
+        console.error('❌ [Cart] Item not found:', itemId);
+        return false;
+      }
+
+      // تحضير البيانات المحدثة بنفس format اللي بيتستخدم في ProductDetail
+      let updateData: any;
+      
+      if (field === 'selectedOptions') {
+        updateData = {
+          productId: currentItem.productId,
+          quantity: currentItem.quantity,
+          selectedOptions: value, // البيانات الجديدة كاملة
+          optionsPricing: currentItem.optionsPricing || {},
+          attachments: currentItem.attachments || {}
+        };
+      } else if (field === 'attachments') {
+        updateData = {
+          productId: currentItem.productId,
+          quantity: currentItem.quantity,
+          selectedOptions: currentItem.selectedOptions || {},
+          optionsPricing: currentItem.optionsPricing || {},
+          attachments: value // البيانات الجديدة كاملة
+        };
+      }
+
+      console.log('💾 [Cart] SAVE ATTEMPT:', { 
+        itemId, 
+        field, 
+        value, 
+        currentItem: {
+          id: currentItem.id,
+          productId: currentItem.productId,
+          currentSelectedOptions: currentItem.selectedOptions,
+          currentAttachments: currentItem.attachments
+        },
+        updateData,
+        url: `user/${user.id}/cart/${itemId}`
+      });
+
+      const response = await fetch(buildApiUrl(`user/${user.id}/cart/${itemId}`), {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(updateData)
+      });
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ [Cart] Backend PUT failed:', {
+          status: response.status,
+          statusText: response.statusText,
+          errorText
+        });
+        throw new Error(`HTTP ${response.status}: ${errorText}`);
+      }
+
+      const result = await response.json();
+      console.log('✅ [Cart] Backend PUT successful:', result);
+
+      return true;
+    } catch (error) {
+      console.error('❌ [Cart] Error saving to backend:', error);
+      toast.error(`فشل في حفظ البيانات: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`, {
+        position: "top-center",
+        autoClose: 4000,
+        style: {
+          background: '#DC2626',
+          color: 'white',
+          fontWeight: 'bold'
+        }
+      });
+      return false;
+    }
+  };
+
   if (isInitialLoading) {
+    console.log('🔄 [Cart] Showing initial loading screen');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
         <div className="text-center">
@@ -280,6 +470,7 @@ const ShoppingCart: React.FC = () => {
   }
 
   if (error) {
+    console.log('❌ [Cart] Showing error screen:', error);
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
         <div className="text-center max-w-md">
@@ -306,6 +497,7 @@ const ShoppingCart: React.FC = () => {
   }
 
   if (cartItems.length === 0) {
+    console.log('📦 [Cart] Showing empty cart screen');
     return (
       <div className="min-h-screen bg-gray-50 flex items-center justify-center" dir="rtl">
         <div className="text-center">
@@ -322,6 +514,8 @@ const ShoppingCart: React.FC = () => {
       </div>
     );
   }
+
+  console.log('✅ [Cart] Showing main cart content with', cartItems.length, 'items');
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100" dir="rtl">
@@ -347,10 +541,91 @@ const ShoppingCart: React.FC = () => {
               </span>
             </div>
             <button
-              onClick={() => fetchCart()}
+              onClick={async () => {
+                console.log('🔄 [Cart] Manual refresh triggered');
+                toast.info('🔄 جاري إعادة تحميل السلة...', {
+                  position: "top-center",
+                  autoClose: 1500,
+                  hideProgressBar: true
+                });
+                await fetchCart();
+                toast.success('✅ تم تحديث السلة بنجاح!', {
+                  position: "top-center",
+                  autoClose: 2000,
+                  hideProgressBar: true,
+                  style: {
+                    background: '#10B981',
+                    color: 'white'
+                  }
+                });
+              }}
               className="bg-gradient-to-r from-gray-700 to-gray-800 text-white px-6 py-3 rounded-full hover:from-gray-800 hover:to-gray-900 transition-all shadow-lg transform hover:scale-105 border border-gray-600"
             >
               🔄 تحديث
+            </button>
+            <button
+              onClick={async () => {
+                console.log('🧪 [TEST] Testing save to backend...');
+                
+                if (cartItems.length === 0) {
+                  toast.error('السلة فارغة!');
+                  return;
+                }
+                
+                const firstItem = cartItems[0];
+                console.log('🧪 [TEST] BEFORE - Current item state:', {
+                  id: firstItem.id,
+                  selectedOptions: firstItem.selectedOptions,
+                  attachments: firstItem.attachments
+                });
+                
+                const testOptions = {
+                  ...firstItem.selectedOptions,
+                  testField: 'test-value-' + Date.now(),
+                  size: '44' // تجربة مقاس جديد
+                };
+                
+                console.log('🧪 [TEST] Testing with item:', firstItem.id, 'new options:', testOptions);
+                
+                // تحديث الحالة المحلية أولاً
+                setCartItems(prev => prev.map(item => 
+                  item.id === firstItem.id ? { 
+                    ...item, 
+                    selectedOptions: testOptions 
+                  } : item
+                ));
+                
+                // ثم الحفظ في البكند
+                const success = await saveOptionsToBackend(firstItem.id, 'selectedOptions', testOptions);
+                
+                if (success) {
+                  toast.success('🧪 ✅ اختبار الحفظ نجح! البيانات محفوظة في البكند', {
+                    position: "top-center",
+                    autoClose: 3000,
+                    style: {
+                      background: '#10B981',
+                      fontWeight: 'bold'
+                    }
+                  });
+                  
+                  console.log('🧪 [TEST] SUCCESS - Item updated locally:', {
+                    id: firstItem.id,
+                    newSelectedOptions: testOptions
+                  });
+                } else {
+                  toast.error('🧪 ❌ اختبار الحفظ فشل!', {
+                    position: "top-center",
+                    autoClose: 3000,
+                    style: {
+                      background: '#DC2626',
+                      fontWeight: 'bold'
+                    }
+                  });
+                }
+              }}
+              className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-full hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg transform hover:scale-105 border border-purple-500"
+            >
+              🧪 اختبار
             </button>
             <button
               onClick={clearCart}
@@ -360,6 +635,21 @@ const ShoppingCart: React.FC = () => {
             </button>
           </div>
 
+          {/* Debug Instructions */}
+          <div className="bg-blue-900 text-white p-4 rounded-xl mb-6 border-2 border-blue-700">
+            <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
+              <span>🔧</span>
+              تم إصلاح مشكلة حفظ البيانات!
+            </h3>
+            <div className="text-sm space-y-1">
+              <p>✅ تم إزالة fetchCart التلقائي الذي كان يمحي البيانات</p>
+              <p>✅ تم إصلاح دالة saveOptionsToBackend لتعمل مثل ProductDetail</p>
+              <p>✅ البيانات تُحفظ الآن فوراً في البكند والواجهة</p>
+              <p>🧪 استخدم زر "اختبار" للتأكد من عمل الحفظ</p>
+              <p>🔍 افتح Developer Tools (F12) لمراقبة العملية</p>
+            </div>
+          </div>
+
           {/* Status Indicator */}
           <div className="flex items-center justify-center gap-4">
             {!canProceedToCheckout && (
@@ -367,7 +657,7 @@ const ShoppingCart: React.FC = () => {
                 <div className="flex items-center gap-2">
                   <span className="text-red-300 text-xl">⚠️</span>
                   <span className="font-bold text-red-200">
-                    {incompleteItems.length} منتج يحتاج إكمال التفاصيل
+                    {incompleteItemsDetailed.length} منتج يحتاج إكمال التفاصيل
                   </span>
                 </div>
               </div>
@@ -381,6 +671,39 @@ const ShoppingCart: React.FC = () => {
               </div>
             )}
           </div>
+
+          {/* تفاصيل المنتجات الناقصة */}
+          {!canProceedToCheckout && incompleteItemsDetailed.length > 0 && (
+            <div className="bg-gradient-to-r from-red-50 to-pink-50 border-2 border-red-300 rounded-2xl p-6 mx-4 mb-6">
+              <h3 className="text-xl font-bold text-red-800 mb-4 flex items-center gap-3">
+                <span className="text-2xl">🚨</span>
+                يجب إكمال هذه التفاصيل قبل المتابعة:
+              </h3>
+              <div className="space-y-4">
+                {incompleteItemsDetailed.map(({ item, missingOptions }) => (
+                  <div key={item.id} className="bg-white border border-red-200 rounded-xl p-4">
+                    <div className="flex items-center gap-3 mb-2">
+                      <span className="text-red-600 font-bold text-lg">📦</span>
+                      <h4 className="font-bold text-red-800">{item.product?.name}</h4>
+                    </div>
+                    <p className="text-red-700 mb-2">الاختيارات المطلوبة الناقصة:</p>
+                    <ul className="list-disc list-inside space-y-1 text-red-600">
+                      {missingOptions.map((option, index) => (
+                        <li key={index} className="font-semibold">
+                          <span className="text-red-800">{option}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                ))}
+              </div>
+              <div className="mt-4 p-3 bg-red-100 rounded-lg">
+                <p className="text-red-800 font-bold text-center">
+                  ⚠️ لن تتمكن من إتمام الطلب حتى تحديد جميع الاختيارات المطلوبة
+                </p>
+              </div>
+            </div>
+          )}
         </div>
 
         {/* Cart Content */}
@@ -390,7 +713,7 @@ const ShoppingCart: React.FC = () => {
             <div className="xl:col-span-3">
               <div className="space-y-8">
                 {cartItems.map((item, index) => (
-                  <div key={item.id} className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-500">
+                  <div key={item.id} data-item-id={item.id} className="bg-white rounded-3xl shadow-xl overflow-hidden border border-gray-200 hover:shadow-2xl transition-all duration-500">
                     {/* Product Header */}
                     <div className="bg-gradient-to-r from-gray-800 via-gray-900 to-black text-white p-6">
                       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
@@ -496,16 +819,55 @@ const ShoppingCart: React.FC = () => {
                                       {option.optionType === 'select' && option.options ? (
                                         <select
                                           value={item.selectedOptions?.[option.optionName] || ''}
-                                          onChange={(e) => {
-                                            const newOptions = { ...item.selectedOptions, [option.optionName]: e.target.value };
-                                            setCartItems(prev => prev.map(cartItem => 
-                                              cartItem.id === item.id ? { ...cartItem, selectedOptions: newOptions } : cartItem
-                                            ));
-                                            // Auto-save to backend
-                                            apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
-                                              method: 'PUT',
-                                              body: JSON.stringify({ selectedOptions: newOptions })
+                                          onChange={async (e) => {
+                                            const newValue = e.target.value;
+                                            
+                                            console.log('🎯 [Cart] BEFORE UPDATE:', {
+                                              itemId: item.id,
+                                              optionName: option.optionName,
+                                              oldValue: item.selectedOptions?.[option.optionName],
+                                              newValue: newValue,
+                                              currentSelectedOptions: item.selectedOptions
                                             });
+                                            
+                                            // تحديث الحالة المحلية فوراً
+                                            const newOptions = { 
+                                              ...item.selectedOptions, 
+                                              [option.optionName]: newValue 
+                                            };
+                                            
+                                            console.log('🎯 [Cart] NEW OPTIONS OBJECT:', newOptions);
+                                            
+                                            setCartItems(prev => {
+                                              const updated = prev.map(cartItem => 
+                                                cartItem.id === item.id ? { 
+                                                  ...cartItem, 
+                                                  selectedOptions: newOptions 
+                                                } : cartItem
+                                              );
+                                              console.log('🎯 [Cart] UPDATED CART ITEMS:', updated);
+                                              return updated;
+                                            });
+                                            
+                                            console.log('🎯 [Cart] CALLING SAVE TO BACKEND...');
+                                            
+                                            // حفظ في البكند
+                                            const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                            console.log('🎯 [Cart] SAVE RESULT:', saved);
+                                            
+                                            if (saved) {
+                                              toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                                position: "top-center",
+                                                autoClose: 2000,
+                                                hideProgressBar: true,
+                                                style: {
+                                                  background: '#10B981',
+                                                  color: 'white',
+                                                  fontSize: '16px',
+                                                  fontWeight: 'bold'
+                                                }
+                                              });
+                                            }
                                           }}
                                           className={`w-full px-4 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 ${
                                             formErrors[option.optionName] ? 'border-red-500' : 'border-gray-600'
@@ -528,16 +890,55 @@ const ShoppingCart: React.FC = () => {
                                                 name={`${item.id}-${option.optionName}`}
                                                 value={opt.value}
                                                 checked={item.selectedOptions?.[option.optionName] === opt.value}
-                                                onChange={(e) => {
-                                                  const newOptions = { ...item.selectedOptions, [option.optionName]: e.target.value };
-                                                  setCartItems(prev => prev.map(cartItem => 
-                                                    cartItem.id === item.id ? { ...cartItem, selectedOptions: newOptions } : cartItem
-                                                  ));
-                                                  // Auto-save to backend
-                                                  apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
-                                                    method: 'PUT',
-                                                    body: JSON.stringify({ selectedOptions: newOptions })
+                                                onChange={async (e) => {
+                                                  const newValue = e.target.value;
+                                                  
+                                                  console.log('🎯 [Cart] BEFORE UPDATE:', {
+                                                    itemId: item.id,
+                                                    optionName: option.optionName,
+                                                    oldValue: item.selectedOptions?.[option.optionName],
+                                                    newValue: newValue,
+                                                    currentSelectedOptions: item.selectedOptions
                                                   });
+                                                  
+                                                  // تحديث الحالة المحلية فوراً
+                                                  const newOptions = { 
+                                                    ...item.selectedOptions, 
+                                                    [option.optionName]: newValue 
+                                                  };
+                                                  
+                                                  console.log('🎯 [Cart] NEW OPTIONS OBJECT:', newOptions);
+                                                  
+                                                  setCartItems(prev => {
+                                                    const updated = prev.map(cartItem => 
+                                                      cartItem.id === item.id ? { 
+                                                        ...cartItem, 
+                                                        selectedOptions: newOptions 
+                                                      } : cartItem
+                                                    );
+                                                    console.log('🎯 [Cart] UPDATED CART ITEMS:', updated);
+                                                    return updated;
+                                                  });
+                                                  
+                                                  console.log('🎯 [Cart] CALLING SAVE TO BACKEND...');
+                                                  
+                                                  // حفظ في البكند
+                                                  const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                                  console.log('🎯 [Cart] SAVE RESULT:', saved);
+                                                  
+                                                  if (saved) {
+                                                    toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                                      position: "top-center",
+                                                      autoClose: 2000,
+                                                      hideProgressBar: true,
+                                                      style: {
+                                                        background: '#10B981',
+                                                        color: 'white',
+                                                        fontSize: '16px',
+                                                        fontWeight: 'bold'
+                                                      }
+                                                    });
+                                                  }
                                                 }}
                                                 className="ml-3 text-blue-400 scale-125"
                                               />
@@ -549,16 +950,55 @@ const ShoppingCart: React.FC = () => {
                                         <input
                                           type={option.optionType === 'number' ? 'number' : 'text'}
                                           value={item.selectedOptions?.[option.optionName] || ''}
-                                          onChange={(e) => {
-                                            const newOptions = { ...item.selectedOptions, [option.optionName]: e.target.value };
-                                            setCartItems(prev => prev.map(cartItem => 
-                                              cartItem.id === item.id ? { ...cartItem, selectedOptions: newOptions } : cartItem
-                                            ));
-                                            // Auto-save to backend
-                                            apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
-                                              method: 'PUT',
-                                              body: JSON.stringify({ selectedOptions: newOptions })
+                                          onChange={async (e) => {
+                                            const newValue = e.target.value;
+                                            
+                                            console.log('🎯 [Cart] BEFORE UPDATE:', {
+                                              itemId: item.id,
+                                              optionName: option.optionName,
+                                              oldValue: item.selectedOptions?.[option.optionName],
+                                              newValue: newValue,
+                                              currentSelectedOptions: item.selectedOptions
                                             });
+                                            
+                                            // تحديث الحالة المحلية فوراً
+                                            const newOptions = { 
+                                              ...item.selectedOptions, 
+                                              [option.optionName]: newValue 
+                                            };
+                                            
+                                            console.log('🎯 [Cart] NEW OPTIONS OBJECT:', newOptions);
+                                            
+                                            setCartItems(prev => {
+                                              const updated = prev.map(cartItem => 
+                                                cartItem.id === item.id ? { 
+                                                  ...cartItem, 
+                                                  selectedOptions: newOptions 
+                                                } : cartItem
+                                              );
+                                              console.log('🎯 [Cart] UPDATED CART ITEMS:', updated);
+                                              return updated;
+                                            });
+                                            
+                                            console.log('🎯 [Cart] CALLING SAVE TO BACKEND...');
+                                            
+                                            // حفظ في البكند
+                                            const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                            console.log('🎯 [Cart] SAVE RESULT:', saved);
+                                            
+                                            if (saved) {
+                                              toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                                position: "top-center",
+                                                autoClose: 2000,
+                                                hideProgressBar: true,
+                                                style: {
+                                                  background: '#10B981',
+                                                  color: 'white',
+                                                  fontSize: '16px',
+                                                  fontWeight: 'bold'
+                                                }
+                                              });
+                                            }
                                           }}
                                           placeholder={option.placeholder}
                                           className={`w-full px-4 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 ${
@@ -672,16 +1112,48 @@ const ShoppingCart: React.FC = () => {
                                   </label>
                                   <textarea
                                     value={item.attachments?.text || ''}
-                                    onChange={(e) => {
-                                      const newAttachments = { ...item.attachments, text: e.target.value };
+                                    onChange={async (e) => {
+                                      const newText = e.target.value;
+                                      
+                                      // تحديث الحالة المحلية فوراً
+                                      const newAttachments = { 
+                                        ...item.attachments, 
+                                        text: newText 
+                                      };
+                                      
                                       setCartItems(prev => prev.map(cartItem => 
-                                        cartItem.id === item.id ? { ...cartItem, attachments: newAttachments } : cartItem
+                                        cartItem.id === item.id ? { 
+                                          ...cartItem, 
+                                          attachments: newAttachments 
+                                        } : cartItem
                                       ));
-                                      // Auto-save to backend
-                                      apiCall(API_ENDPOINTS.USER_CART(JSON.parse(localStorage.getItem('user') || '{}').id) + `/${item.id}`, {
-                                        method: 'PUT',
-                                        body: JSON.stringify({ attachments: newAttachments })
+                                      
+                                      console.log('📝 [Cart] Text attachment changed:', {
+                                        itemId: item.id,
+                                        newText,
+                                        allAttachments: newAttachments
                                       });
+                                      
+                                      // حفظ في البكند مع debounce لتجنب الحفظ المفرط
+                                      if (textSaveTimeoutRef.current) {
+                                        clearTimeout(textSaveTimeoutRef.current);
+                                      }
+                                      
+                                      textSaveTimeoutRef.current = setTimeout(async () => {
+                                        const saved = await saveOptionsToBackend(item.id, 'attachments', newAttachments);
+                                        if (saved) {
+                                          toast.success('✅ تم حفظ الملاحظات', {
+                                            position: "bottom-right",
+                                            autoClose: 1500,
+                                            hideProgressBar: true,
+                                            style: {
+                                              background: '#8B5CF6',
+                                              color: 'white',
+                                              fontSize: '14px'
+                                            }
+                                          });
+                                        }
+                                      }, 1000);
                                     }}
                                     placeholder="أضف أي ملاحظات أو تعليمات خاصة..."
                                     className="w-full px-4 py-4 border-2 border-gray-600 bg-gray-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 shadow-md transition-all placeholder-gray-400"
@@ -727,6 +1199,7 @@ const ShoppingCart: React.FC = () => {
                                               setCartItems(prev => prev.map(cartItem => 
                                                 cartItem.id === item.id ? { ...cartItem, attachments: newAttachments } : cartItem
                                               ));
+                                              saveOptionsToBackend(item.id, 'attachments', newAttachments);
                                             }}
                                             className="absolute -top-2 -right-2 bg-red-600 text-white rounded-full w-8 h-8 flex items-center justify-center text-sm opacity-0 group-hover:opacity-100 transition-opacity shadow-lg transform hover:scale-110 border border-red-500"
                                           >
@@ -815,7 +1288,7 @@ const ShoppingCart: React.FC = () => {
                         <span className="font-bold text-red-200">يجب إكمال التفاصيل</span>
                       </div>
                       <p className="text-red-300 text-sm">
-                        {incompleteItems.length} منتج يحتاج تحديد المقاسات
+                        {incompleteItemsDetailed.length} منتج يحتاج تحديد المقاسات
                       </p>
                     </div>
                   )}
@@ -826,16 +1299,68 @@ const ShoppingCart: React.FC = () => {
                       onClick={(e) => {
                         if (!canProceedToCheckout) {
                           e.preventDefault();
-                          toast.error('يجب إكمال تفاصيل جميع المنتجات أولاً');
+                          // رسالة تفصيلية عن المشاكل
+                          const totalMissing = incompleteItemsDetailed.reduce((sum, item) => sum + item.missingRequiredCount, 0);
+                          const itemsText = incompleteItemsDetailed.length === 1 ? 'منتج واحد' : `${incompleteItemsDetailed.length} منتجات`;
+                          const optionsText = totalMissing === 1 ? 'اختيار واحد' : `${totalMissing} اختيارات`;
+                          
+                          toast.error(
+                            `❌ لا يمكن إتمام الطلب!\n` +
+                            `${itemsText} يحتاج إلى ${optionsText} مطلوبة\n` +
+                            `يرجى إكمال جميع المقاسات والتفاصيل أولاً`, 
+                            {
+                              position: "top-center",
+                              autoClose: 5000,
+                              hideProgressBar: false,
+                              closeOnClick: true,
+                              pauseOnHover: true,
+                              draggable: true,
+                              style: {
+                                background: '#DC2626',
+                                color: 'white',
+                                fontWeight: 'bold',
+                                fontSize: '16px',
+                                borderRadius: '12px',
+                                zIndex: 999999,
+                                lineHeight: '1.5'
+                              }
+                            }
+                          );
+                          
+                          // التمرير إلى أول منتج ناقص
+                          if (incompleteItemsDetailed.length > 0) {
+                            const firstIncompleteElement = document.querySelector(`[data-item-id="${incompleteItemsDetailed[0].item.id}"]`);
+                            if (firstIncompleteElement) {
+                              firstIncompleteElement.scrollIntoView({ 
+                                behavior: 'smooth', 
+                                block: 'center' 
+                              });
+                            }
+                          }
+                        } else {
+                          // تأكيد إضافي قبل الانتقال
+                          console.log('✅ [Cart] All validations passed, proceeding to checkout');
                         }
                       }}
                       className={`w-full py-4 rounded-xl font-bold text-center block transition-all text-lg shadow-lg transform ${
                         canProceedToCheckout 
                           ? 'bg-gradient-to-r from-green-600 via-green-700 to-green-800 text-white hover:from-green-700 hover:via-green-800 hover:to-green-900 hover:scale-105 border border-green-500' 
-                          : 'bg-gray-600 text-gray-300 cursor-not-allowed border border-gray-500'
+                          : 'bg-gray-600 text-gray-300 cursor-not-allowed border border-gray-500 opacity-50'
                       }`}
                     >
-                      {canProceedToCheckout ? '🛒 إتمام الطلب' : '⚠️ أكمل التفاصيل أولاً'}
+                      {canProceedToCheckout ? (
+                        <span className="flex items-center justify-center gap-2">
+                          <span>🛒</span>
+                          <span>إتمام الطلب</span>
+                          <span className="text-green-200">({cartItems.length} منتج)</span>
+                        </span>
+                      ) : (
+                        <span className="flex items-center justify-center gap-2">
+                          <span>⚠️</span>
+                          <span>أكمل التفاصيل أولاً</span>
+                          <span className="text-gray-400">({incompleteItemsDetailed.length} ناقص)</span>
+                        </span>
+                      )}
                     </Link>
                     <Link
                       to="/"
