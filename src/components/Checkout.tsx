@@ -397,29 +397,27 @@ const Checkout: React.FC = () => {
         status: 'pending'
       };
 
-      // حفظ البيانات في localStorage كخطة احتياطية
+      // حفظ البيانات في localStorage أولاً
       localStorage.setItem('thankYouOrder', JSON.stringify(thankYouOrder));
+      localStorage.setItem('lastOrderId', thankYouOrder.id.toString());
       
-      // مسح السلة
-      await apiCall(API_ENDPOINTS.USER_CART(user.id), {
-        method: 'DELETE'
-      });
-      window.dispatchEvent(new Event('cartUpdated'));
-      console.log('🧹 Cart cleared successfully');
-
       // عرض رسالة نجاح
-      toast.success('🎉 تم إرسال طلبك بنجاح!', {
+      toast.success('🎉 تم إرسال طلبك بنجاح! جاري التوجيه...', {
         position: "top-center",
         autoClose: 2000,
       });
 
-      // الانتقال لصفحة Thank You
-      console.log('🚀 Navigating to thank you page...');
-      
-      // استخدام setTimeout لضمان اكتمال العمليات
-      setTimeout(() => {
-        // المحاولة الأولى: navigate
+      // انتظار قصير ثم التوجيه
+      setTimeout(async () => {
         try {
+          // مسح السلة أولاً
+          await apiCall(API_ENDPOINTS.USER_CART(user.id), {
+            method: 'DELETE'
+          });
+          window.dispatchEvent(new Event('cartUpdated'));
+          console.log('🧹 Cart cleared successfully');
+          
+          // محاولة التوجيه باستخدام React Router
           navigate('/thank-you', { 
             state: { order: thankYouOrder },
             replace: true 
@@ -427,17 +425,10 @@ const Checkout: React.FC = () => {
           console.log('✅ Navigation successful with React Router');
         } catch (navError) {
           console.error('❌ React Router navigation failed:', navError);
-          // المحاولة الثانية: window.location
-          try {
-            window.location.href = '/thank-you';
-            console.log('✅ Navigation successful with window.location');
-          } catch (locationError) {
-            console.error('❌ Window location navigation failed:', locationError);
-            // الخطة الأخيرة: إعادة تحميل الصفحة
-            window.location.reload();
-          }
+          // في حالة فشل React Router، استخدم window.location
+          window.location.href = '/thank-you';
         }
-      }, 1000);
+      }, 1500);
 
     } catch (error) {
       console.error('💥 Error placing order:', error);

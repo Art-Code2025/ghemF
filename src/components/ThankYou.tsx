@@ -38,74 +38,66 @@ interface Order {
 }
 
 const ThankYou: React.FC = () => {
-  const navigate = useNavigate();
   const location = useLocation();
+  const navigate = useNavigate();
   const [order, setOrder] = useState<Order | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // محاولة الحصول على بيانات الطلب من مصادر متعددة
-    let orderData = null;
-    
-    // المصدر الأول: location.state
-    if (location.state?.order) {
-      console.log('📋 Order data found in location.state:', location.state.order);
-      orderData = location.state.order;
-    }
-    
-    // المصدر الثاني: localStorage (thankYouOrder)
-    if (!orderData) {
+    // محاولة الحصول على البيانات من عدة مصادر
+    const getOrderData = () => {
+      // 1. من state الـ navigation
+      if (location.state?.order) {
+        console.log('✅ Order data found in navigation state');
+        setOrder(location.state.order);
+        setLoading(false);
+        return;
+      }
+
+      // 2. من localStorage
       const savedOrder = localStorage.getItem('thankYouOrder');
       if (savedOrder) {
         try {
-          orderData = JSON.parse(savedOrder);
-          console.log('📋 Order data found in localStorage (thankYouOrder):', orderData);
-          localStorage.removeItem('thankYouOrder'); // تنظيف
+          const parsedOrder = JSON.parse(savedOrder);
+          console.log('✅ Order data found in localStorage');
+          setOrder(parsedOrder);
+          setLoading(false);
+          return;
         } catch (error) {
-          console.error('❌ Failed to parse thankYouOrder from localStorage:', error);
+          console.error('❌ Error parsing saved order:', error);
         }
       }
-    }
-    
-    // المصدر الثالث: localStorage (orderData - للتوافق مع الكود القديم)
-    if (!orderData) {
-      const legacyOrderData = localStorage.getItem('orderData');
-      if (legacyOrderData) {
-        try {
-          orderData = JSON.parse(legacyOrderData);
-          console.log('📋 Order data found in localStorage (legacy orderData):', orderData);
-          localStorage.removeItem('orderData'); // تنظيف
-        } catch (error) {
-          console.error('❌ Failed to parse legacy orderData from localStorage:', error);
-        }
-      }
-    }
-    
-    if (orderData) {
-      setOrder(orderData);
-      setLoading(false);
-      console.log('✅ Order data loaded successfully');
-    } else {
-      console.log('❌ No order data found from any source');
-      setLoading(false);
-      // إعطاء وقت إضافي قبل التوجيه للرئيسية
+
+      // 3. إذا لم نجد البيانات، نوجه للصفحة الرئيسية
+      console.log('❌ No order data found, redirecting to home');
       setTimeout(() => {
-        console.log('🏠 Redirecting to home page...');
-        navigate('/');
-      }, 5000);
-    }
+        navigate('/', { replace: true });
+      }, 3000);
+    };
+
+    getOrderData();
   }, [location.state, navigate]);
 
   const formatOptionName = (optionName: string): string => {
     const optionNames: { [key: string]: string } = {
-      nameOnSash: 'الاسم على الوشاح',
-      embroideryColor: 'لون التطريز',
-      capFabric: 'قماش الكاب',
-      size: 'المقاس',
-      color: 'اللون',
-      capColor: 'لون الكاب',
-      dandoshColor: 'لون الدندوش'
+      'size': 'المقاس',
+      'color': 'اللون',
+      'nameOnSash': 'الاسم على الوشاح',
+      'embroideryColor': 'لون التطريز',
+      'material': 'المادة',
+      'style': 'النمط',
+      'length': 'الطول',
+      'width': 'العرض',
+      'height': 'الارتفاع',
+      'weight': 'الوزن',
+      'quantity': 'الكمية',
+      'notes': 'ملاحظات',
+      'customText': 'نص مخصص',
+      'design': 'التصميم',
+      'pattern': 'النقشة',
+      'finish': 'اللمسة النهائية'
     };
+    
     return optionNames[optionName] || optionName;
   };
 
