@@ -456,22 +456,24 @@ const App: React.FC = () => {
                       {/* Gradient Border Effect */}
                       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
                       
-                      {/* Product Image - Natural Aspect Ratio - Taller */}
-                      <div className="relative h-56 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
-                        <img
-                          src={buildImageUrl(product.mainImage)}
-                          alt={product.name}
-                          className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
-                          onError={(e) => {
-                            e.currentTarget.src = '/placeholder-image.png';
-                          }}
-                        />
+                      {/* Product Image - Taller for mobile */}
+                      <div className="relative h-72 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
+                        <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
+                          <img
+                            src={buildImageUrl(product.mainImage)}
+                            alt={product.name}
+                            className="w-full h-full object-cover transition-all duration-700 hover:scale-105"
+                            onError={(e) => {
+                              e.currentTarget.src = '/placeholder-image.png';
+                            }}
+                          />
+                        </Link>
                         {/* Premium Overlay */}
                         <div className="absolute inset-0 bg-gradient-to-t from-black/10 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
                         
-                        {/* Price Badge */}
-                        <div className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg animate-pulse">
-                          {product.price.toFixed(0)} ر.س
+                        {/* New Badge */}
+                        <div className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
+                          جديد
                         </div>
                         {/* Product Type Badge */}
                         {product.productType && (
@@ -484,9 +486,11 @@ const App: React.FC = () => {
                       {/* Product Info - Centered Layout */}
                       <div className="p-5 flex flex-col items-center text-center space-y-3">
                         {/* Product Name - Centered */}
-                        <h3 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight min-h-[3rem] hover:text-pink-600 transition-colors duration-300">
-                          {product.name}
-                        </h3>
+                        <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
+                          <h3 className="text-lg font-bold text-gray-800 line-clamp-2 leading-tight min-h-[3rem] hover:text-pink-600 transition-colors duration-300">
+                            {product.name}
+                          </h3>
+                        </Link>
                         
                         {/* Elegant Divider */}
                         <div className="h-px bg-gradient-to-r from-transparent via-pink-300 to-transparent w-16"></div>
@@ -523,13 +527,32 @@ const App: React.FC = () => {
                           </div>
                         </div>
                         
-                        {/* Action Button */}
-                        <Link
-                          to={`/product/${createProductSlug(product.id, product.name)}`}
-                          className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold text-center block hover:scale-105 hover:shadow-xl"
-                        >
-                          عرض التفاصيل
-                        </Link>
+                        {/* Actions - Add to Cart instead of View Details */}
+                        {product.stock > 0 && (
+                          <div className="w-full space-y-3">
+                            {/* Quantity Controls */}
+                            <div className="flex items-center justify-center gap-3">
+                              <button
+                                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
+                              >
+                                -
+                              </button>
+                              <span className="w-12 text-center font-bold text-gray-800 text-lg bg-gray-50 py-1 rounded-lg">1</span>
+                              <button
+                                className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
+                              >
+                                +
+                              </button>
+                            </div>
+                            
+                            {/* Add to Cart Button */}
+                            <button
+                              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold hover:scale-105 hover:shadow-xl"
+                            >
+                              إضافة للسلة
+                            </button>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
