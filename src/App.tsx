@@ -328,15 +328,6 @@ const App: React.FC = () => {
                     ))}
                   </div>
                 </div>
-                
-                {/* Mobile Scroll Hint */}
-                <div className="flex justify-center mt-2">
-                  <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                    <span>👈</span>
-                    <span>اسحب لرؤية المزيد</span>
-                    <span>👉</span>
-                  </div>
-                </div>
               </div>
 
               {/* Desktop: Grid */}
@@ -543,24 +534,6 @@ const App: React.FC = () => {
                     </div>
                   </div>
                 ))}
-              </div>
-              
-              {/* Scroll Indicator */}
-              <div className="flex justify-center mt-2">
-                <div className="flex gap-1">
-                  {categoryProduct.products.map((_, idx) => (
-                    <div key={idx} className="w-2 h-2 bg-gray-300 rounded-full transition-all duration-300 hover:bg-pink-500"></div>
-                  ))}
-                </div>
-              </div>
-              
-              {/* Mobile Scroll Hint */}
-              <div className="flex justify-center mt-2">
-                <div className="flex items-center gap-2 text-xs text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                  <span>👈</span>
-                  <span>اسحب لرؤية المزيد</span>
-                  <span>👉</span>
-                </div>
               </div>
             </div>
             

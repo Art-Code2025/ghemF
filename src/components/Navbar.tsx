@@ -429,16 +429,16 @@ function Navbar() {
         </div>
 
         {/* Premium Mobile Menu - Vertical Sidebar */}
-        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-[70] transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
-          <div className="h-full bg-[#f8f6ea]/95 backdrop-blur-2xl shadow-2xl border-l border-gray-300/30 p-4 sm:p-6 overflow-y-auto">
+        <div className={`lg:hidden fixed top-0 right-0 h-full w-80 z-[90] transition-all duration-500 ease-out transform ${isMenuOpen ? 'translate-x-0 opacity-100' : 'translate-x-full opacity-0'}`}>
+          <div className="h-full bg-[#f8f6ea]/98 backdrop-blur-3xl shadow-2xl border-l border-gray-300/30 p-4 sm:p-6 overflow-y-auto">
             <div className="absolute inset-0 bg-gradient-to-br from-[#f8f6ea]/30 via-[#f8f6ea]/40 to-[#f8f6ea]/30" />
             
             {/* Close Button */}
-            <div className="relative flex justify-between items-center mb-6">
-              <h3 className="text-lg font-semibold text-gray-800">القائمة الرئيسية</h3>
+            <div className="relative flex justify-between items-center mb-6 bg-white/60 backdrop-blur-sm rounded-xl p-3">
+              <h3 className="text-lg font-bold text-gray-800">القائمة الرئيسية</h3>
               <button
                 onClick={() => setIsMenuOpen(false)}
-                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white/40 rounded-lg transition-all duration-300"
+                className="p-2 text-gray-600 hover:text-gray-800 hover:bg-white/60 rounded-lg transition-all duration-300 z-[95]"
               >
                 <X size={24} />
               </button>
@@ -523,7 +523,7 @@ function Navbar() {
         {/* Overlay for mobile menu */}
         {isMenuOpen && (
           <div 
-            className="lg:hidden fixed inset-0 bg-black/50 backdrop-blur-sm z-[65]"
+            className="lg:hidden fixed inset-0 bg-black/60 backdrop-blur-sm z-[85]"
             onClick={() => setIsMenuOpen(false)}
           />
         )}

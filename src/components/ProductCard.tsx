@@ -132,7 +132,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     return (
       <div className="bg-white rounded-2xl sm:rounded-3xl border border-gray-100 shadow-lg overflow-hidden hover:shadow-xl transition-all duration-300">
         <div className="flex flex-col md:flex-row p-4 sm:p-6 gap-4 sm:gap-6">
-          <div className="relative w-full md:w-48 lg:w-64 h-48 sm:h-56 md:h-64 flex-shrink-0 bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden">
+          <div className="relative w-full md:w-48 lg:w-64 h-56 sm:h-64 md:h-72 flex-shrink-0 bg-gray-50 rounded-xl sm:rounded-2xl overflow-hidden">
             <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
               <img
                 src={buildImageUrl(product.mainImage)}
@@ -237,12 +237,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
                   >
                     <span>إضافة للسلة</span>
                   </button>
-                  <Link
-                    to={`/product/${createProductSlug(product.id, product.name)}`}
-                    className="bg-gray-100 hover:bg-gray-200 text-gray-700 px-3 sm:px-4 py-2.5 sm:py-3 rounded-lg font-semibold text-sm sm:text-base shadow-md transition-all duration-200 flex items-center justify-center"
-                  >
-                    <Eye className="w-4 h-4 sm:w-5 sm:h-5" />
-                  </Link>
                 </div>
               </div>
             )}
@@ -259,7 +253,7 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
       <div className="absolute inset-0 bg-gradient-to-br from-pink-500/20 via-transparent to-purple-500/20 rounded-3xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 -z-10"></div>
       
       {/* Product Image - Natural Aspect Ratio - Taller */}
-      <div className="relative h-80 sm:h-88 md:h-96 lg:h-80 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
+      <div className="relative h-96 sm:h-[420px] md:h-[450px] lg:h-96 overflow-hidden rounded-t-3xl bg-gradient-to-br from-gray-50 to-gray-100">
         <Link to={`/product/${createProductSlug(product.id, product.name)}`}>
           <img
             src={buildImageUrl(product.mainImage)}
@@ -375,15 +369,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
             >
               إضافة للسلة
             </button>
-            
-            {/* View Details Button */}
-            <Link
-              to={`/product/${createProductSlug(product.id, product.name)}`}
-              className="w-full bg-gray-100 hover:bg-gray-200 text-gray-700 px-6 py-2.5 rounded-xl font-semibold text-sm shadow-md transition-all duration-300 flex items-center justify-center gap-2 hover:scale-105"
-            >
-              <Eye className="w-4 h-4" />
-              <span>عرض التفاصيل</span>
-            </Link>
           </div>
         )}
       </div>
