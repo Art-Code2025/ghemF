@@ -274,6 +274,13 @@ const App: React.FC = () => {
           .premium-hover:hover::before {
             left: 100%;
           }
+          
+          /* Ensure social media icons are visible on mobile */
+          .social-media-icons {
+            display: flex !important;
+            visibility: visible !important;
+            opacity: 1 !important;
+          }
         `}
       </style>
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
@@ -661,7 +668,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Premium Footer - Mobile Optimized */}
-  <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-hidden">
+      <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-100/30 via-transparent to-gray-200/30" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-300/15 rounded-full blur-3xl" />
@@ -771,4 +778,4 @@ const App: React.FC = () => {
   );
 }
 
-export default App; 
+export default App;
