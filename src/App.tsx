@@ -661,53 +661,65 @@ const App: React.FC = () => {
       </main>
 
       {/* Premium Footer - Mobile Optimized */}
-      <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-hidden">
+  <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-100/30 via-transparent to-gray-200/30" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/15 rounded-full blur-3xl" />
         <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-300/15 rounded-full blur-3xl" />
 
         <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Grid Layout */}
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
+          {/* Grid Layout - Adjusted for better mobile visibility */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
+            {/* Brand Section - Simplified for mobile */}
+            <div className="col-span-1 text-center mb-4 sm:mb-0">
+              <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
+                GHEM.STORE
+              </h3>
 
-          {/* Brand Section */}
-<div className="col-span-2 md:col-span-1 text-center md:text-right mb-4 md:mb-0">
-  <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
-    GHEM.STORE
-  </h3>
+              {/* Social Media Icons - Ensure visibility with flex wrap */}
+              <div className="flex flex-wrap justify-center gap-4 mb-4 social-media-icons">
+                <a
+                  href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg="
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit our Instagram page"
+                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm"
+                >
+                  <FaInstagram size={20} color="#ec4899" />
+                </a>
 
-  <div className="flex justify-center md:justify-end gap-4 mb-4">
-    <a href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg=" target="_blank" rel="noopener noreferrer"
-      aria-label="Visit our Instagram page"
-      className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm">
-      <FaInstagram size={20} color="#ec4899" />
-    </a>
+                {/* Replace with your actual Facebook URL */}
+                <a
+                  href="https://www.facebook.com/ghemstore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit our Facebook page"
+                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-blue-100 transition-all shadow-sm"
+                >
+                  <FaFacebookF size={20} color="#2563eb" />
+                </a>
 
-    {/* !!! هام جداً: غيّر الرابط ده للرابط الصحيح لصفحة فيسبوك بتاعتك !!! */}
-    {/* <--- عدّل الرابط في السطر التالي للينك فيسبوك بتاعك */}
-    <a href="YOUR_FACEBOOK_PROFILE_URL" 
-      target="_blank" rel="noopener noreferrer"
-      aria-label="Visit our Facebook page"
-      className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-blue-100 transition-all shadow-sm">
-      <FaFacebookF size={20} color="#2563eb" />
-    </a>
+                {/* Replace with your actual Snapchat URL */}
+                <a
+                  href="https://www.snapchat.com/add/ghemstore"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Visit our Snapchat page"
+                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm"
+                >
+                  <FaSnapchatGhost size={20} color="#facc15" />
+                </a>
 
-    {/* !!! هام جداً: غيّر الرابط ده للرابط الصحيح لحساب سناب شات بتاعك !!! */}
-    {/* <--- عدّل الرابط في السطر التالي للينك سناب شات بتاعك */}
-    <a href="YOUR_SNAPCHAT_PROFILE_URL" 
-      target="_blank" rel="noopener noreferrer"
-      aria-label="Visit our Snapchat page"
-      className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm">
-      <FaSnapchatGhost size={20} color="#facc15" />
-    </a>
-
-    <a href="https://wa.me/966551064118" target="_blank" rel="noopener noreferrer"
-      aria-label="Contact us on WhatsApp"
-      className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm">
-      <FaWhatsapp size={20} color="#22c55e" />
-    </a>
-  </div>
-</div>
+                <a
+                  href="https://wa.me/966551064118"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  aria-label="Contact us on WhatsApp"
+                  className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm"
+                >
+                  <FaWhatsapp size={20} color="#22c55e" />
+                </a>
+              </div>
+            </div>
 
             {/* Quick Links */}
             <div className="text-center">

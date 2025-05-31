@@ -211,3 +211,8 @@ code {
 .animate-fade-in-up {
   animation: fadeInUp 0.3s ease-out;
 }
+.social-media-icons {
+  display: flex !important;
+  visibility: visible !important;
+  opacity: 1 !important;
+}
