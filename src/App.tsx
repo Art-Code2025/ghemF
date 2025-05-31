@@ -668,109 +668,109 @@ const App: React.FC = () => {
       </main>
 
       {/* Premium Footer - Mobile Optimized */}
-      <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-gray-100/30 via-transparent to-gray-200/30" />
-        <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/15 rounded-full blur-3xl" />
-        <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-300/15 rounded-full blur-3xl" />
+      <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-visible">
+  <div className="absolute inset-0 bg-gradient-to-br from-gray-100/30 via-transparent to-gray-200/30" />
+  <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/15 rounded-full blur-3xl" />
+  <div className="absolute bottom-0 right-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-300/15 rounded-full blur-3xl" />
 
-        <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Grid Layout - Adjusted for better mobile visibility */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
-            {/* Brand Section - Simplified for mobile */}
-            <div className="col-span-1 text-center mb-4 sm:mb-0">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
-                GHEM.STORE
-              </h3>
+  <div className="relative container mx-auto px-4 sm:px-6 lg:px-8">
+    {/* Grid Layout - Adjusted for better mobile visibility */}
+    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
+      {/* Brand Section - Simplified for mobile with minimum height */}
+      <div className="col-span-1 text-center mb-4 sm:mb-0 min-h-[100px] brand-section">
+        <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
+          GHEM.STORE
+        </h3>
 
-              {/* Social Media Icons - Ensure visibility with flex wrap */}
-              <div className="flex flex-wrap justify-center gap-4 mb-4 social-media-icons">
-                <a
-                  href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg="
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Instagram page"
-                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm"
-                >
-                  <FaInstagram size={20} color="#ec4899" />
-                </a>
+        {/* Social Media Icons - Ensure visibility with flex wrap and high z-index */}
+        <div className="flex flex-wrap justify-center gap-4 mb-4 social-media-icons">
+          <a
+            href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg="
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit our Instagram page"
+            className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm z-50"
+          >
+            <FaInstagram size={20} color="#ec4899" />
+          </a>
 
-                {/* Replace with your actual Facebook URL */}
-                <a
-                  href="https://www.facebook.com/ghemstore"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Facebook page"
-                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-blue-100 transition-all shadow-sm"
-                >
-                  <FaFacebookF size={20} color="#2563eb" />
-                </a>
+          {/* Replace with your actual Facebook URL */}
+          <a
+            href="https://www.facebook.com/ghemstore"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit our Facebook page"
+            className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-blue-100 transition-all shadow-sm z-50"
+          >
+            <FaFacebookF size={20} color="#2563eb" />
+          </a>
 
-                {/* Replace with your actual Snapchat URL */}
-                <a
-                  href="https://www.snapchat.com/add/ghemstore"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Snapchat page"
-                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm"
-                >
-                  <FaSnapchatGhost size={20} color="#facc15" />
-                </a>
+          {/* Replace with your actual Snapchat URL */}
+          <a
+            href="https://www.snapchat.com/add/ghemstore"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Visit our Snapchat page"
+            className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm z-50"
+          >
+            <FaSnapchatGhost size={20} color="#facc15" />
+          </a>
 
-                <a
-                  href="https://wa.me/966551064118"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Contact us on WhatsApp"
-                  className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm"
-                >
-                  <FaWhatsapp size={20} color="#22c55e" />
-                </a>
-              </div>
-            </div>
+          <a
+            href="https://wa.me/966551064118"
+            target="_blank"
+            rel="noopener noreferrer"
+            aria-label="Contact us on WhatsApp"
+            className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm z-50"
+          >
+            <FaWhatsapp size={20} color="#22c55e" />
+          </a>
+        </div>
+      </div>
 
-            {/* Quick Links */}
-            <div className="text-center">
-              <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">روابط سريعة</h4>
-              <div className="grid grid-cols-2 gap-1 sm:gap-2">
-                <Link to="/" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">الرئيسية</Link>
-                <Link to="/products" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">المنتجات</Link>
-                <Link to="/about" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">من نحن</Link>
-                <Link to="/contact" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">اتصل بنا</Link>
-                <Link to="/privacy-policy" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">سياسة الخصوصية</Link>
-                <Link to="/return-policy" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">سياسة الاسترجاع</Link>
-              </div>
-            </div>
+      {/* Quick Links */}
+      <div className="text-center">
+        <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">روابط سريعة</h4>
+        <div className="grid grid-cols-2 gap-1 sm:gap-2">
+          <Link to="/" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">الرئيسية</Link>
+          <Link to="/products" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">المنتجات</Link>
+          <Link to="/about" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">من نحن</Link>
+          <Link to="/contact" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">اتصل بنا</Link>
+          <Link to="/privacy-policy" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">سياسة الخصوصية</Link>
+          <Link to="/return-policy" className="text-xs sm:text-sm text-gray-700 hover:text-gray-800 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg hover:bg-gray-50/80 transition-all duration-300">سياسة الاسترجاع</Link>
+        </div>
+      </div>
 
-            {/* Contact Info */}
-            <div className="text-center md:text-left">
-              <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">تواصل معنا</h4>
-              <div className="space-y-1 sm:space-y-2">
-                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
-                  <span>📞</span>
-                  <span className="truncate">+966551064118</span>
-                </div>
-                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
-                  <span>✉️</span>
-                  <span className="truncate">support@ghem.store</span>
-                </div>
-                <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
-                  <span>📍</span>
-                  <span className="truncate">السعودية</span>
-                </div>
-              </div>
-            </div>
+      {/* Contact Info */}
+      <div className="text-center md:text-left">
+        <h4 className="font-bold text-gray-800 mb-2 sm:mb-3 text-sm sm:text-base">تواصل معنا</h4>
+        <div className="space-y-1 sm:space-y-2">
+          <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
+            <span>📞</span>
+            <span className="truncate">+966551064118</span>
           </div>
-
-          {/* Copyright Section */}
-          <div className="border-t border-gray-200/60 pt-3 sm:pt-4 text-center">
-            <div className="bg-gradient-to-r from-white/80 via-gray-50/90 to-white/80 backdrop-blur-xl border border-gray-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
-              <p className="text-xs sm:text-sm text-gray-700 font-medium">
-                © 2025 Ghem Store By Art-code
-              </p>
-            </div>
+          <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
+            <span>✉️</span>
+            <span className="truncate">support@ghem.store</span>
+          </div>
+          <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
+            <span>📍</span>
+            <span className="truncate">السعودية</span>
           </div>
         </div>
-      </footer>
+      </div>
+    </div>
+
+    {/* Copyright Section */}
+    <div className="border-t border-gray-200/60 pt-3 sm:pt-4 text-center">
+      <div className="bg-gradient-to-r from-white/80 via-gray-50/90 to-white/80 backdrop-blur-xl border border-gray-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
+        <p className="text-xs sm:text-sm text-gray-700 font-medium">
+          © 2025 Ghem Store By Art-code
+        </p>
+      </div>
+    </div>
+  </div>
+</footer>
 
       {/* WhatsApp Button */}
       <WhatsAppButton />

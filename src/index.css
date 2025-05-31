@@ -139,6 +139,36 @@
   .shadow-responsive {
     @apply shadow-md sm:shadow-lg lg:shadow-xl;
   }
+
+  /* Brand Section - Ensure visibility on mobile */
+  .brand-section {
+    @apply flex flex-col items-center min-h-[100px] overflow-visible z-50;
+  }
+
+  /* Social Media Icons - Ensure visibility and high z-index */
+  .social-media-icons {
+    @apply flex flex-wrap justify-center items-center gap-4 !important;
+    display: flex !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    min-height: 60px !important;
+    z-index: 50 !important;
+  }
+
+  /* Ensure social media icons are visible on small screens */
+  @media (max-width: 640px) {
+    .social-media-icons {
+      flex-wrap: wrap !important;
+      justify-content: center !important;
+      padding: 8px !important;
+      min-height: 80px !important;
+    }
+    .brand-section {
+      min-height: 120px !important;
+      padding: 8px !important;
+      overflow: visible !important;
+    }
+  }
 }
 
 /* Global Styles */
@@ -210,9 +240,4 @@ code {
 
 .animate-fade-in-up {
   animation: fadeInUp 0.3s ease-out;
-}
-.social-media-icons {
-  display: flex !important;
-  visibility: visible !important;
-  opacity: 1 !important;
 }
