@@ -670,36 +670,44 @@ const App: React.FC = () => {
           {/* Grid Layout */}
           <div className="grid grid-cols-2 md:grid-cols-3 gap-4 sm:gap-6 lg:gap-8 mb-4 sm:mb-6 lg:mb-8">
 
-            {/* Brand Section */}
-            <div className="col-span-2 md:col-span-1 text-center md:text-right mb-4 md:mb-0">
-              <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
-                GHEM.STORE
-              </h3>
+          {/* Brand Section */}
+<div className="col-span-2 md:col-span-1 text-center md:text-right mb-4 md:mb-0">
+  <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
+    GHEM.STORE
+  </h3>
 
-          <div className="flex justify-center gap-3 mb-3 sm:hidden">
-              <a href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg=" target="_blank" rel="noopener noreferrer"
-                className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm">
-                <FaInstagram size={16} color="#ec4899" />
-              </a>
-              <a href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg=" target="_blank" rel="noopener noreferrer"
-                className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-blue-100 transition-all shadow-sm">
-                <FaFacebookF size={16} color="#2563eb" />
-              </a>
-              <a href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg=" target="_blank" rel="noopener noreferrer"
-                className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm">
-                <FaSnapchatGhost size={16} color="#facc15" />
-              </a>
-              <a href="https://wa.me/966551064118" target="_blank" rel="noopener noreferrer"
-                className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm">
-                <FaWhatsapp size={16} color="#22c55e" />
-              </a>
-            </div>
+  <div className="flex justify-center md:justify-end gap-4 mb-4">
+    <a href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg=" target="_blank" rel="noopener noreferrer"
+      aria-label="Visit our Instagram page"
+      className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm">
+      <FaInstagram size={20} color="#ec4899" />
+    </a>
 
-              <div className="h-0.5 bg-gradient-to-r from-gray-400 via-gray-600 to-gray-400 rounded-full mb-2 sm:mb-3 w-16 sm:w-20 mx-auto md:mx-0 shadow-lg" />
-              <p className="text-xs sm:text-sm text-gray-700 font-medium leading-relaxed">
-                متجرك المفضل لأفضل المنتجات
-              </p>
-            </div>
+    {/* !!! هام جداً: غيّر الرابط ده للرابط الصحيح لصفحة فيسبوك بتاعتك !!! */}
+    {/* <--- عدّل الرابط في السطر التالي للينك فيسبوك بتاعك */}
+    <a href="YOUR_FACEBOOK_PROFILE_URL" 
+      target="_blank" rel="noopener noreferrer"
+      aria-label="Visit our Facebook page"
+      className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-blue-100 transition-all shadow-sm">
+      <FaFacebookF size={20} color="#2563eb" />
+    </a>
+
+    {/* !!! هام جداً: غيّر الرابط ده للرابط الصحيح لحساب سناب شات بتاعك !!! */}
+    {/* <--- عدّل الرابط في السطر التالي للينك سناب شات بتاعك */}
+    <a href="YOUR_SNAPCHAT_PROFILE_URL" 
+      target="_blank" rel="noopener noreferrer"
+      aria-label="Visit our Snapchat page"
+      className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm">
+      <FaSnapchatGhost size={20} color="#facc15" />
+    </a>
+
+    <a href="https://wa.me/966551064118" target="_blank" rel="noopener noreferrer"
+      aria-label="Contact us on WhatsApp"
+      className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm">
+      <FaWhatsapp size={20} color="#22c55e" />
+    </a>
+  </div>
+</div>
 
             {/* Quick Links */}
             <div className="text-center">
