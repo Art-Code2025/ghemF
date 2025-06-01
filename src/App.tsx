@@ -4,7 +4,7 @@ import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ChevronLeft, ChevronRight, Menu, X, Search, ShoppingCart, Heart, User, Package, Gift, Sparkles, ArrowLeft, Plus, Minus } from 'lucide-react';
 import { FaInstagram, FaFacebookF, FaSnapchatGhost, FaWhatsapp } from 'react-icons/fa';
-
+import { FaUser } from 'react-icons/fa';
 // Import components directly for debugging
 import ImageSlider from './components/ImageSlider';
 import ProductCard from './components/ProductCard';
