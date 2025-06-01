@@ -695,16 +695,7 @@ const App: React.FC = () => {
                   <FaInstagram size={20} color="#ec4899" />
                 </a>
 
-                {/* Replace with your actual Facebook URL */}
-                <a
-                  href="https://www.facebook.com/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Facebook page"
-                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-blue-100 transition-all shadow-sm z-50"
-                >
-                  <FaFacebookF size={20} color="#2563eb" />
-                </a>
+          
 
                 {/* Replace with your actual Snapchat URL */}
                 <a
