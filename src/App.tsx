@@ -3,8 +3,7 @@ import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import { ChevronLeft, ChevronRight, Menu, X, Search, ShoppingCart, Heart, User, Package, Gift, Sparkles, ArrowLeft, Plus, Minus } from 'lucide-react';
-import { FaInstagram, FaFacebookF, FaSnapchatGhost, FaWhatsapp } from 'react-icons/fa';
-import { FaUser } from 'react-icons/fa';
+import { FaInstagram, FaTiktok, FaSnapchatGhost, FaWhatsapp } from 'react-icons/fa';import { FaUser } from 'react-icons/fa';
 // Import components directly for debugging
 import ImageSlider from './components/ImageSlider';
 import ProductCard from './components/ProductCard';
@@ -685,39 +684,47 @@ const App: React.FC = () => {
               {/* Social Media Icons - Ensure visibility with flex wrap and high z-index */}
               {/* On mobile (default), icons are horizontal. On sm and larger, they remain as they were or can be adjusted further if needed. */}
               <div className="flex flex-row justify-center gap-x-3 gap-y-2 mt-3 social-media-icons sm:flex-row sm:justify-start">
-                <a
-                  href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg="
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Instagram page"
-                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm z-50"
-                >
-                  <FaInstagram size={20} color="#ec4899" />
-                </a>
+  <a
+    href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg="
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit our Instagram page"
+    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-pink-100 transition-all shadow-sm z-50"
+  >
+    <FaInstagram size={20} color="#ec4899" />
+  </a>
 
-          
+  {/* Replaced Facebook with TikTok */}
+  <a
+    href="https://www.tiktok.com/" // Replace with your actual TikTok URL
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit our TikTok page"
+    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-gray-100 transition-all shadow-sm z-50"
+  >
+    <FaTiktok size={20} color="#000000" /> {/* TikTok icon with black color */}
+  </a>
 
-                {/* Replace with your actual Snapchat URL */}
-                <a
-                  href="https://www.snapchat.com/add/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Visit our Snapchat page"
-                  className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm z-50"
-                >
-                  <FaSnapchatGhost size={20} color="#facc15" />
-                </a>
+  <a
+    href="https://www.snapchat.com/add/"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Visit our Snapchat page"
+    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm z-50"
+  >
+    <FaSnapchatGhost size={20} color="#facc15" />
+  </a>
 
-                <a
-                  href="https://wa.me/966551064118"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  aria-label="Contact us on WhatsApp"
-                  className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm z-50"
-                >
-                  <FaWhatsapp size={20} color="#22c55e" />
-                </a>
-              </div>
+  <a
+    href="https://wa.me/966551064118"
+    target="_blank"
+    rel="noopener noreferrer"
+    aria-label="Contact us on WhatsApp"
+    className="bg-green-50 backdrop-blur-xl border border-green-200/60 p-2 rounded-full hover:bg-green-100 transition-all shadow-sm z-50"
+  >
+    <FaWhatsapp size={20} color="#22c55e" />
+  </a>
+</div>
             </div>
 
             {/* Quick Links */}
