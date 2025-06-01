@@ -668,7 +668,6 @@ const App: React.FC = () => {
       </main>
 
       {/* Premium Footer - Mobile Optimized */}
-      // ... existing code ...
       <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-visible">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-100/30 via-transparent to-gray-200/30" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/15 rounded-full blur-3xl" />
@@ -698,7 +697,7 @@ const App: React.FC = () => {
 
                 {/* Replace with your actual Facebook URL */}
                 <a
-                  href="https://www.facebook.com/ghemstore"
+                  href="https://www.facebook.com/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Visit our Facebook page"
@@ -709,7 +708,7 @@ const App: React.FC = () => {
 
                 {/* Replace with your actual Snapchat URL */}
                 <a
-                  href="https://www.snapchat.com/add/ghemstore"
+                  href="https://www.snapchat.com/add/"
                   target="_blank"
                   rel="noopener noreferrer"
                   aria-label="Visit our Snapchat page"
