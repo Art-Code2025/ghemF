@@ -681,9 +681,9 @@ const App: React.FC = () => {
                 GHEM.STORE
               </h3>
 
-              {/* Social Media Icons - Ensure visibility with flex wrap and high z-index */}
-              {/* On mobile (default), icons are horizontal. On sm and larger, they remain as they were or can be adjusted further if needed. */}
-              <div className="flex flex-row justify-center gap-x-3 gap-y-2 mt-3 social-media-icons sm:flex-row sm:justify-start">
+      {/* Social Media Icons - Flex layout ensures visibility with wrapping and high z-index for layering */}
+{/* On mobile, icons are centered horizontally; on sm+ screens, they align to the start */}
+<div className="flex flex-row justify-center gap-x-3 gap-y-2 mt-3 social-media-icons sm:flex-row sm:justify-start">
   <a
     href="https://www.instagram.com/ghem.store10?igsh=cXU5cTJqc2V2Nmg="
     target="_blank"
@@ -694,26 +694,31 @@ const App: React.FC = () => {
     <FaInstagram size={20} color="#ec4899" />
   </a>
 
-  {/* Replaced Facebook with TikTok */}
+  {/* TikTok Link - Commented out to disable in the UI */}
+  {/*
   <a
-    href="https://www.tiktok.com/" // Replace with your actual TikTok URL
+    href="https://www.tiktok.com/@yourprofile"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Visit our TikTok page"
-    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-gray-100 transition-all shadow-sm z-50"
+    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-gradient-to-r hover:from-pink-100 hover:to-teal-100 transition-all shadow-sm z-50"
   >
-    <FaTiktok size={20} color="#000000" /> {/* TikTok icon with black color */}
+    <FaTiktok size={20} color="#000000" />
   </a>
+  */}
 
+  {/* Snapchat Link - Commented out to disable in the UI */}
+  {/*
   <a
-    href="https://www.snapchat.com/add/"
+    href="https://www.snapchat.com/add/yourusername"
     target="_blank"
     rel="noopener noreferrer"
     aria-label="Visit our Snapchat page"
-    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-100 transition-all shadow-sm z-50"
+    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-200 transition-all shadow-sm z-50"
   >
     <FaSnapchatGhost size={20} color="#facc15" />
   </a>
+  */}
 
   <a
     href="https://wa.me/966551064118"
