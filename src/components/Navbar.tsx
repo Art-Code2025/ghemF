@@ -272,36 +272,66 @@ function Navbar() {
         if (localCart) {
           const localItems = JSON.parse(localCart);
           if (localItems.length > 0) {
+            console.log('🔄 [Navbar] Merging local cart with user cart:', localItems.length, 'items');
+            
             // إرسال العناصر المحلية إلى الخادم
             for (const item of localItems) {
-              await apiCall(API_ENDPOINTS.USER_CART(userData.id), {
-                method: 'POST',
-                body: JSON.stringify({
-                  productId: item.productId,
-                  quantity: item.quantity,
-                  selectedOptions: item.selectedOptions || {},
-                  attachments: item.attachments || {}
-                })
-              });
+              try {
+                await apiCall(API_ENDPOINTS.USER_CART(userData.id), {
+                  method: 'POST',
+                  body: JSON.stringify({
+                    productId: item.productId,
+                    quantity: item.quantity,
+                    selectedOptions: item.selectedOptions || {},
+                    optionsPricing: item.optionsPricing || {},
+                    attachments: item.attachments || {},
+                    productName: item.product?.name || 'منتج',
+                    price: item.product?.price || 0,
+                    image: item.product?.mainImage || ''
+                  })
+                });
+                console.log('✅ [Navbar] Merged item:', item.productId);
+              } catch (error) {
+                console.error('❌ [Navbar] Error merging item:', item.productId, error);
+              }
             }
-            // مسح السلة المحلية بعد الدمج
-            localStorage.removeItem('cart');
-            console.log('✅ [Navbar] Local cart merged with user cart');
+            
+            // تحديث السلة من الخادم بعد الدمج
+            try {
+              const serverCart = await apiCall(API_ENDPOINTS.USER_CART(userData.id));
+              localStorage.setItem('cart', JSON.stringify(serverCart));
+              console.log('✅ [Navbar] Cart merged successfully, new cart size:', serverCart.length);
+              
+              // إطلاق حدث لتحديث السلة
+              window.dispatchEvent(new CustomEvent('cartUpdated'));
+              
+              toast.success('تم دمج سلة التسوق بنجاح! 🛒', {
+                position: "top-center",
+                autoClose: 3000,
+                style: {
+                  background: '#10B981',
+                  color: 'white',
+                  fontWeight: 'bold'
+                }
+              });
+            } catch (error) {
+              console.error('❌ [Navbar] Error fetching merged cart:', error);
+            }
+          } else {
+            console.log('📭 [Navbar] Local cart is empty, no merge needed');
           }
+        } else {
+          console.log('📭 [Navbar] No local cart found');
         }
       } catch (error) {
-        console.error('❌ [Navbar] Error merging local cart:', error);
+        console.error('❌ [Navbar] Error in cart merge:', error);
       }
     };
     
-    // تحميل بيانات المستخدم الجديد
-    setTimeout(async () => {
-      await mergeLocalCartWithUserCart();
-      fetchCartCount();
-      fetchWishlistCount();
-    }, 100);
+    // تنفيذ دمج السلة
+    mergeLocalCartWithUserCart();
     
-    toast.success(`مرحباً بك ${userData.name || userData.firstName || 'عزيزي العميل'}`, {
+    toast.success(`مرحباً بك ${userData.firstName}! 🎉`, {
       position: "top-center",
       autoClose: 3000,
       style: {

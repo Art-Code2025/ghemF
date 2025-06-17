@@ -120,42 +120,95 @@ const Checkout: React.FC = () => {
     try {
       setLoading(true);
       const userData = localStorage.getItem('user');
-      if (!userData) {
-        setCartItems([]);
-        return;
-      }
-
-      const user = JSON.parse(userData);
-      console.log('🛒 [Checkout] Fetching cart for user:', user.id);
       
-      const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
-      console.log('📦 [Checkout] Raw cart data:', data);
-      
-      if (Array.isArray(data)) {
-        data.forEach((item, index) => {
-          console.log(`🛒 [Checkout] Item ${index + 1}:`, {
-            id: item.id,
-            productId: item.productId,
-            productName: item.product?.name,
-            quantity: item.quantity,
-            selectedOptions: item.selectedOptions,
-            optionsPricing: item.optionsPricing,
-            attachments: item.attachments
-          });
+      if (userData) {
+        // المستخدم مسجل - جلب من الخادم
+        const user = JSON.parse(userData);
+        console.log('🛒 [Checkout] Fetching cart for user:', user.id);
+        
+        try {
+          const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
+          console.log('📦 [Checkout] Raw cart data from server:', data);
           
-          if (item.selectedOptions && Object.keys(item.selectedOptions).length > 0) {
-            console.log(`✅ [Checkout] Item ${item.id} has selectedOptions:`, item.selectedOptions);
+          if (Array.isArray(data) && data.length > 0) {
+            data.forEach((item, index) => {
+              console.log(`🛒 [Checkout] Item ${index + 1}:`, {
+                id: item.id,
+                productId: item.productId,
+                productName: item.product?.name,
+                quantity: item.quantity,
+                selectedOptions: item.selectedOptions,
+                optionsPricing: item.optionsPricing,
+                attachments: item.attachments
+              });
+            });
+            setCartItems(data);
+            return;
           } else {
-            console.log(`❌ [Checkout] Item ${item.id} has NO selectedOptions!`);
+            console.log('📭 [Checkout] Server cart is empty, checking localStorage');
           }
-        });
-        setCartItems(data);
-      } else {
-        console.log('❌ [Checkout] Invalid cart data format:', data);
-        setCartItems([]);
+        } catch (error) {
+          console.error('❌ [Checkout] Error fetching from server, falling back to localStorage:', error);
+        }
       }
+      
+      // المستخدم غير مسجل أو فشل جلب البيانات من الخادم - جلب من localStorage
+      console.log('💾 [Checkout] Fetching cart from localStorage');
+      const localCart = localStorage.getItem('cart');
+      
+      if (localCart) {
+        try {
+          const localItems = JSON.parse(localCart);
+          console.log('📦 [Checkout] Raw cart data from localStorage:', localItems);
+          
+          if (Array.isArray(localItems) && localItems.length > 0) {
+            // تحويل بيانات localStorage إلى نفس تنسيق الخادم
+            const formattedItems = localItems.map(item => ({
+              id: item.id || Date.now() + Math.random(),
+              productId: item.productId,
+              quantity: item.quantity || 1,
+              selectedOptions: item.selectedOptions || {},
+              optionsPricing: item.optionsPricing || {},
+              attachments: item.attachments || {},
+              product: item.product || {
+                id: item.productId,
+                name: 'منتج غير معروف',
+                price: 0,
+                mainImage: '',
+                stock: 999
+              }
+            }));
+            
+            formattedItems.forEach((item, index) => {
+              console.log(`🛒 [Checkout] LocalStorage Item ${index + 1}:`, {
+                id: item.id,
+                productId: item.productId,
+                productName: item.product?.name,
+                quantity: item.quantity,
+                selectedOptions: item.selectedOptions,
+                optionsPricing: item.optionsPricing,
+                attachments: item.attachments
+              });
+            });
+            
+            setCartItems(formattedItems);
+            return;
+          } else {
+            console.log('📭 [Checkout] localStorage cart is empty');
+          }
+        } catch (parseError) {
+          console.error('❌ [Checkout] Error parsing localStorage cart:', parseError);
+        }
+      } else {
+        console.log('📭 [Checkout] No localStorage cart found');
+      }
+      
+      // إذا لم نجد أي بيانات
+      console.log('📭 [Checkout] No cart data found anywhere');
+      setCartItems([]);
+      
     } catch (error) {
-      console.error('❌ [Checkout] Error fetching cart:', error);
+      console.error('❌ [Checkout] Error in fetchCart:', error);
       toast.error('فشل في تحميل السلة');
       setCartItems([]);
     } finally {
@@ -166,6 +219,26 @@ const Checkout: React.FC = () => {
   useEffect(() => {
     fetchCart();
   }, [fetchCart]);
+
+  // تحديث بيانات المستخدم تلقائياً
+  useEffect(() => {
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        console.log('👤 [Checkout] Auto-filling user data:', user);
+        
+        setCustomerInfo(prev => ({
+          ...prev,
+          name: user.name || `${user.firstName || ''} ${user.lastName || ''}`.trim(),
+          email: user.email || '',
+          phone: user.phone || ''
+        }));
+      } catch (error) {
+        console.error('❌ [Checkout] Error parsing user data:', error);
+      }
+    }
+  }, []);
 
   const getTotalSavings = () => {
     return cartItems.reduce((total, item) => {
