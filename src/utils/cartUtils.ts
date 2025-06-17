@@ -12,13 +12,6 @@ export const addToCartUnified = async (
   try {
     console.log('🛒 [CartUtils] Adding to cart:', { productId, productName, quantity, selectedOptions, attachments });
 
-    // التحقق من المواصفات قبل الإرسال
-    if (selectedOptions && Object.keys(selectedOptions).length > 0) {
-      console.log('✅ [CartUtils] Valid selectedOptions found:', selectedOptions);
-    } else {
-      console.log('⚠️ [CartUtils] No selectedOptions provided - this might be okay for simple products');
-    }
-
     const requestBody: any = {
       productId,
       quantity
@@ -88,6 +81,9 @@ export const addToCartUnified = async (
     if (existingCart) {
       try {
         cartItems = JSON.parse(existingCart);
+        if (!Array.isArray(cartItems)) {
+          cartItems = [];
+        }
       } catch (parseError) {
         console.error('❌ [CartUtils] Error parsing existing cart:', parseError);
         cartItems = [];

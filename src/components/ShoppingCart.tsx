@@ -102,17 +102,31 @@ const ShoppingCart: React.FC = () => {
       // محاولة تحميل السلة من localStorage أولاً
       const localCart = localStorage.getItem('cart');
       if (localCart) {
-        const parsedCart = JSON.parse(localCart);
-        setCartItems(parsedCart);
+        try {
+          const parsedCart = JSON.parse(localCart);
+          if (Array.isArray(parsedCart)) {
+            setCartItems(parsedCart);
+            console.log('✅ [Cart] Loaded from localStorage:', parsedCart.length, 'items');
+          } else {
+            setCartItems([]);
+          }
+        } catch (parseError) {
+          console.error('❌ [Cart] Error parsing localStorage cart:', parseError);
+          localStorage.removeItem('cart');
+          setCartItems([]);
+        }
         setIsInitialLoading(false);
+        setLoading(false);
         return;
       }
 
       // إذا لم تكن هناك سلة محلية، تحقق من وجود مستخدم مسجل
       const userData = localStorage.getItem('user');
       if (!userData) {
+        console.log('📭 [Cart] No user data, empty cart');
         setCartItems([]);
         setIsInitialLoading(false);
+        setLoading(false);
         return;
       }
 
@@ -123,28 +137,37 @@ const ShoppingCart: React.FC = () => {
         console.error('❌ [Cart] Error parsing user data:', parseError);
         setCartItems([]);
         setIsInitialLoading(false);
+        setLoading(false);
         return;
       }
 
       if (!user || !user.id) {
+        console.log('📭 [Cart] Invalid user data, empty cart');
         setCartItems([]);
         setIsInitialLoading(false);
+        setLoading(false);
         return;
       }
 
       // تحميل السلة من الخادم
-      const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
-      
-      if (Array.isArray(data)) {
-        setCartItems(data);
-        // حفظ السلة في localStorage
-        localStorage.setItem('cart', JSON.stringify(data));
-      } else {
+      try {
+        const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
+        
+        if (Array.isArray(data)) {
+          setCartItems(data);
+          // حفظ السلة في localStorage
+          localStorage.setItem('cart', JSON.stringify(data));
+          console.log('✅ [Cart] Loaded from server:', data.length, 'items');
+        } else {
+          setCartItems([]);
+          console.log('📭 [Cart] Server returned empty cart');
+        }
+      } catch (serverError) {
+        console.error('❌ [Cart] Server error, using empty cart:', serverError);
         setCartItems([]);
       }
     } catch (error) {
       console.error('❌ [Cart] Error fetching cart:', error);
-      toast.error('فشل في تحميل السلة');
       setCartItems([]);
       setError(`فشل في تحميل السلة: ${error instanceof Error ? error.message : 'خطأ غير معروف'}`);
     } finally {
@@ -152,6 +175,11 @@ const ShoppingCart: React.FC = () => {
       setIsInitialLoading(false);
     }
   }, []);
+
+  // تحميل السلة عند بداية التشغيل فقط
+  useEffect(() => {
+    fetchCart();
+  }, [fetchCart]);
 
   // حفظ السلة في localStorage
   const saveCartToLocalStorage = useCallback((items: CartItem[]) => {

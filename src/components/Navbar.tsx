@@ -148,7 +148,24 @@ function Navbar() {
   const fetchCartCount = async () => {
     try {
       const userData = localStorage.getItem('user');
+      
       if (!userData) {
+        // المستخدم غير مسجل - تحميل من localStorage
+        const localCart = localStorage.getItem('cart');
+        if (localCart) {
+          try {
+            const cartItems = JSON.parse(localCart);
+            if (Array.isArray(cartItems)) {
+              const totalItems = cartItems.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+              setCartItemsCount(totalItems);
+              localStorage.setItem('lastCartCount', totalItems.toString());
+              console.log('📊 [Navbar] Cart count from localStorage:', totalItems);
+              return;
+            }
+          } catch (parseError) {
+            console.error('❌ [Navbar] Error parsing local cart:', parseError);
+          }
+        }
         setCartItemsCount(0);
         localStorage.setItem('lastCartCount', '0');
         return;
@@ -175,6 +192,22 @@ function Navbar() {
       console.log('💾 [Navbar] Cart count saved to localStorage:', totalItems);
     } catch (error) {
       console.error('❌ [Navbar] Error fetching cart count:', error);
+      
+      // في حالة الخطأ، حاول تحميل من localStorage
+      const localCart = localStorage.getItem('cart');
+      if (localCart) {
+        try {
+          const cartItems = JSON.parse(localCart);
+          if (Array.isArray(cartItems)) {
+            const totalItems = cartItems.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+            setCartItemsCount(totalItems);
+            return;
+          }
+        } catch (parseError) {
+          console.error('❌ [Navbar] Error parsing local cart fallback:', parseError);
+        }
+      }
+      
       setCartItemsCount(0);
       localStorage.setItem('lastCartCount', '0');
     }

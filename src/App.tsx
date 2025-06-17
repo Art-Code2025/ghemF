@@ -63,9 +63,21 @@ const App: React.FC = () => {
   // Load cart count from localStorage
   useEffect(() => {
     const updateCartCount = () => {
+      const userData = localStorage.getItem('user');
+      
+      if (userData) {
+        // المستخدم مسجل - لا نحتاج لعد العناصر هنا، Navbar سيتولى ذلك
+        return;
+      }
+      
+      // المستخدم غير مسجل - عد من localStorage
       const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-      const totalCount = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
-      setCartCount(totalCount);
+      if (Array.isArray(cart)) {
+        const totalCount = cart.reduce((sum: number, item: any) => sum + (item.quantity || 1), 0);
+        setCartCount(totalCount);
+      } else {
+        setCartCount(0);
+      }
     };
 
     updateCartCount();
