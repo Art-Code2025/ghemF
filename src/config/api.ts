@@ -22,24 +22,14 @@ export const getApiBaseUrl = (): string => {
   return isDevelopment ? API_CONFIG.development.baseURL : API_CONFIG.production.baseURL;
 };
 
-const API_BASE_URL_PRODUCTION = 'https://ghem.store'; // Your production backend URL
-const API_BASE_URL_DEVELOPMENT = 'http://localhost:3001';
-
-// Vite provides env variables on `import.meta.env`
-const isProduction = import.meta.env.PROD;
-
-// دالة ذكية لبناء رابط الـ API بناءً على بيئة التشغيل
+// دالة مساعدة لبناء URL كامل
 export const buildApiUrl = (endpoint: string): string => {
-  const baseUrl = isProduction ? API_BASE_URL_PRODUCTION : API_BASE_URL_DEVELOPMENT;
-  
-  // يضمن عدم وجود شرطات مائلة مزدوجة
-  const cleanBaseUrl = baseUrl.endsWith('/') ? baseUrl.slice(0, -1) : baseUrl;
+  const baseUrl = getApiBaseUrl();
+  // إزالة الـ slash الأول من endpoint إذا كان موجود
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  
-  const finalUrl = `${cleanBaseUrl}/${cleanEndpoint}`;
-  console.log(`[buildApiUrl] Environment: ${isProduction ? 'Production' : 'Development'}, Final URL: ${finalUrl}`);
-  
-  return finalUrl;
+  // إزالة api/ إذا كانت موجودة في endpoint لأنها ستضاف تلقائياً
+  const finalEndpoint = cleanEndpoint.startsWith('api/') ? cleanEndpoint.slice(4) : cleanEndpoint;
+  return `${baseUrl}/api/${finalEndpoint}`;
 };
 
 // دالة مساعدة لبناء URL الصور - محدثة
