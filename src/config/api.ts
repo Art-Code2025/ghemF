@@ -129,4 +129,8 @@ export const API_ENDPOINTS = {
   // Services (if needed)
   SERVICES: 'services',
   SERVICE_BY_ID: (id: string | number) => `services/${id}`,
+  
+  // Authentication endpoints
+  LOGIN: '/api/auth/login',
+  REGISTER: '/api/auth/register',
 }; 

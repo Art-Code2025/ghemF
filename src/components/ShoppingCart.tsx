@@ -59,9 +59,12 @@ const ShoppingCart: React.FC = () => {
   const [promoCode, setPromoCode] = useState('');
   const [showSizeGuide, setShowSizeGuide] = useState<{show: boolean, productType: string}>({show: false, productType: ''});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   
   // إضافة ref للـ timeout
   const textSaveTimeoutRef = useRef<number | null>(null);
+
+  const navigate = useNavigate();
 
   // دالة لتحديد صورة المقاس المناسبة من assets
   const getSizeGuideImage = (productType: string): string => {
@@ -88,17 +91,24 @@ const ShoppingCart: React.FC = () => {
     return names[optionName] || optionName;
   };
 
-  // تحميل السلة من الخادم
+  // تحميل السلة من localStorage
   const fetchCart = useCallback(async () => {
     try {
       setLoading(true);
       setError(null);
       
+      // محاولة تحميل السلة من localStorage أولاً
+      const localCart = localStorage.getItem('cart');
+      if (localCart) {
+        const parsedCart = JSON.parse(localCart);
+        setCartItems(parsedCart);
+        setIsInitialLoading(false);
+        return;
+      }
+
+      // إذا لم تكن هناك سلة محلية، تحقق من وجود مستخدم مسجل
       const userData = localStorage.getItem('user');
-      console.log('👤 [Cart] User data from localStorage:', userData);
-      
       if (!userData) {
-        console.log('❌ [Cart] No user data found in localStorage');
         setCartItems([]);
         setIsInitialLoading(false);
         return;
@@ -107,7 +117,6 @@ const ShoppingCart: React.FC = () => {
       let user;
       try {
         user = JSON.parse(userData);
-        console.log('👤 [Cart] Parsed user:', user);
       } catch (parseError) {
         console.error('❌ [Cart] Error parsing user data:', parseError);
         setCartItems([]);
@@ -116,48 +125,19 @@ const ShoppingCart: React.FC = () => {
       }
 
       if (!user || !user.id) {
-        console.log('❌ [Cart] Invalid user object or missing ID');
         setCartItems([]);
         setIsInitialLoading(false);
         return;
       }
 
-      console.log('🛒 [Cart] Fetching cart for user:', user.id);
-      
+      // تحميل السلة من الخادم
       const data = await apiCall(API_ENDPOINTS.USER_CART(user.id));
-      console.log('📦 [Cart] Raw API response:', data);
       
       if (Array.isArray(data)) {
-        console.log('✅ [Cart] Cart items loaded:', data.length);
-        data.forEach((item, index) => {
-          console.log(`📦 [Cart] Item ${index + 1}:`, {
-            id: item.id,
-            productId: item.productId,
-            productName: item.product?.name,
-            quantity: item.quantity,
-            selectedOptions: item.selectedOptions,
-            optionsPricing: item.optionsPricing,
-            attachments: item.attachments
-          });
-          
-          // تحقق مفصل من الاختيارات
-          if (item.selectedOptions) {
-            console.log(`🎯 [Cart] Item ${item.id} selectedOptions:`, item.selectedOptions);
-            Object.entries(item.selectedOptions).forEach(([key, value]) => {
-              console.log(`  ✅ ${key}: ${value}`);
-            });
-          } else {
-            console.log(`⚠️ [Cart] Item ${item.id} has NO selectedOptions`);
-          }
-          
-          // تحقق من الملاحظات
-          if (item.attachments?.text) {
-            console.log(`📝 [Cart] Item ${item.id} has text: "${item.attachments.text}"`);
-          }
-        });
         setCartItems(data);
+        // حفظ السلة في localStorage
+        localStorage.setItem('cart', JSON.stringify(data));
       } else {
-        console.log('⚠️ [Cart] Unexpected data format:', data);
         setCartItems([]);
       }
     } catch (error) {
@@ -168,70 +148,63 @@ const ShoppingCart: React.FC = () => {
     } finally {
       setLoading(false);
       setIsInitialLoading(false);
-      console.log('✅ [Cart] fetchCart completed, isInitialLoading set to false');
     }
   }, []);
 
-  useEffect(() => {
-    console.log('🔄 [Cart] useEffect triggered, calling fetchCart...');
-    fetchCart();
-  }, [fetchCart]);
+  // حفظ السلة في localStorage
+  const saveCartToLocalStorage = useCallback((items: CartItem[]) => {
+    localStorage.setItem('cart', JSON.stringify(items));
+  }, []);
 
-  // تحديث كمية المنتج
+  // تحديث الكمية
   const updateQuantity = async (itemId: number, newQuantity: number) => {
     if (newQuantity < 1) return;
-      
-    const userData = localStorage.getItem('user');
-    if (!userData) return;
 
-    try {
-      const user = JSON.parse(userData);
-      
-      // الحصول على البيانات الحالية للمنتج
-      const currentItem = cartItems.find(item => item.id === itemId);
-      if (!currentItem) return;
-
-      // تحضير البيانات المحدثة مع الحفاظ على selectedOptions و attachments
-      const updateData = {
-        quantity: newQuantity,
-        selectedOptions: currentItem.selectedOptions || {},
-        attachments: currentItem.attachments || {}
-      };
-
-      console.log('🔢 [Cart] Updating quantity with preserved data:', { itemId, newQuantity, updateData });
-
-      await apiCall(API_ENDPOINTS.USER_CART(user.id) + `/${itemId}`, {
-        method: 'PUT',
-        body: JSON.stringify(updateData)
-      });
-      
-      setCartItems(prev => prev.map(item => 
+    setCartItems(prev => {
+      const updated = prev.map(item => 
         item.id === itemId ? { ...item, quantity: newQuantity } : item
-      ));
-      
-      console.log('✅ [Cart] Quantity updated successfully while preserving options');
-    } catch (error) {
-      console.error('❌ [Cart] Error updating quantity:', error);
-      toast.error('فشل في تحديث الكمية');
+      );
+      saveCartToLocalStorage(updated);
+      return updated;
+    });
+
+    // إذا كان المستخدم مسجل، قم بتحديث الكمية في الخادم
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        await apiCall(API_ENDPOINTS.USER_CART(user.id), {
+          method: 'PUT',
+          body: JSON.stringify({ itemId, quantity: newQuantity })
+        });
+      } catch (error) {
+        console.error('Error updating quantity:', error);
+        toast.error('فشل في تحديث الكمية');
+      }
     }
   };
 
-  // حذف منتج من السلة
+  // حذف منتج
   const removeItem = async (itemId: number) => {
-    const userData = localStorage.getItem('user');
-    if (!userData) return;
+    setCartItems(prev => {
+      const updated = prev.filter(item => item.id !== itemId);
+      saveCartToLocalStorage(updated);
+      return updated;
+    });
 
-    try {
-      const user = JSON.parse(userData);
-      await apiCall(API_ENDPOINTS.USER_CART(user.id) + `/${itemId}`, {
-        method: 'DELETE'
-      });
-      
-      setCartItems(prev => prev.filter(item => item.id !== itemId));
-      toast.success('تم حذف المنتج من السلة');
-    } catch (error) {
-      console.error('Error removing item:', error);
-      toast.error('فشل في حذف المنتج');
+    // إذا كان المستخدم مسجل، قم بحذف المنتج من الخادم
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        await apiCall(API_ENDPOINTS.USER_CART(user.id), {
+          method: 'DELETE',
+          body: JSON.stringify({ itemId })
+        });
+      } catch (error) {
+        console.error('Error removing item:', error);
+        toast.error('فشل في حذف المنتج');
+      }
     }
   };
 
@@ -329,23 +302,42 @@ const ShoppingCart: React.FC = () => {
   const clearCart = async () => {
     if (!window.confirm('هل أنت متأكد من إفراغ السلة؟')) return;
 
+    setCartItems([]);
+    localStorage.removeItem('cart');
+
+    const userData = localStorage.getItem('user');
+    if (userData) {
+      try {
+        const user = JSON.parse(userData);
+        await apiCall(API_ENDPOINTS.USER_CART(user.id), {
+          method: 'DELETE'
+        });
+      } catch (error) {
+        console.error('Error clearing cart:', error);
+        toast.error('فشل في إفراغ السلة');
+      }
+    }
+  };
+
+  // دمج السلة المحلية مع سلة المستخدم عند تسجيل الدخول
+  const mergeCarts = async (userId: number) => {
+    const localCart = localStorage.getItem('cart');
+    if (!localCart) return;
+
     try {
-      // إفراغ فوري من الواجهة
-      setCartItems([]);
-
-      const userData = localStorage.getItem('user');
-      if (!userData) return;
-
-      const user = JSON.parse(userData);
-      await apiCall(API_ENDPOINTS.USER_CART(user.id), {
-        method: 'DELETE'
+      const localItems = JSON.parse(localCart);
+      await apiCall(API_ENDPOINTS.USER_CART(userId), {
+        method: 'POST',
+        body: JSON.stringify({ items: localItems })
       });
 
-      toast.success('تم إفراغ السلة');
+      // تحديث السلة من الخادم
+      const serverCart = await apiCall(API_ENDPOINTS.USER_CART(userId));
+      setCartItems(serverCart);
+      localStorage.setItem('cart', JSON.stringify(serverCart));
     } catch (error) {
-      console.error('Error clearing cart:', error);
-      toast.error('خطأ في إفراغ السلة');
-      fetchCart();
+      console.error('Error merging carts:', error);
+      toast.error('فشل في دمج السلة');
     }
   };
 
@@ -1410,6 +1402,56 @@ const ShoppingCart: React.FC = () => {
                   اضغط في أي مكان خارج الصورة للإغلاق
                 </p>
               </div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Checkout Button */}
+      <button
+        onClick={() => {
+          const userData = localStorage.getItem('user');
+          if (!userData) {
+            // إذا لم يكن المستخدم مسجل، اعرض نافذة تسجيل الدخول
+            setIsCheckoutModalOpen(true);
+          } else {
+            // إذا كان المستخدم مسجل، انتقل إلى صفحة الشيك اوت
+            navigate('/checkout');
+          }
+        }}
+        className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transform hover:scale-105"
+      >
+        <div className="flex items-center justify-center gap-2">
+          <span>متابعة الشراء</span>
+          <ArrowRight className="w-5 h-5" />
+        </div>
+      </button>
+
+      {/* Checkout Modal */}
+      {isCheckoutModalOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
+            <h3 className="text-xl font-bold text-gray-900 mb-4">تسجيل الدخول مطلوب</h3>
+            <p className="text-gray-600 mb-6">
+              يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة
+            </p>
+            <div className="flex gap-4">
+              <button
+                onClick={() => {
+                  setIsCheckoutModalOpen(false);
+                  // افتح نافذة تسجيل الدخول
+                  // يمكنك استخدام context أو state management لفتح نافذة تسجيل الدخول
+                }}
+                className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-colors"
+              >
+                تسجيل الدخول
+              </button>
+              <button
+                onClick={() => setIsCheckoutModalOpen(false)}
+                className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors"
+              >
+                إلغاء
+              </button>
             </div>
           </div>
         </div>
