@@ -7,14 +7,33 @@ export const addToCartUnified = async (
   productName: string, 
   quantity: number = 1,
   selectedOptions?: Record<string, string>,
-  attachments?: any
+  attachments?: any,
+  productPrice?: number,
+  productImage?: string
 ) => {
   try {
-    console.log('🛒 [CartUtils] Adding to cart:', { productId, productName, quantity, selectedOptions, attachments });
+    console.log('🛒 [CartUtils] Adding to cart:', { productId, productName, quantity, selectedOptions, attachments, productPrice, productImage });
+
+    // محاولة الحصول على بيانات المنتج من API إذا لم تكن متوفرة
+    let productData = null;
+    if (!productPrice || !productImage) {
+      try {
+        productData = await apiCall(API_ENDPOINTS.PRODUCT_BY_ID(productId));
+        console.log('📦 [CartUtils] Fetched product data:', productData);
+      } catch (error) {
+        console.warn('⚠️ [CartUtils] Could not fetch product data:', error);
+      }
+    }
+
+    const finalPrice = productPrice || productData?.price || 0;
+    const finalImage = productImage || productData?.mainImage || '';
 
     const requestBody: any = {
       productId,
-      quantity
+      quantity,
+      productName,
+      price: finalPrice,
+      image: finalImage
     };
 
     // فقط أضف selectedOptions إذا كانت موجودة وليست فارغة
@@ -101,9 +120,12 @@ export const addToCartUnified = async (
       product: {
         id: productId,
         name: productName,
-        price: 0, // سيتم تحديثه لاحقاً
-        mainImage: '',
-        stock: 999
+        price: finalPrice,
+        mainImage: finalImage,
+        stock: 999,
+        productType: productData?.productType || '',
+        dynamicOptions: productData?.dynamicOptions || [],
+        specifications: productData?.specifications || []
       }
     };
 
@@ -116,6 +138,9 @@ export const addToCartUnified = async (
     if (existingItemIndex >= 0) {
       // تحديث الكمية للمنتج الموجود
       cartItems[existingItemIndex].quantity += quantity;
+      // تحديث بيانات المنتج إذا كانت أحدث
+      if (finalPrice > 0) cartItems[existingItemIndex].product.price = finalPrice;
+      if (finalImage) cartItems[existingItemIndex].product.mainImage = finalImage;
       console.log('📝 [CartUtils] Updated existing item quantity');
     } else {
       // إضافة منتج جديد

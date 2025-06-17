@@ -95,15 +95,15 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
   };
 
   // Handle login
-  const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleLogin = async () => {
     if (!validateForm()) return;
-
+    
     setLoading(true);
     setErrors({});
-
+    
     try {
+      console.log('🔐 [AuthModal] Attempting login with:', { email: userData.email });
+      
       const response = await apiCall(API_ENDPOINTS.LOGIN, {
         method: 'POST',
         body: JSON.stringify({
@@ -111,11 +111,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
           password: userData.password
         })
       });
-
+      
+      console.log('✅ [AuthModal] Login successful:', response);
+      
       if (response.user) {
         onLoginSuccess(response.user);
-        onClose();
-        toast.success('تم تسجيل الدخول بنجاح! 🎉', {
+        toast.success('مرحباً بك! تم تسجيل الدخول بنجاح', {
           position: "top-center",
           autoClose: 3000,
           style: {
@@ -127,24 +128,38 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
       } else {
         throw new Error('لم يتم إرجاع بيانات المستخدم');
       }
+      
     } catch (error: any) {
-      console.error('Login error:', error);
+      console.error('❌ [AuthModal] Login error:', error);
       
-      let errorMessage = 'حدث خطأ غير متوقع';
+      let errorMessage = 'فشل في تسجيل الدخول';
       
-      if (error.message.includes('404')) {
-        errorMessage = 'البريد الإلكتروني غير مسجل في النظام';
-      } else if (error.message.includes('401')) {
-        errorMessage = 'كلمة المرور غير صحيحة';
-      } else if (error.message.includes('400')) {
-        errorMessage = 'بيانات غير صحيحة';
-      } else if (error.message.includes('500')) {
-        errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+      if (error.response) {
+        // خطأ من الخادم مع رد
+        const status = error.response.status;
+        const responseData = error.response.data;
+        
+        if (status === 404) {
+          errorMessage = 'البريد الإلكتروني غير مسجل في النظام';
+        } else if (status === 401) {
+          errorMessage = 'كلمة المرور غير صحيحة';
+        } else if (status === 400) {
+          errorMessage = responseData?.message || 'بيانات غير صحيحة';
+        } else if (status >= 500) {
+          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+        } else if (responseData?.message) {
+          errorMessage = responseData.message;
+        }
       } else if (error.message) {
-        errorMessage = error.message;
+        if (error.message.includes('fetch')) {
+          errorMessage = 'خطأ في الاتصال بالخادم';
+        } else {
+          errorMessage = error.message;
+        }
       }
-
+      
       setErrors({ general: errorMessage });
+      
       toast.error(errorMessage, {
         position: "top-center",
         autoClose: 5000,
@@ -160,24 +175,36 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
   };
 
   // Handle registration
-  const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    
+  const handleRegister = async () => {
     if (!validateForm()) return;
-
+    
     setLoading(true);
     setErrors({});
-
+    
     try {
+      console.log('📝 [AuthModal] Attempting registration with:', { 
+        email: userData.email,
+        firstName: userData.firstName,
+        lastName: userData.lastName,
+        phone: userData.phone
+      });
+      
       const response = await apiCall(API_ENDPOINTS.REGISTER, {
         method: 'POST',
-        body: JSON.stringify(userData)
+        body: JSON.stringify({
+          email: userData.email,
+          password: userData.password,
+          firstName: userData.firstName,
+          lastName: userData.lastName,
+          phone: userData.phone
+        })
       });
-
+      
+      console.log('✅ [AuthModal] Registration successful:', response);
+      
       if (response.user) {
         onLoginSuccess(response.user);
-        onClose();
-        toast.success('تم إنشاء الحساب بنجاح! 🎉', {
+        toast.success('مرحباً بك! تم إنشاء حسابك بنجاح', {
           position: "top-center",
           autoClose: 3000,
           style: {
@@ -189,22 +216,40 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
       } else {
         throw new Error('لم يتم إرجاع بيانات المستخدم');
       }
+      
     } catch (error: any) {
-      console.error('Registration error:', error);
+      console.error('❌ [AuthModal] Registration error:', error);
       
-      let errorMessage = 'حدث خطأ غير متوقع';
+      let errorMessage = 'فشل في إنشاء الحساب';
       
-      if (error.message.includes('400') && error.message.includes('مسجل')) {
-        errorMessage = 'البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول أو استخدام بريد آخر';
-      } else if (error.message.includes('400')) {
-        errorMessage = 'بيانات غير صحيحة، يرجى التحقق من جميع الحقول';
-      } else if (error.message.includes('500')) {
-        errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+      if (error.response) {
+        // خطأ من الخادم مع رد
+        const status = error.response.status;
+        const responseData = error.response.data;
+        
+        if (status === 400) {
+          if (responseData?.message?.includes('مسجل بالفعل')) {
+            errorMessage = 'البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول أو استخدام بريد آخر';
+          } else {
+            errorMessage = responseData?.message || 'بيانات غير صحيحة';
+          }
+        } else if (status === 409) {
+          errorMessage = 'البريد الإلكتروني مسجل بالفعل';
+        } else if (status >= 500) {
+          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+        } else if (responseData?.message) {
+          errorMessage = responseData.message;
+        }
       } else if (error.message) {
-        errorMessage = error.message;
+        if (error.message.includes('fetch')) {
+          errorMessage = 'خطأ في الاتصال بالخادم';
+        } else {
+          errorMessage = error.message;
+        }
       }
-
+      
       setErrors({ general: errorMessage });
+      
       toast.error(errorMessage, {
         position: "top-center",
         autoClose: 5000,
@@ -257,287 +302,264 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
 
         {/* Content */}
         <div className="p-6">
-          {/* General Error */}
-          {errors.general && (
-            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-xl text-red-600 text-sm text-center flex items-center gap-2">
-              <AlertCircle className="w-4 h-4 flex-shrink-0" />
-              <span>{errors.general}</span>
-            </div>
-          )}
-
-          {/* Login Form */}
-          {isLogin ? (
-            <form onSubmit={handleLogin} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  البريد الإلكتروني
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={userData.email}
-                    onChange={(e) => {
-                      setUserData(prev => ({ ...prev, email: e.target.value }));
-                      if (errors.email) {
-                        setErrors(prev => ({ ...prev, email: '' }));
-                      }
-                    }}
-                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg transition-all ${
-                      errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="example@gmail.com"
-                    disabled={loading}
-                    dir="ltr"
-                  />
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  كلمة المرور
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={userData.password}
-                    onChange={(e) => {
-                      setUserData(prev => ({ ...prev, password: e.target.value }));
-                      if (errors.password) {
-                        setErrors(prev => ({ ...prev, password: '' }));
-                      }
-                    }}
-                    className={`w-full pl-12 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg transition-all ${
-                      errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="••••••••"
-                    disabled={loading}
-                    dir="ltr"
-                  />
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.password}
-                  </p>
-                )}
-              </div>
-
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-700 hover:via-pink-700 hover:to-rose-700 text-white py-3 rounded-xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader className="w-5 h-5 animate-spin" />
-                    جاري الدخول...
-                  </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-2">
-                    <span>دخول</span>
-                  </div>
-                )}
-              </button>
-            </form>
-          ) : (
-            <form onSubmit={handleRegister} className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  البريد الإلكتروني
-                </label>
-                <div className="relative">
-                  <input
-                    type="email"
-                    value={userData.email}
-                    onChange={(e) => {
-                      setUserData(prev => ({ ...prev, email: e.target.value }));
-                      if (errors.email) {
-                        setErrors(prev => ({ ...prev, email: '' }));
-                      }
-                    }}
-                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg transition-all ${
-                      errors.email ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="example@gmail.com"
-                    disabled={loading}
-                    dir="ltr"
-                  />
-                  <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                </div>
-                {errors.email && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.email}
-                  </p>
-                )}
-              </div>
-
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  كلمة المرور
-                </label>
-                <div className="relative">
-                  <input
-                    type={showPassword ? "text" : "password"}
-                    value={userData.password}
-                    onChange={(e) => {
-                      setUserData(prev => ({ ...prev, password: e.target.value }));
-                      if (errors.password) {
-                        setErrors(prev => ({ ...prev, password: '' }));
-                      }
-                    }}
-                    className={`w-full pl-12 pr-12 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg transition-all ${
-                      errors.password ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="••••••••"
-                    disabled={loading}
-                    dir="ltr"
-                  />
-                  <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute right-4 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
-                  >
-                    {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
-                  </button>
-                </div>
-                {errors.password && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.password}
-                  </p>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
+          <div className="space-y-6">
+            {/* Login Form */}
+            {isLogin && (
+              <div className="space-y-4">
+                {/* Email Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    الاسم الأول
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    البريد الإلكتروني
                   </label>
                   <div className="relative">
+                    <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
-                      type="text"
-                      value={userData.firstName}
-                      onChange={(e) => {
-                        setUserData(prev => ({ ...prev, firstName: e.target.value }));
-                        if (errors.firstName) {
-                          setErrors(prev => ({ ...prev, firstName: '' }));
-                        }
-                      }}
-                      className={`w-full pl-10 pr-3 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg transition-all ${
-                        errors.firstName ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      type="email"
+                      value={userData.email}
+                      onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                      className={`w-full pr-12 pl-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                        errors.email ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="أحمد"
-                      disabled={loading}
+                      placeholder="example@email.com"
+                      dir="ltr"
                     />
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
                   </div>
-                  {errors.firstName && (
-                    <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {errors.firstName}
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.email}
                     </p>
                   )}
                 </div>
 
+                {/* Password Field */}
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    اسم العائلة
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    كلمة المرور
                   </label>
                   <div className="relative">
+                    <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
                     <input
-                      type="text"
-                      value={userData.lastName}
-                      onChange={(e) => {
-                        setUserData(prev => ({ ...prev, lastName: e.target.value }));
-                        if (errors.lastName) {
-                          setErrors(prev => ({ ...prev, lastName: '' }));
-                        }
-                      }}
-                      className={`w-full pl-10 pr-3 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg transition-all ${
-                        errors.lastName ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                      type={showPassword ? 'text' : 'password'}
+                      value={userData.password}
+                      onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+                      className={`w-full pr-12 pl-12 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                        errors.password ? 'border-red-500' : 'border-gray-300'
                       }`}
-                      placeholder="المحمد"
-                      disabled={loading}
+                      placeholder="كلمة المرور"
                     />
-                    <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
-                  {errors.lastName && (
-                    <p className="mt-1 text-xs text-red-600 flex items-center gap-1">
-                      <AlertCircle className="w-3 h-3" />
-                      {errors.lastName}
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.password}
                     </p>
                   )}
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  رقم الجوال
-                </label>
-                <div className="relative">
-                  <input
-                    type="tel"
-                    value={userData.phone}
-                    onChange={(e) => {
-                      const formatted = formatSaudiPhone(e.target.value);
-                      setUserData(prev => ({ ...prev, phone: formatted }));
-                      if (errors.phone) {
-                        setErrors(prev => ({ ...prev, phone: '' }));
-                      }
-                    }}
-                    className={`w-full pl-12 pr-4 py-3 border rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-purple-500 text-lg transition-all ${
-                      errors.phone ? 'border-red-500 bg-red-50' : 'border-gray-300'
-                    }`}
-                    placeholder="5XX XXX XXX"
-                    disabled={loading}
-                    dir="ltr"
-                  />
-                  <Phone className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                {/* General Error */}
+                {errors.general && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-red-700 text-sm flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      {errors.general}
+                    </p>
+                  </div>
+                )}
+
+                {/* Login Button */}
+                <button
+                  type="button"
+                  onClick={handleLogin}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader className="w-5 h-5 animate-spin" />
+                      <span>جاري تسجيل الدخول...</span>
+                    </div>
+                  ) : (
+                    <span>تسجيل الدخول</span>
+                  )}
+                </button>
+              </div>
+            )}
+
+            {/* Registration Form */}
+            {!isLogin && (
+              <div className="space-y-4">
+                {/* Email Field */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    البريد الإلكتروني
+                  </label>
+                  <div className="relative">
+                    <Mail className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="email"
+                      value={userData.email}
+                      onChange={(e) => setUserData({ ...userData, email: e.target.value })}
+                      className={`w-full pr-12 pl-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                        errors.email ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="example@email.com"
+                      dir="ltr"
+                    />
+                  </div>
+                  {errors.email && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.email}
+                    </p>
+                  )}
                 </div>
-                {errors.phone && (
-                  <p className="mt-1 text-sm text-red-600 flex items-center gap-1">
-                    <AlertCircle className="w-4 h-4" />
-                    {errors.phone}
-                  </p>
-                )}
-              </div>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full bg-gradient-to-r from-purple-600 via-pink-600 to-rose-600 hover:from-purple-700 hover:via-pink-700 hover:to-rose-700 text-white py-3 rounded-xl font-bold text-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed shadow-lg hover:shadow-xl transform hover:scale-105"
-              >
-                {loading ? (
-                  <div className="flex items-center justify-center gap-2">
-                    <Loader className="w-5 h-5 animate-spin" />
-                    جاري إنشاء الحساب...
+                {/* Password Field */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    كلمة المرور
+                  </label>
+                  <div className="relative">
+                    <Lock className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      value={userData.password}
+                      onChange={(e) => setUserData({ ...userData, password: e.target.value })}
+                      className={`w-full pr-12 pl-12 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                        errors.password ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="كلمة المرور (6 أحرف على الأقل)"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 hover:text-gray-600"
+                    >
+                      {showPassword ? <EyeOff className="w-5 h-5" /> : <Eye className="w-5 h-5" />}
+                    </button>
                   </div>
-                ) : (
-                  <div className="flex items-center justify-center gap-2">
-                    <CheckCircle className="w-5 h-5" />
-                    <span>إنشاء الحساب</span>
+                  {errors.password && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.password}
+                    </p>
+                  )}
+                </div>
+
+                {/* Name Fields */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      الاسم الأول
+                    </label>
+                    <div className="relative">
+                      <User className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        value={userData.firstName}
+                        onChange={(e) => setUserData({ ...userData, firstName: e.target.value })}
+                        className={`w-full pr-12 pl-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                          errors.firstName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="الاسم الأول"
+                      />
+                    </div>
+                    {errors.firstName && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.firstName}
+                      </p>
+                    )}
+                  </div>
+
+                  <div>
+                    <label className="block text-sm font-bold text-gray-700 mb-2">
+                      الاسم الأخير
+                    </label>
+                    <div className="relative">
+                      <User className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                      <input
+                        type="text"
+                        value={userData.lastName}
+                        onChange={(e) => setUserData({ ...userData, lastName: e.target.value })}
+                        className={`w-full pr-12 pl-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                          errors.lastName ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        placeholder="الاسم الأخير"
+                      />
+                    </div>
+                    {errors.lastName && (
+                      <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                        <AlertCircle className="w-4 h-4" />
+                        {errors.lastName}
+                      </p>
+                    )}
+                  </div>
+                </div>
+
+                {/* Phone Field */}
+                <div>
+                  <label className="block text-sm font-bold text-gray-700 mb-2">
+                    رقم الجوال
+                  </label>
+                  <div className="relative">
+                    <Phone className="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
+                    <input
+                      type="tel"
+                      value={userData.phone}
+                      onChange={(e) => setUserData({ ...userData, phone: e.target.value })}
+                      className={`w-full pr-12 pl-4 py-3 border rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-500 transition-all ${
+                        errors.phone ? 'border-red-500' : 'border-gray-300'
+                      }`}
+                      placeholder="05xxxxxxxx"
+                      dir="ltr"
+                    />
+                  </div>
+                  {errors.phone && (
+                    <p className="text-red-500 text-sm mt-1 flex items-center gap-1">
+                      <AlertCircle className="w-4 h-4" />
+                      {errors.phone}
+                    </p>
+                  )}
+                </div>
+
+                {/* General Error */}
+                {errors.general && (
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4">
+                    <p className="text-red-700 text-sm flex items-center gap-2">
+                      <AlertCircle className="w-5 h-5" />
+                      {errors.general}
+                    </p>
                   </div>
                 )}
-              </button>
-            </form>
-          )}
+
+                {/* Register Button */}
+                <button
+                  type="button"
+                  onClick={handleRegister}
+                  disabled={loading}
+                  className="w-full bg-gradient-to-r from-blue-600 to-purple-600 text-white py-4 rounded-xl font-bold text-lg hover:from-blue-700 hover:to-purple-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-300 shadow-lg hover:shadow-xl transform hover:scale-105"
+                >
+                  {loading ? (
+                    <div className="flex items-center justify-center gap-2">
+                      <Loader className="w-5 h-5 animate-spin" />
+                      <span>جاري إنشاء الحساب...</span>
+                    </div>
+                  ) : (
+                    <span>إنشاء حساب جديد</span>
+                  )}
+                </button>
+              </div>
+            )}
+          </div>
 
           {/* Toggle between Login/Register */}
           <div className="mt-6 text-center">

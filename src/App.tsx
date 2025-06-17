@@ -185,9 +185,24 @@ const App: React.FC = () => {
   const handleAddToCart = async (productId: number, productName: string) => {
     try {
       const quantity = quantities[productId] || 1;
-      console.log('🛒 [App] Adding to cart:', { productId, productName, quantity });
       
-      const success = await addToCartUnified(productId, productName, quantity);
+      // البحث عن المنتج للحصول على السعر والصورة
+      let productPrice = 0;
+      let productImage = '';
+      
+      // البحث في جميع الكاتيجوريات عن المنتج
+      for (const categoryData of categoryProducts) {
+        const product = categoryData.products.find(p => p.id === productId);
+        if (product) {
+          productPrice = product.price;
+          productImage = product.mainImage;
+          break;
+        }
+      }
+      
+      console.log('🛒 [App] Adding to cart:', { productId, productName, quantity, productPrice, productImage });
+      
+      const success = await addToCartUnified(productId, productName, quantity, {}, {}, productPrice, productImage);
       if (success) {
         console.log('✅ [App] Successfully added to cart');
         // إعادة تعيين الكمية إلى 1 بعد الإضافة الناجحة
