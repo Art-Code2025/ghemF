@@ -25,11 +25,11 @@ export const getApiBaseUrl = (): string => {
 // دالة مساعدة لبناء URL كامل
 export const buildApiUrl = (endpoint: string): string => {
   const baseUrl = getApiBaseUrl();
+  // إزالة الـ slash الأول من endpoint إذا كان موجود
   const cleanEndpoint = endpoint.startsWith('/') ? endpoint.slice(1) : endpoint;
-  
-  // الإصلاح النهائي: لم نعد نضيف /api بشكل يدوي
-  // الخادم الآن يستجيب مباشرة على الرابط الأساسي
-  return `${baseUrl}/${cleanEndpoint}`;
+  // إزالة api/ إذا كانت موجودة في endpoint لأنها ستضاف تلقائياً
+  const finalEndpoint = cleanEndpoint.startsWith('api/') ? cleanEndpoint.slice(4) : cleanEndpoint;
+  return `${baseUrl}/api/${finalEndpoint}`;
 };
 
 // دالة مساعدة لبناء URL الصور - محدثة
