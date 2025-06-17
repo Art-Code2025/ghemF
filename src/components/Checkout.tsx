@@ -375,17 +375,32 @@ const Checkout: React.FC = () => {
     setPlacing(true);
     try {
       const userData = localStorage.getItem('user');
-      if (!userData) {
-        toast.error('يجب تسجيل الدخول أولاً');
-        navigate('/');
-        return;
+      let user = null;
+      let isGuest = false;
+
+      if (userData) {
+        try {
+          user = JSON.parse(userData);
+          console.log('👤 [Checkout] Logged in user:', user);
+        } catch (error) {
+          console.error('❌ [Checkout] Error parsing user data:', error);
+          user = null;
+        }
       }
 
-      const user = JSON.parse(userData);
       if (!user || !user.id) {
-        toast.error('يجب تسجيل الدخول أولاً');
-        navigate('/');
-        return;
+        // المستخدم ضيف
+        isGuest = true;
+        console.log('👥 [Checkout] Processing as guest user');
+        
+        // إنشاء معرف مؤقت للضيف
+        user = {
+          id: `guest_${Date.now()}`,
+          email: customerInfo.email,
+          name: customerInfo.name,
+          phone: customerInfo.phone,
+          isGuest: true
+        };
       }
 
       // معالجة الدفع أولاً إذا كان مطلوباً
@@ -433,7 +448,8 @@ const Checkout: React.FC = () => {
           code: appliedCoupon.coupon?.code || '',
           discount: getDiscountAmount()
         } : null,
-        userId: user.id,
+        userId: isGuest ? null : user.id, // null للضيوف
+        isGuestOrder: isGuest, // إشارة للبكند أن هذا طلب ضيف
         // إضافة معرف الدفع إذا كان متوفراً
         ...(paymentResult.paymentId && { 
           paymentId: paymentResult.paymentId,
@@ -465,6 +481,7 @@ const Checkout: React.FC = () => {
         customerPhone: customerInfo.phone,
         address: customerInfo.address,
         city: customerInfo.city,
+        isGuest: isGuest,
         items: cartItems.map(item => {
           // حساب السعر مع الإضافات لعرضه في Thank You
           const basePrice = item.product?.price || 0;
@@ -508,12 +525,19 @@ const Checkout: React.FC = () => {
 
       // التوجيه المباشر بدون setTimeout
       try {
-        // مسح السلة أولاً
-        await apiCall(API_ENDPOINTS.USER_CART(user.id), {
-          method: 'DELETE'
-        });
+        // مسح السلة - للمستخدمين المسجلين فقط
+        if (!isGuest && user && user.id) {
+          await apiCall(API_ENDPOINTS.USER_CART(user.id), {
+            method: 'DELETE'
+          });
+          console.log('🧹 User cart cleared successfully');
+        } else {
+          // مسح السلة المحلية للضيوف
+          localStorage.removeItem('cart');
+          console.log('🧹 Guest cart cleared from localStorage');
+        }
+        
         window.dispatchEvent(new Event('cartUpdated'));
-        console.log('🧹 Cart cleared successfully');
         
         // التوجيه المباشر لصفحة Thank You
         console.log('🔄 Navigating to Thank You page...');
