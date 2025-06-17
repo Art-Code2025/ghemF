@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, User, Phone, Eye, EyeOff, CheckCircle, AlertCircle, Loader } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { apiCall, API_ENDPOINTS } from '../config/api';
+import { apiCall, API_ENDPOINTS, buildApiUrl } from '../config/api';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -104,55 +104,21 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     
     try {
       console.log('🔐 [AuthModal] Attempting login with:', { email: userData.email });
+      console.log('🔗 [AuthModal] LOGIN endpoint:', API_ENDPOINTS.LOGIN);
+      console.log('🔗 [AuthModal] Full URL will be built by apiCall');
       
-      // Make direct fetch call with better error handling
-      const response = await fetch(API_ENDPOINTS.LOGIN.startsWith('http') ? API_ENDPOINTS.LOGIN : `http://localhost:3001/api/auth/login`, {
+      const response = await apiCall(API_ENDPOINTS.LOGIN, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           email: userData.email,
           password: userData.password
         })
       });
       
-      console.log('📡 [AuthModal] Response status:', response.status);
-      console.log('📡 [AuthModal] Response headers:', response.headers);
+      console.log('✅ [AuthModal] Login successful:', response);
       
-      let responseData;
-      try {
-        responseData = await response.json();
-        console.log('📦 [AuthModal] Response data:', responseData);
-      } catch (parseError) {
-        console.error('❌ [AuthModal] Failed to parse response as JSON:', parseError);
-        throw new Error('خطأ في تحليل استجابة الخادم');
-      }
-      
-      if (!response.ok) {
-        console.error('❌ [AuthModal] HTTP Error:', response.status, responseData);
-        
-        let errorMessage = 'فشل في تسجيل الدخول';
-        
-        if (response.status === 404) {
-          errorMessage = 'البريد الإلكتروني غير مسجل في النظام';
-        } else if (response.status === 401) {
-          errorMessage = 'كلمة المرور غير صحيحة';
-        } else if (response.status === 400) {
-          errorMessage = responseData?.message || 'بيانات غير صحيحة';
-        } else if (response.status >= 500) {
-          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
-        } else if (responseData?.message) {
-          errorMessage = responseData.message;
-        }
-        
-        throw new Error(errorMessage);
-      }
-      
-      console.log('✅ [AuthModal] Login successful:', responseData);
-      
-      if (responseData.user) {
-        onLoginSuccess(responseData.user);
+      if (response.user) {
+        onLoginSuccess(response.user);
         toast.success('مرحباً بك! تم تسجيل الدخول بنجاح', {
           position: "top-center",
           autoClose: 3000,
@@ -167,19 +133,31 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
       }
       
     } catch (error: any) {
-      console.error('❌ [AuthModal] Login error:', error);
+      console.error('❌ [AuthModal] Login error details:', error);
+      console.error('❌ [AuthModal] Error message:', error.message);
+      console.error('❌ [AuthModal] Error stack:', error.stack);
       
       let errorMessage = 'فشل في تسجيل الدخول';
       
       if (error.message) {
-        if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
-          errorMessage = 'خطأ في الاتصال بالخادم - تأكد من تشغيل الخادم';
+        if (error.message.includes('HTTP 404')) {
+          errorMessage = 'البريد الإلكتروني غير مسجل في النظام';
+        } else if (error.message.includes('HTTP 401')) {
+          errorMessage = 'كلمة المرور غير صحيحة';
+        } else if (error.message.includes('HTTP 400')) {
+          errorMessage = 'بيانات غير صحيحة';
+        } else if (error.message.includes('HTTP 5')) {
+          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+        } else if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'خطأ في الاتصال بالخادم - تأكد من تشغيل الخادم على localhost:3001';
         } else if (error.message.includes('NetworkError')) {
           errorMessage = 'خطأ في الشبكة - تحقق من الاتصال';
         } else {
           errorMessage = error.message;
         }
       }
+      
+      console.log('💬 [AuthModal] Final error message:', errorMessage);
       
       setErrors({ general: errorMessage });
       
@@ -212,12 +190,8 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         phone: userData.phone
       });
       
-      // Make direct fetch call with better error handling
-      const response = await fetch(API_ENDPOINTS.REGISTER.startsWith('http') ? API_ENDPOINTS.REGISTER : `http://localhost:3001/api/auth/register`, {
+      const response = await apiCall(API_ENDPOINTS.REGISTER, {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
         body: JSON.stringify({
           email: userData.email,
           password: userData.password,
@@ -227,39 +201,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         })
       });
       
-      console.log('📡 [AuthModal] Registration response status:', response.status);
+      console.log('✅ [AuthModal] Registration successful:', response);
       
-      let responseData;
-      try {
-        responseData = await response.json();
-        console.log('📦 [AuthModal] Registration response data:', responseData);
-      } catch (parseError) {
-        console.error('❌ [AuthModal] Failed to parse registration response as JSON:', parseError);
-        throw new Error('خطأ في تحليل استجابة الخادم');
-      }
-      
-      if (!response.ok) {
-        console.error('❌ [AuthModal] Registration HTTP Error:', response.status, responseData);
-        
-        let errorMessage = 'فشل في إنشاء الحساب';
-        
-        if (response.status === 409) {
-          errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
-        } else if (response.status === 400) {
-          errorMessage = responseData?.message || 'بيانات غير صحيحة';
-        } else if (response.status >= 500) {
-          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
-        } else if (responseData?.message) {
-          errorMessage = responseData.message;
-        }
-        
-        throw new Error(errorMessage);
-      }
-      
-      console.log('✅ [AuthModal] Registration successful:', responseData);
-      
-      if (responseData.user) {
-        onLoginSuccess(responseData.user);
+      if (response.user) {
+        onLoginSuccess(response.user);
         toast.success('مرحباً بك! تم إنشاء حسابك بنجاح', {
           position: "top-center",
           autoClose: 3000,
@@ -279,8 +224,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
       let errorMessage = 'فشل في إنشاء الحساب';
       
       if (error.message) {
-        if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
-          errorMessage = 'خطأ في الاتصال بالخادم - تأكد من تشغيل الخادم';
+        if (error.message.includes('HTTP 409')) {
+          errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
+        } else if (error.message.includes('HTTP 400')) {
+          errorMessage = 'بيانات غير صحيحة';
+        } else if (error.message.includes('HTTP 5')) {
+          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+        } else if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'خطأ في الاتصال بالخادم - تأكد من تشغيل الخادم على localhost:3001';
         } else if (error.message.includes('NetworkError')) {
           errorMessage = 'خطأ في الشبكة - تحقق من الاتصال';
         } else {
