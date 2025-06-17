@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { X, Mail, Lock, User, Phone, Eye, EyeOff, CheckCircle, AlertCircle, Loader } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { toast } from 'react-toastify';
 import { apiCall, API_ENDPOINTS } from '../config/api';
 
@@ -104,18 +105,54 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
     try {
       console.log('🔐 [AuthModal] Attempting login with:', { email: userData.email });
       
-      const response = await apiCall(API_ENDPOINTS.LOGIN, {
+      // Make direct fetch call with better error handling
+      const response = await fetch(API_ENDPOINTS.LOGIN.startsWith('http') ? API_ENDPOINTS.LOGIN : `http://localhost:3001/api/auth/login`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           email: userData.email,
           password: userData.password
         })
       });
       
-      console.log('✅ [AuthModal] Login successful:', response);
+      console.log('📡 [AuthModal] Response status:', response.status);
+      console.log('📡 [AuthModal] Response headers:', response.headers);
       
-      if (response.user) {
-        onLoginSuccess(response.user);
+      let responseData;
+      try {
+        responseData = await response.json();
+        console.log('📦 [AuthModal] Response data:', responseData);
+      } catch (parseError) {
+        console.error('❌ [AuthModal] Failed to parse response as JSON:', parseError);
+        throw new Error('خطأ في تحليل استجابة الخادم');
+      }
+      
+      if (!response.ok) {
+        console.error('❌ [AuthModal] HTTP Error:', response.status, responseData);
+        
+        let errorMessage = 'فشل في تسجيل الدخول';
+        
+        if (response.status === 404) {
+          errorMessage = 'البريد الإلكتروني غير مسجل في النظام';
+        } else if (response.status === 401) {
+          errorMessage = 'كلمة المرور غير صحيحة';
+        } else if (response.status === 400) {
+          errorMessage = responseData?.message || 'بيانات غير صحيحة';
+        } else if (response.status >= 500) {
+          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+        } else if (responseData?.message) {
+          errorMessage = responseData.message;
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      console.log('✅ [AuthModal] Login successful:', responseData);
+      
+      if (responseData.user) {
+        onLoginSuccess(responseData.user);
         toast.success('مرحباً بك! تم تسجيل الدخول بنجاح', {
           position: "top-center",
           autoClose: 3000,
@@ -134,25 +171,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
       
       let errorMessage = 'فشل في تسجيل الدخول';
       
-      if (error.response) {
-        // خطأ من الخادم مع رد
-        const status = error.response.status;
-        const responseData = error.response.data;
-        
-        if (status === 404) {
-          errorMessage = 'البريد الإلكتروني غير مسجل في النظام';
-        } else if (status === 401) {
-          errorMessage = 'كلمة المرور غير صحيحة';
-        } else if (status === 400) {
-          errorMessage = responseData?.message || 'بيانات غير صحيحة';
-        } else if (status >= 500) {
-          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
-        } else if (responseData?.message) {
-          errorMessage = responseData.message;
-        }
-      } else if (error.message) {
-        if (error.message.includes('fetch')) {
-          errorMessage = 'خطأ في الاتصال بالخادم';
+      if (error.message) {
+        if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'خطأ في الاتصال بالخادم - تأكد من تشغيل الخادم';
+        } else if (error.message.includes('NetworkError')) {
+          errorMessage = 'خطأ في الشبكة - تحقق من الاتصال';
         } else {
           errorMessage = error.message;
         }
@@ -189,8 +212,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         phone: userData.phone
       });
       
-      const response = await apiCall(API_ENDPOINTS.REGISTER, {
+      // Make direct fetch call with better error handling
+      const response = await fetch(API_ENDPOINTS.REGISTER.startsWith('http') ? API_ENDPOINTS.REGISTER : `http://localhost:3001/api/auth/register`, {
         method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
         body: JSON.stringify({
           email: userData.email,
           password: userData.password,
@@ -200,10 +227,39 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         })
       });
       
-      console.log('✅ [AuthModal] Registration successful:', response);
+      console.log('📡 [AuthModal] Registration response status:', response.status);
       
-      if (response.user) {
-        onLoginSuccess(response.user);
+      let responseData;
+      try {
+        responseData = await response.json();
+        console.log('📦 [AuthModal] Registration response data:', responseData);
+      } catch (parseError) {
+        console.error('❌ [AuthModal] Failed to parse registration response as JSON:', parseError);
+        throw new Error('خطأ في تحليل استجابة الخادم');
+      }
+      
+      if (!response.ok) {
+        console.error('❌ [AuthModal] Registration HTTP Error:', response.status, responseData);
+        
+        let errorMessage = 'فشل في إنشاء الحساب';
+        
+        if (response.status === 409) {
+          errorMessage = 'هذا البريد الإلكتروني مسجل بالفعل';
+        } else if (response.status === 400) {
+          errorMessage = responseData?.message || 'بيانات غير صحيحة';
+        } else if (response.status >= 500) {
+          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
+        } else if (responseData?.message) {
+          errorMessage = responseData.message;
+        }
+        
+        throw new Error(errorMessage);
+      }
+      
+      console.log('✅ [AuthModal] Registration successful:', responseData);
+      
+      if (responseData.user) {
+        onLoginSuccess(responseData.user);
         toast.success('مرحباً بك! تم إنشاء حسابك بنجاح', {
           position: "top-center",
           autoClose: 3000,
@@ -222,27 +278,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
       
       let errorMessage = 'فشل في إنشاء الحساب';
       
-      if (error.response) {
-        // خطأ من الخادم مع رد
-        const status = error.response.status;
-        const responseData = error.response.data;
-        
-        if (status === 400) {
-          if (responseData?.message?.includes('مسجل بالفعل')) {
-            errorMessage = 'البريد الإلكتروني مسجل بالفعل، يرجى تسجيل الدخول أو استخدام بريد آخر';
-          } else {
-            errorMessage = responseData?.message || 'بيانات غير صحيحة';
-          }
-        } else if (status === 409) {
-          errorMessage = 'البريد الإلكتروني مسجل بالفعل';
-        } else if (status >= 500) {
-          errorMessage = 'خطأ في الخادم، يرجى المحاولة لاحقاً';
-        } else if (responseData?.message) {
-          errorMessage = responseData.message;
-        }
-      } else if (error.message) {
-        if (error.message.includes('fetch')) {
-          errorMessage = 'خطأ في الاتصال بالخادم';
+      if (error.message) {
+        if (error.message.includes('fetch') || error.message.includes('Failed to fetch')) {
+          errorMessage = 'خطأ في الاتصال بالخادم - تأكد من تشغيل الخادم';
+        } else if (error.message.includes('NetworkError')) {
+          errorMessage = 'خطأ في الشبكة - تحقق من الاتصال';
         } else {
           errorMessage = error.message;
         }
@@ -587,9 +627,9 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, onLoginSuccess }
         <div className="px-6 pb-6">
           <div className="text-center text-xs text-gray-500">
             بالمتابعة، أنت توافق على 
-            <a href="#" className="text-purple-600 hover:underline mx-1">شروط الاستخدام</a>
+            <Link to="/privacy-policy" className="text-purple-600 hover:underline mx-1">شروط الاستخدام</Link>
             و
-            <a href="#" className="text-purple-600 hover:underline mx-1">سياسة الخصوصية</a>
+            <Link to="/return-policy" className="text-purple-600 hover:underline mx-1">سياسة الخصوصية</Link>
           </div>
         </div>
       </div>
