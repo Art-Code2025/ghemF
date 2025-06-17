@@ -232,13 +232,51 @@ function Navbar() {
     localStorage.setItem('user', JSON.stringify(userData));
     setIsAuthModalOpen(false);
     
-    // تحميل بيانات المستخدم الجديد فقط
-    setTimeout(() => {
+    // دمج السلة المحلية مع سلة المستخدم
+    const mergeLocalCartWithUserCart = async () => {
+      try {
+        const localCart = localStorage.getItem('cart');
+        if (localCart) {
+          const localItems = JSON.parse(localCart);
+          if (localItems.length > 0) {
+            // إرسال العناصر المحلية إلى الخادم
+            for (const item of localItems) {
+              await apiCall(API_ENDPOINTS.USER_CART(userData.id), {
+                method: 'POST',
+                body: JSON.stringify({
+                  productId: item.productId,
+                  quantity: item.quantity,
+                  selectedOptions: item.selectedOptions || {},
+                  attachments: item.attachments || {}
+                })
+              });
+            }
+            // مسح السلة المحلية بعد الدمج
+            localStorage.removeItem('cart');
+            console.log('✅ [Navbar] Local cart merged with user cart');
+          }
+        }
+      } catch (error) {
+        console.error('❌ [Navbar] Error merging local cart:', error);
+      }
+    };
+    
+    // تحميل بيانات المستخدم الجديد
+    setTimeout(async () => {
+      await mergeLocalCartWithUserCart();
       fetchCartCount();
       fetchWishlistCount();
     }, 100);
     
-    toast.success(`مرحباً بك ${userData.name || userData.firstName || 'عزيزي العميل'}`);
+    toast.success(`مرحباً بك ${userData.name || userData.firstName || 'عزيزي العميل'}`, {
+      position: "top-center",
+      autoClose: 3000,
+      style: {
+        background: '#10B981',
+        color: 'white',
+        fontWeight: 'bold'
+      }
+    });
   };
 
   const handleLogout = () => {

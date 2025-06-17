@@ -6,6 +6,7 @@ import { apiCall, API_ENDPOINTS, buildImageUrl, buildApiUrl } from '../config/ap
 import size1Image from '../assets/size1.png';
 import size2Image from '../assets/size2.png';
 import size3Image from '../assets/size3.png';
+import AuthModal from './AuthModal';
 
 interface CartItem {
   id: number;
@@ -60,6 +61,7 @@ const ShoppingCart: React.FC = () => {
   const [showSizeGuide, setShowSizeGuide] = useState<{show: boolean, productType: string}>({show: false, productType: ''});
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   
   // إضافة ref للـ timeout
   const textSaveTimeoutRef = useRef<number | null>(null);
@@ -446,6 +448,28 @@ const ShoppingCart: React.FC = () => {
       });
       return false;
     }
+  };
+
+  // دالة لمعالجة نجاح تسجيل الدخول
+  const handleLoginSuccess = async (user: any) => {
+    // حفظ بيانات المستخدم
+    localStorage.setItem('user', JSON.stringify(user));
+    
+    // دمج السلة المحلية مع سلة المستخدم
+    await mergeCarts(user.id);
+    
+    // إغلاق النافذة
+    setIsAuthModalOpen(false);
+    
+    toast.success('مرحباً بك! تم تسجيل الدخول بنجاح', {
+      position: "top-center",
+      autoClose: 3000,
+      style: {
+        background: '#10B981',
+        color: 'white',
+        fontWeight: 'bold'
+      }
+    });
   };
 
   if (isInitialLoading) {
@@ -1439,8 +1463,7 @@ const ShoppingCart: React.FC = () => {
               <button
                 onClick={() => {
                   setIsCheckoutModalOpen(false);
-                  // افتح نافذة تسجيل الدخول
-                  // يمكنك استخدام context أو state management لفتح نافذة تسجيل الدخول
+                  setIsAuthModalOpen(true);
                 }}
                 className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-colors"
               >
@@ -1456,6 +1479,13 @@ const ShoppingCart: React.FC = () => {
           </div>
         </div>
       )}
+
+      {/* Auth Modal */}
+      <AuthModal
+        isOpen={isAuthModalOpen}
+        onClose={() => setIsAuthModalOpen(false)}
+        onLoginSuccess={handleLoginSuccess}
+      />
     </div>
   );
 };

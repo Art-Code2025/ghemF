@@ -170,18 +170,21 @@ const App: React.FC = () => {
     }));
   };
 
-  const handleAddToCart = async (product: Product) => {
-    const quantity = quantities[product.id] || 1;
+  const handleAddToCart = async (productId: number, productName: string) => {
     try {
-      const success = await addToCartUnified(product.id, product.name, quantity);
+      const quantity = quantities[productId] || 1;
+      console.log('🛒 [App] Adding to cart:', { productId, productName, quantity });
+      
+      const success = await addToCartUnified(productId, productName, quantity);
       if (success) {
-        // Update cart count
-        const cart = JSON.parse(localStorage.getItem('cart') || '[]');
-        const totalCount = cart.reduce((sum: number, item: any) => sum + item.quantity, 0);
-        setCartCount(totalCount);
+        console.log('✅ [App] Successfully added to cart');
+        // إعادة تعيين الكمية إلى 1 بعد الإضافة الناجحة
+        setQuantities(prev => ({ ...prev, [productId]: 1 }));
+      } else {
+        console.log('❌ [App] Failed to add to cart');
       }
     } catch (error) {
-      console.error('Error adding to cart:', error);
+      console.error('❌ [App] Error in handleAddToCart:', error);
     }
   };
 
@@ -629,7 +632,7 @@ const App: React.FC = () => {
                                 onClick={(e) => {
                                   e.preventDefault();
                                   e.stopPropagation();
-                                  handleAddToCart(product);
+                                  handleAddToCart(product.id, product.name);
                                 }}
                                 className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold hover:scale-105 hover:shadow-xl"
                               >
