@@ -7,6 +7,7 @@ import size1Image from '../assets/size1.png';
 import size2Image from '../assets/size2.png';
 import size3Image from '../assets/size3.png';
 import AuthModal from './AuthModal';
+import CheckoutAuthModal from './CheckoutAuthModal';
 
 interface CartItem {
   id: number;
@@ -62,6 +63,7 @@ const ShoppingCart: React.FC = () => {
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isCheckoutModalOpen, setIsCheckoutModalOpen] = useState(false);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [isCheckoutAuthModalOpen, setIsCheckoutAuthModalOpen] = useState(false);
   
   // إضافة ref للـ timeout
   const textSaveTimeoutRef = useRef<number | null>(null);
@@ -1338,8 +1340,7 @@ const ShoppingCart: React.FC = () => {
                   )}
 
                   <div className="space-y-4">
-                    <Link
-                      to={canProceedToCheckout ? "/checkout" : "#"}
+                    <button
                       onClick={(e) => {
                         if (!canProceedToCheckout) {
                           e.preventDefault();
@@ -1384,6 +1385,16 @@ const ShoppingCart: React.FC = () => {
                         } else {
                           // تأكيد إضافي قبل الانتقال
                           console.log('✅ [Cart] All validations passed, proceeding to checkout');
+                          
+                          // التحقق من تسجيل الدخول
+                          const userData = localStorage.getItem('user');
+                          if (!userData) {
+                            // إذا لم يكن المستخدم مسجل، اعرض نافذة اختيار طريقة الإتمام
+                            setIsCheckoutAuthModalOpen(true);
+                          } else {
+                            // إذا كان المستخدم مسجل، انتقل إلى صفحة الشيك اوت مباشرة
+                            navigate('/checkout');
+                          }
                         }
                       }}
                       className={`w-full py-4 rounded-xl font-bold text-center block transition-all text-lg shadow-lg transform ${
@@ -1405,7 +1416,7 @@ const ShoppingCart: React.FC = () => {
                           <span className="text-gray-400">({incompleteItemsDetailed.length} ناقص)</span>
                         </span>
                       )}
-                    </Link>
+                    </button>
                     <Link
                       to="/"
                       className="w-full border-2 border-gray-600 bg-gray-700 text-white py-3 rounded-xl hover:bg-gray-600 hover:border-gray-500 font-bold text-center block transition-all transform hover:scale-105"
@@ -1459,54 +1470,20 @@ const ShoppingCart: React.FC = () => {
         </div>
       )}
 
-      {/* Checkout Button */}
-      <button
-        onClick={() => {
-          const userData = localStorage.getItem('user');
-          if (!userData) {
-            // إذا لم يكن المستخدم مسجل، اعرض نافذة تسجيل الدخول
-            setIsCheckoutModalOpen(true);
-          } else {
-            // إذا كان المستخدم مسجل، انتقل إلى صفحة الشيك اوت
-            navigate('/checkout');
-          }
+      {/* Checkout Auth Modal - NEW */}
+      <CheckoutAuthModal
+        isOpen={isCheckoutAuthModalOpen}
+        onClose={() => setIsCheckoutAuthModalOpen(false)}
+        onContinueAsGuest={() => {
+          setIsCheckoutAuthModalOpen(false);
+          navigate('/checkout');
         }}
-        className="w-full bg-gradient-to-r from-green-600 to-green-700 text-white py-4 rounded-xl font-bold text-lg transition-all duration-300 hover:from-green-700 hover:to-green-800 shadow-lg hover:shadow-xl transform hover:scale-105"
-      >
-        <div className="flex items-center justify-center gap-2">
-          <span>متابعة الشراء</span>
-          <ArrowRight className="w-5 h-5" />
-        </div>
-      </button>
-
-      {/* Checkout Modal */}
-      {isCheckoutModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm">
-          <div className="bg-white rounded-2xl p-6 max-w-md w-full">
-            <h3 className="text-xl font-bold text-gray-900 mb-4">تسجيل الدخول مطلوب</h3>
-            <p className="text-gray-600 mb-6">
-              يرجى تسجيل الدخول أو إنشاء حساب جديد للمتابعة
-            </p>
-            <div className="flex gap-4">
-              <button
-                onClick={() => {
-                  setIsCheckoutModalOpen(false);
-                  setIsAuthModalOpen(true);
-                }}
-                className="flex-1 bg-purple-600 text-white py-3 rounded-xl font-bold hover:bg-purple-700 transition-colors"
-              >
-                تسجيل الدخول
-              </button>
-              <button
-                onClick={() => setIsCheckoutModalOpen(false)}
-                className="flex-1 bg-gray-200 text-gray-800 py-3 rounded-xl font-bold hover:bg-gray-300 transition-colors"
-              >
-                إلغاء
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
+        onLoginSuccess={(user) => {
+          setIsCheckoutAuthModalOpen(false);
+          handleLoginSuccess(user);
+          navigate('/checkout');
+        }}
+      />
 
       {/* Auth Modal */}
       <AuthModal
