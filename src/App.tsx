@@ -574,6 +574,22 @@ const App: React.FC = () => {
                           <div className="absolute top-3 right-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-1.5 rounded-full text-xs font-bold shadow-lg">
                             جديد
                           </div>
+                          
+                          {/* Wishlist Button */}
+                          <div className="absolute top-3 left-3">
+                            <button
+                              onClick={(e) => {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                // Add wishlist functionality here
+                                console.log('❤️ Wishlist clicked for product:', product.id);
+                              }}
+                              className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white border border-white/40 transition-all duration-200 hover:scale-110"
+                            >
+                              <Heart className="w-5 h-5 text-gray-600 hover:text-red-500 transition-colors" />
+                            </button>
+                          </div>
+                          
                           {/* Product Type Badge */}
                           {product.productType && (
                             <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
@@ -622,75 +638,50 @@ const App: React.FC = () => {
                                 <span className="text-red-600 font-medium bg-red-50 px-2 py-1 rounded-full">نفذ</span>
                               )}
                             </div>
-                            
-                            {/* Required Options Indicator */}
-                            {product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required) && (
-                              <div className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200">
-                                يتطلب اختيار المقاسات
-                              </div>
-                            )}
                           </div>
                           
-                          {/* Actions - Check for required options before adding */}
+                          {/* Actions - Direct add to cart without options check */}
                           {product.stock > 0 && (
                             <div className="w-full space-y-3">
-                              {/* Check if product has required options */}
-                              {product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required) ? (
-                                // Product has required options - redirect to product page
-                                <Link
-                                  to={`/product/${createProductSlug(product.id, product.name)}`}
+                              {/* Quantity Controls */}
+                              <div className="flex items-center justify-center gap-3">
+                                <button
                                   onClick={(e) => {
+                                    e.preventDefault();
                                     e.stopPropagation();
+                                    handleQuantityDecrease(product.id);
                                   }}
-                                  className="w-full bg-gradient-to-r from-blue-500 to-blue-600 text-white py-3 px-4 rounded-xl hover:from-blue-600 hover:to-blue-700 transition-all duration-300 text-sm font-bold hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2"
+                                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
                                 >
-                                  <Package className="w-4 h-4" />
-                                  <span>اختر المقاسات والتفاصيل</span>
-                                </Link>
-                              ) : (
-                                // Product has no required options - can add directly
-                                <>
-                                  {/* Quantity Controls */}
-                                  <div className="flex items-center justify-center gap-3">
-                                    <button
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleQuantityDecrease(product.id);
-                                      }}
-                                      className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
-                                    >
-                                      -
-                                    </button>
-                                    <span className="w-12 text-center font-bold text-gray-800 text-lg bg-gray-50 py-1 rounded-lg">
-                                      {quantities[product.id] || 1}
-                                    </span>
-                                    <button
-                                      onClick={(e) => {
-                                        e.preventDefault();
-                                        e.stopPropagation();
-                                        handleQuantityIncrease(product.id, product.stock);
-                                      }}
-                                      className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
-                                    >
-                                      +
-                                    </button>
-                                  </div>
-                                  
-                                  {/* Add to Cart Button */}
-                                  <button
-                                    onClick={(e) => {
-                                      e.preventDefault();
-                                      e.stopPropagation();
-                                      handleAddToCart(product.id, product.name);
-                                    }}
-                                    className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2"
-                                  >
-                                    <ShoppingCart className="w-4 h-4" />
-                                    <span>إضافة للسلة مباشرة</span>
-                                  </button>
-                                </>
-                              )}
+                                  -
+                                </button>
+                                <span className="w-12 text-center font-bold text-gray-800 text-lg bg-gray-50 py-1 rounded-lg">
+                                  {quantities[product.id] || 1}
+                                </span>
+                                <button
+                                  onClick={(e) => {
+                                    e.preventDefault();
+                                    e.stopPropagation();
+                                    handleQuantityIncrease(product.id, product.stock);
+                                  }}
+                                  className="w-8 h-8 rounded-lg bg-gray-100 hover:bg-gray-200 flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-110"
+                                >
+                                  +
+                                </button>
+                              </div>
+                              
+                              {/* Add to Cart Button */}
+                              <button
+                                onClick={(e) => {
+                                  e.preventDefault();
+                                  e.stopPropagation();
+                                  handleAddToCart(product.id, product.name);
+                                }}
+                                className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white py-3 px-4 rounded-xl hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm font-bold hover:scale-105 hover:shadow-xl flex items-center justify-center gap-2"
+                              >
+                                <ShoppingCart className="w-4 h-4" />
+                                <span>إضافة للسلة</span>
+                              </button>
                             </div>
                           )}
                         </div>

@@ -368,6 +368,19 @@ const ShoppingCart: React.FC = () => {
 
     setCartItems([]);
     localStorage.removeItem('cart');
+    
+    // Dispatch event to update other components
+    window.dispatchEvent(new CustomEvent('cartUpdated'));
+    
+    toast.success('تم إفراغ السلة بنجاح', {
+      position: "top-center",
+      autoClose: 2000,
+      style: {
+        background: '#10B981',
+        color: 'white',
+        fontWeight: 'bold'
+      }
+    });
 
     const userData = localStorage.getItem('user');
     if (userData) {
@@ -378,7 +391,7 @@ const ShoppingCart: React.FC = () => {
         });
       } catch (error) {
         console.error('Error clearing cart:', error);
-        toast.error('فشل في إفراغ السلة');
+        // Don't show error toast as the local cart is already cleared
       }
     }
   };
