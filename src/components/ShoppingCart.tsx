@@ -731,7 +731,326 @@ const ShoppingCart: React.FC = () => {
                     </div>
 
                     <div className="p-6 lg:p-8">
-                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                      {/* Mobile Layout: Stack everything vertically */}
+                      <div className="block lg:hidden space-y-6">
+                        {/* DEBUG: Mobile View Indicator - Remove after testing */}
+                        <div className="bg-blue-600 text-white p-2 rounded text-center text-sm font-bold">
+                          📱 عرض الموبايل - تجد المقاسات أدناه
+                        </div>
+                        
+                        {/* Mobile: Product Image and Price */}
+                        <div className="space-y-4">
+                          {/* Main Product Image */}
+                          <div className="relative group">
+                            <div className="w-full h-64 bg-gradient-to-br from-gray-100 to-gray-200 rounded-2xl overflow-hidden shadow-lg">
+                              {item.product?.mainImage ? (
+                                <img 
+                                  src={buildImageUrl(item.product.mainImage)}
+                                  alt={item.product?.name || 'منتج'}
+                                  className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center text-gray-400 text-5xl">
+                                  📦
+                                </div>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Mobile: Price and Quantity */}
+                          <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-4 rounded-2xl border-2 border-gray-700 shadow-lg">
+                            <div className="text-center mb-4">
+                              <div className="text-2xl font-bold text-white">
+                                {((item.product?.price || 0) * item.quantity).toFixed(2)} ر.س
+                              </div>
+                              <div className="text-gray-300 mt-1">
+                                {item.product?.price?.toFixed(2)} ر.س × {item.quantity}
+                              </div>
+                            </div>
+                            
+                            <div className="flex items-center justify-center gap-4">
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity - 1)}
+                                className="w-10 h-10 bg-gradient-to-r from-red-600 to-red-700 text-white rounded-full flex items-center justify-center hover:from-red-700 hover:to-red-800 transition-all shadow-lg transform hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed border border-red-500"
+                                disabled={item.quantity <= 1}
+                              >
+                                <Minus className="w-5 h-5" />
+                              </button>
+                              <div className="w-16 text-center">
+                                <div className="text-xl font-bold bg-gray-800 text-white py-2 rounded-xl border-2 border-gray-600 shadow-md">
+                                  {item.quantity}
+                                </div>
+                              </div>
+                              <button
+                                onClick={() => updateQuantity(item.id, item.quantity + 1)}
+                                className="w-10 h-10 bg-gradient-to-r from-green-600 to-green-700 text-white rounded-full flex items-center justify-center hover:from-green-700 hover:to-green-800 transition-all shadow-lg transform hover:scale-110 border border-green-500"
+                              >
+                                <Plus className="w-5 h-5" />
+                              </button>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Mobile: Product Options - FORCE VISIBLE on mobile */}
+                        {item.product.dynamicOptions && item.product.dynamicOptions.length > 0 && (
+                          <div className="!block lg:!hidden bg-gradient-to-br from-yellow-600 to-orange-600 p-1 rounded-2xl border-4 border-yellow-400 shadow-xl">
+                            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-4 rounded-xl border-2 border-gray-700 shadow-lg">
+                              <h5 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                                <Package className="w-6 h-6 text-blue-400" />
+                                خيارات المنتج المطلوبة
+                                <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">مطلوب</span>
+                              </h5>
+                              
+                              <div className="space-y-4">
+                                {item.product.dynamicOptions.map((option) => (
+                                  <div key={option.optionName} className="space-y-2">
+                                    <label className="block text-base font-semibold text-white">
+                                      {getOptionDisplayName(option.optionName)}
+                                      {option.required && <span className="text-red-400 mr-2">*</span>}
+                                    </label>
+                                    
+                                    {option.optionType === 'select' && option.options ? (
+                                      <select
+                                        value={item.selectedOptions?.[option.optionName] || ''}
+                                        onChange={async (e) => {
+                                          const newValue = e.target.value;
+                                          const newOptions = { 
+                                            ...item.selectedOptions, 
+                                            [option.optionName]: newValue 
+                                          };
+                                          const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                          if (saved) {
+                                            toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                              position: "top-center",
+                                              autoClose: 2000,
+                                              hideProgressBar: true,
+                                              style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
+                                            });
+                                          }
+                                        }}
+                                        className="w-full px-3 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 text-base"
+                                        required={option.required}
+                                      >
+                                        <option value="">اختر {getOptionDisplayName(option.optionName)}</option>
+                                        {option.options.map((opt) => (
+                                          <option key={opt.value} value={opt.value}>
+                                            {opt.value}
+                                          </option>
+                                        ))}
+                                      </select>
+                                    ) : option.optionType === 'radio' && option.options ? (
+                                      <div className="grid grid-cols-1 gap-2">
+                                        {option.options.map((opt) => (
+                                          <label key={opt.value} className="flex items-center p-3 border-2 border-gray-600 bg-gray-700 rounded-xl hover:bg-gray-600 hover:border-gray-500 cursor-pointer transition-all shadow-sm">
+                                            <input
+                                              type="radio"
+                                              name={`${item.id}-${option.optionName}`}
+                                              value={opt.value}
+                                              checked={item.selectedOptions?.[option.optionName] === opt.value}
+                                              onChange={async (e) => {
+                                                const newValue = e.target.value;
+                                                const newOptions = { 
+                                                  ...item.selectedOptions, 
+                                                  [option.optionName]: newValue 
+                                                };
+                                                const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                                if (saved) {
+                                                  toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                                    position: "top-center",
+                                                    autoClose: 2000,
+                                                    hideProgressBar: true,
+                                                    style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
+                                                  });
+                                                }
+                                              }}
+                                              className="ml-3 text-blue-400 scale-125"
+                                            />
+                                            <span className="font-medium text-white text-base">{opt.value}</span>
+                                          </label>
+                                        ))}
+                                      </div>
+                                    ) : (
+                                      <input
+                                        type={option.optionType === 'number' ? 'number' : 'text'}
+                                        value={item.selectedOptions?.[option.optionName] || ''}
+                                        onChange={async (e) => {
+                                          const newValue = e.target.value;
+                                          const newOptions = { 
+                                            ...item.selectedOptions, 
+                                            [option.optionName]: newValue 
+                                          };
+                                          const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                          if (saved) {
+                                            toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                              position: "top-center",
+                                              autoClose: 2000,
+                                              hideProgressBar: true,
+                                              style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
+                                            });
+                                          }
+                                        }}
+                                        placeholder={option.placeholder}
+                                        className="w-full px-3 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 text-base"
+                                        required={option.required}
+                                      />
+                                    )}
+                                    
+                                    {/* Size Guide - Only for size option */}
+                                    {option.optionName === 'size' && 
+                                     item.product.productType && 
+                                     (item.product.productType === 'جاكيت' || item.product.productType === 'عباية تخرج' || item.product.productType === 'مريول مدرسي') && (
+                                      <div className="mt-2">
+                                        <button
+                                          type="button"
+                                          onClick={() => setShowSizeGuide({show: true, productType: item.product.productType || ''})}
+                                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-3 py-2 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105 shadow-lg border border-blue-500"
+                                        >
+                                          <span className="flex items-center justify-center gap-2">
+                                            <span>👁️</span>
+                                            <span>عرض دليل المقاسات</span>
+                                          </span>
+                                        </button>
+                                      </div>
+                                    )}
+                                    
+                                    {/* Validation Error */}
+                                    {option.required && !item.selectedOptions?.[option.optionName] && (
+                                      <div className="bg-red-900 bg-opacity-50 border border-red-600 rounded-lg p-2">
+                                        <p className="text-red-300 text-sm font-medium flex items-center gap-2">
+                                          <span>⚠️</span>
+                                          هذا الحقل مطلوب
+                                        </p>
+                                      </div>
+                                    )}
+                                  </div>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mobile: Selected Options Summary */}
+                        {item.selectedOptions && Object.keys(item.selectedOptions).length > 0 && (
+                          <div className="bg-gradient-to-br from-blue-800 to-blue-900 p-4 rounded-xl border-2 border-blue-700 shadow-lg">
+                            <h5 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                              <Check className="w-5 h-5 text-green-400" />
+                              المواصفات المختارة
+                            </h5>
+                            <div className="grid grid-cols-1 gap-2">
+                              {Object.entries(item.selectedOptions).map(([key, value]) => (
+                                <div key={key} className="bg-blue-700 p-3 rounded-lg border border-blue-600 shadow-sm">
+                                  <span className="text-xs text-blue-200 font-medium block mb-1">{getOptionDisplayName(key)}:</span>
+                                  <span className="font-bold text-white text-sm">{value}</span>
+                                  {item.optionsPricing && item.optionsPricing[key] && item.optionsPricing[key] > 0 && (
+                                    <span className="block text-xs text-green-300 mt-1">
+                                      +{item.optionsPricing[key]} ر.س
+                                    </span>
+                                  )}
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Mobile: Attachments */}
+                        <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-4 rounded-2xl border-2 border-gray-700 shadow-lg">
+                          <h5 className="text-lg font-bold text-white mb-3 flex items-center gap-2">
+                            <Sparkles className="w-5 h-5 text-purple-400" />
+                            ملاحظات وصور إضافية
+                          </h5>
+                          
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-base font-bold text-white mb-2">
+                                ملاحظات خاصة
+                              </label>
+                              <textarea
+                                value={item.attachments?.text || ''}
+                                onChange={async (e) => {
+                                  const newText = e.target.value;
+                                  const newAttachments = { 
+                                    ...item.attachments, 
+                                    text: newText 
+                                  };
+                                  
+                                  setCartItems(prev => prev.map(cartItem => 
+                                    cartItem.id === item.id ? { 
+                                      ...cartItem, 
+                                      attachments: newAttachments 
+                                    } : cartItem
+                                  ));
+                                  
+                                  if (textSaveTimeoutRef.current) {
+                                    clearTimeout(textSaveTimeoutRef.current);
+                                  }
+                                  
+                                  textSaveTimeoutRef.current = setTimeout(async () => {
+                                    const saved = await saveOptionsToBackend(item.id, 'attachments', newAttachments);
+                                    if (saved) {
+                                      toast.success('✅ تم حفظ الملاحظات', {
+                                        position: "bottom-right",
+                                        autoClose: 1500,
+                                        hideProgressBar: true,
+                                        style: { background: '#8B5CF6', color: 'white', fontSize: '12px' }
+                                      });
+                                    }
+                                  }, 1000);
+                                }}
+                                placeholder="أضف أي ملاحظات أو تعليمات خاصة..."
+                                className="w-full px-3 py-3 border-2 border-gray-600 bg-gray-700 text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-purple-400 focus:border-purple-400 shadow-md transition-all placeholder-gray-400 text-sm"
+                                rows={3}
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-base font-bold text-white mb-2">
+                                صور إضافية
+                              </label>
+                              <label className="cursor-pointer bg-gradient-to-r from-purple-600 to-pink-700 hover:from-purple-700 hover:to-pink-800 text-white px-4 py-2 rounded-xl flex items-center justify-center gap-2 transition-all shadow-lg transform hover:scale-105 border border-purple-500 text-sm">
+                                <Upload className="w-4 h-4" />
+                                <span className="font-medium">رفع صور</span>
+                                <input
+                                  type="file"
+                                  multiple
+                                  accept="image/*"
+                                  onChange={(e) => e.target.files && handleImageUpload(e.target.files)}
+                                  className="hidden"
+                                />
+                              </label>
+                              
+                              {item.attachments?.images && item.attachments.images.length > 0 && (
+                                <div className="grid grid-cols-3 gap-2 mt-2">
+                                  {item.attachments.images.map((img, idx) => (
+                                    <div key={idx} className="relative group">
+                                      <img
+                                        src={img}
+                                        alt={`مرفق ${idx + 1}`}
+                                        className="w-full h-16 object-cover rounded-lg border-2 border-gray-600 shadow-md group-hover:scale-105 transition-transform duration-300"
+                                      />
+                                      <button
+                                        onClick={() => {
+                                          const newImages = item.attachments?.images?.filter((_, i) => i !== idx) || [];
+                                          const newAttachments = { ...item.attachments, images: newImages };
+                                          setCartItems(prev => prev.map(cartItem => 
+                                            cartItem.id === item.id ? { ...cartItem, attachments: newAttachments } : cartItem
+                                          ));
+                                          saveOptionsToBackend(item.id, 'attachments', newAttachments);
+                                        }}
+                                        className="absolute -top-1 -right-1 bg-red-600 text-white rounded-full w-5 h-5 flex items-center justify-center text-xs opacity-0 group-hover:opacity-100 transition-opacity shadow-lg transform hover:scale-110 border border-red-500"
+                                      >
+                                        ×
+                                      </button>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Desktop Layout: Grid */}
+                      <div className="hidden lg:grid lg:grid-cols-3 gap-8">
                         {/* Product Image and Price */}
                         <div className="lg:col-span-1 order-1 lg:order-1">
                           <div className="space-y-6">
@@ -1098,11 +1417,7 @@ const ShoppingCart: React.FC = () => {
                                             position: "bottom-right",
                                             autoClose: 1500,
                                             hideProgressBar: true,
-                                            style: {
-                                              background: '#8B5CF6',
-                                              color: 'white',
-                                              fontSize: '14px'
-                                            }
+                                            style: { background: '#8B5CF6', color: 'white', fontSize: '14px' }
                                           });
                                         }
                                       }, 1000);
