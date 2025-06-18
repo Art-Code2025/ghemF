@@ -185,7 +185,39 @@ const ShoppingCart: React.FC = () => {
 
   // حفظ السلة في localStorage
   const saveCartToLocalStorage = useCallback((items: CartItem[]) => {
+    console.log('💾 [ShoppingCart] SAVING TO LOCALSTORAGE:', {
+      itemsCount: items.length,
+      items: items.map(item => ({
+        id: item.id,
+        productId: item.productId,
+        productName: item.product?.name,
+        quantity: item.quantity,
+        selectedOptions: item.selectedOptions,
+        optionsPricing: item.optionsPricing,
+        attachments: item.attachments,
+        hasSelectedOptions: !!(item.selectedOptions && Object.keys(item.selectedOptions).length > 0)
+      }))
+    });
+    
     localStorage.setItem('cart', JSON.stringify(items));
+    
+    // تحقق فوري من البيانات المحفوظة
+    const savedData = localStorage.getItem('cart');
+    if (savedData) {
+      try {
+        const parsedData = JSON.parse(savedData);
+        console.log('✅ [ShoppingCart] LOCALSTORAGE VERIFICATION:', {
+          parsedItemsCount: parsedData.length,
+          sampleItem: parsedData[0] ? {
+            id: parsedData[0].id,
+            selectedOptions: parsedData[0].selectedOptions,
+            hasOptions: !!(parsedData[0].selectedOptions && Object.keys(parsedData[0].selectedOptions).length > 0)
+          } : null
+        });
+      } catch (error) {
+        console.error('❌ [ShoppingCart] Error parsing saved localStorage data:', error);
+      }
+    }
   }, []);
 
   // تحديث الكمية
@@ -405,27 +437,6 @@ const ShoppingCart: React.FC = () => {
         return false;
       }
 
-      // تحضير البيانات المحدثة
-      let updateData: any;
-      
-      if (field === 'selectedOptions') {
-        updateData = {
-          productId: currentItem.productId,
-          quantity: currentItem.quantity,
-          selectedOptions: value, // البيانات الجديدة كاملة
-          optionsPricing: currentItem.optionsPricing || {},
-          attachments: currentItem.attachments || {}
-        };
-      } else if (field === 'attachments') {
-        updateData = {
-          productId: currentItem.productId,
-          quantity: currentItem.quantity,
-          selectedOptions: currentItem.selectedOptions || {},
-          optionsPricing: currentItem.optionsPricing || {},
-          attachments: value // البيانات الجديدة كاملة
-        };
-      }
-
       console.log('💾 [Cart] SAVE ATTEMPT:', { 
         itemId, 
         field, 
@@ -435,11 +446,10 @@ const ShoppingCart: React.FC = () => {
           productId: currentItem.productId,
           currentSelectedOptions: currentItem.selectedOptions,
           currentAttachments: currentItem.attachments
-        },
-        updateData
+        }
       });
 
-      // حفظ البيانات في localStorage أولاً (للضيوف والمستخدمين المسجلين)
+      // تحديث الـ state المحلي أولاً
       const updatedCartItems = cartItems.map(cartItem => 
         cartItem.id === itemId ? { 
           ...cartItem, 
@@ -447,9 +457,21 @@ const ShoppingCart: React.FC = () => {
           ...(field === 'attachments' ? { attachments: value } : {})
         } : cartItem
       );
-      
+
+      // تحديث state و localStorage
+      setCartItems(updatedCartItems);
       saveCartToLocalStorage(updatedCartItems);
-      console.log('✅ [Cart] Data saved to localStorage successfully');
+      
+      console.log('✅ [Cart] State and localStorage updated successfully');
+
+      // تحضير البيانات للبكند
+      const updateData = {
+        productId: currentItem.productId,
+        quantity: currentItem.quantity,
+        selectedOptions: field === 'selectedOptions' ? value : (currentItem.selectedOptions || {}),
+        optionsPricing: currentItem.optionsPricing || {},
+        attachments: field === 'attachments' ? value : (currentItem.attachments || {})
+      };
 
       // محاولة الحفظ في البكند إذا كان المستخدم مسجل دخول
       const userData = localStorage.getItem('user');
@@ -785,7 +807,7 @@ const ShoppingCart: React.FC = () => {
                                               currentSelectedOptions: item.selectedOptions
                                             });
                                             
-                                            // تحديث الحالة المحلية فوراً
+                                            // تحضير البيانات المحدثة
                                             const newOptions = { 
                                               ...item.selectedOptions, 
                                               [option.optionName]: newValue 
@@ -793,20 +815,7 @@ const ShoppingCart: React.FC = () => {
                                             
                                             console.log('🎯 [Cart] NEW OPTIONS OBJECT:', newOptions);
                                             
-                                            setCartItems(prev => {
-                                              const updated = prev.map(cartItem => 
-                                                cartItem.id === item.id ? { 
-                                                  ...cartItem, 
-                                                  selectedOptions: newOptions 
-                                                } : cartItem
-                                              );
-                                              console.log('🎯 [Cart] UPDATED CART ITEMS:', updated);
-                                              return updated;
-                                            });
-                                            
-                                            console.log('🎯 [Cart] CALLING SAVE TO BACKEND...');
-                                            
-                                            // حفظ في البكند
+                                            // حفظ البيانات - سيحدث الـ state تلقائياً
                                             const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
                                             console.log('🎯 [Cart] SAVE RESULT:', saved);
                                             
@@ -856,7 +865,7 @@ const ShoppingCart: React.FC = () => {
                                                     currentSelectedOptions: item.selectedOptions
                                                   });
                                                   
-                                                  // تحديث الحالة المحلية فوراً
+                                                  // تحضير البيانات المحدثة
                                                   const newOptions = { 
                                                     ...item.selectedOptions, 
                                                     [option.optionName]: newValue 
@@ -864,20 +873,7 @@ const ShoppingCart: React.FC = () => {
                                                   
                                                   console.log('🎯 [Cart] NEW OPTIONS OBJECT:', newOptions);
                                                   
-                                                  setCartItems(prev => {
-                                                    const updated = prev.map(cartItem => 
-                                                      cartItem.id === item.id ? { 
-                                                        ...cartItem, 
-                                                        selectedOptions: newOptions 
-                                                      } : cartItem
-                                                    );
-                                                    console.log('🎯 [Cart] UPDATED CART ITEMS:', updated);
-                                                    return updated;
-                                                  });
-                                                  
-                                                  console.log('🎯 [Cart] CALLING SAVE TO BACKEND...');
-                                                  
-                                                  // حفظ في البكند
+                                                  // حفظ البيانات - سيحدث الـ state تلقائياً
                                                   const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
                                                   console.log('🎯 [Cart] SAVE RESULT:', saved);
                                                   
@@ -916,7 +912,7 @@ const ShoppingCart: React.FC = () => {
                                               currentSelectedOptions: item.selectedOptions
                                             });
                                             
-                                            // تحديث الحالة المحلية فوراً
+                                            // تحضير البيانات المحدثة
                                             const newOptions = { 
                                               ...item.selectedOptions, 
                                               [option.optionName]: newValue 
@@ -924,20 +920,7 @@ const ShoppingCart: React.FC = () => {
                                             
                                             console.log('🎯 [Cart] NEW OPTIONS OBJECT:', newOptions);
                                             
-                                            setCartItems(prev => {
-                                              const updated = prev.map(cartItem => 
-                                                cartItem.id === item.id ? { 
-                                                  ...cartItem, 
-                                                  selectedOptions: newOptions 
-                                                } : cartItem
-                                              );
-                                              console.log('🎯 [Cart] UPDATED CART ITEMS:', updated);
-                                              return updated;
-                                            });
-                                            
-                                            console.log('🎯 [Cart] CALLING SAVE TO BACKEND...');
-                                            
-                                            // حفظ في البكند
+                                            // حفظ البيانات - سيحدث الـ state تلقائياً
                                             const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
                                             console.log('🎯 [Cart] SAVE RESULT:', saved);
                                             
@@ -1070,18 +1053,11 @@ const ShoppingCart: React.FC = () => {
                                     onChange={async (e) => {
                                       const newText = e.target.value;
                                       
-                                      // تحديث الحالة المحلية فوراً
+                                      // تحضير البيانات المحدثة
                                       const newAttachments = { 
                                         ...item.attachments, 
                                         text: newText 
                                       };
-                                      
-                                      setCartItems(prev => prev.map(cartItem => 
-                                        cartItem.id === item.id ? { 
-                                          ...cartItem, 
-                                          attachments: newAttachments 
-                                        } : cartItem
-                                      ));
                                       
                                       console.log('📝 [Cart] Text attachment changed:', {
                                         itemId: item.id,
@@ -1089,10 +1065,18 @@ const ShoppingCart: React.FC = () => {
                                         allAttachments: newAttachments
                                       });
                                       
-                                      // حفظ في البكند مع debounce لتجنب الحفظ المفرط
+                                      // حفظ البيانات مع debounce
                                       if (textSaveTimeoutRef.current) {
                                         clearTimeout(textSaveTimeoutRef.current);
                                       }
+                                      
+                                      // تحديث الـ state فوراً للـ UI
+                                      setCartItems(prev => prev.map(cartItem => 
+                                        cartItem.id === item.id ? { 
+                                          ...cartItem, 
+                                          attachments: newAttachments 
+                                        } : cartItem
+                                      ));
                                       
                                       textSaveTimeoutRef.current = setTimeout(async () => {
                                         const saved = await saveOptionsToBackend(item.id, 'attachments', newAttachments);

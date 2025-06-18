@@ -144,23 +144,29 @@ const Checkout: React.FC = () => {
           console.log('📦 [Checkout] Raw cart data from localStorage:', localItems);
           
           if (Array.isArray(localItems) && localItems.length > 0) {
-            // تحويل بيانات localStorage إلى نفس تنسيق الخادم
-            const formattedItems = localItems.map(item => ({
-              id: item.id || Date.now() + Math.random(),
-              productId: item.productId,
-              quantity: item.quantity || 1,
-              selectedOptions: item.selectedOptions || {},
-              optionsPricing: item.optionsPricing || {},
-              attachments: item.attachments || {},
-              product: item.product || {
-                id: item.productId,
-                name: 'منتج غير معروف',
-                price: 0,
-                mainImage: '',
-                stock: 999
-              }
-            }));
+            // تحويل بيانات localStorage إلى نفس تنسيق الخادم مع الحفاظ على جميع البيانات
+            const formattedItems = localItems.map(item => {
+              console.log('🔄 [Checkout] Processing item from localStorage:', item);
+              
+              return {
+                id: item.id || Date.now() + Math.random(),
+                productId: item.productId,
+                quantity: item.quantity || 1,
+                selectedOptions: item.selectedOptions || {},
+                optionsPricing: item.optionsPricing || {},
+                attachments: item.attachments || {},
+                product: item.product || {
+                  id: item.productId,
+                  name: 'منتج غير معروف',
+                  price: 0,
+                  mainImage: '',
+                  stock: 999,
+                  dynamicOptions: item.product?.dynamicOptions || []
+                }
+              };
+            });
             
+            console.log('✅ [Checkout] Formatted items for checkout:', formattedItems);
             formattedItems.forEach((item, index) => {
               console.log(`🛒 [Checkout] LocalStorage Item ${index + 1}:`, {
                 id: item.id,
@@ -169,7 +175,8 @@ const Checkout: React.FC = () => {
                 quantity: item.quantity,
                 selectedOptions: item.selectedOptions,
                 optionsPricing: item.optionsPricing,
-                attachments: item.attachments
+                attachments: item.attachments,
+                hasOptions: Object.keys(item.selectedOptions || {}).length > 0
               });
             });
             
