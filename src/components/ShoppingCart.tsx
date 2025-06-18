@@ -358,6 +358,8 @@ const ShoppingCart: React.FC = () => {
 
     try {
       const localItems = JSON.parse(localCart);
+      
+      // محاولة دمج السلة مع البكند بهدوء
       await apiCall(API_ENDPOINTS.USER_CART(userId), {
         method: 'POST',
         body: JSON.stringify({ items: localItems })
@@ -367,9 +369,12 @@ const ShoppingCart: React.FC = () => {
       const serverCart = await apiCall(API_ENDPOINTS.USER_CART(userId));
       setCartItems(serverCart);
       localStorage.setItem('cart', JSON.stringify(serverCart));
+      
+      console.log('✅ [Cart] Cart merged successfully with server');
     } catch (error) {
-      console.error('Error merging carts:', error);
-      toast.error('فشل في دمج السلة');
+      console.log('⚠️ [Cart] Cart merge failed, keeping local cart:', error);
+      // لا نظهر رسالة خطأ للمستخدم، السلة المحلية تعمل بدونها
+      // السلة المحلية ستبقى كما هي والمستخدم يقدر يكمل بشكل طبيعي
     }
   };
 
@@ -598,141 +603,27 @@ const ShoppingCart: React.FC = () => {
             </div>
           </div>
           
-          <div className="flex flex-wrap items-center justify-center gap-4 mb-6">
-            <div className="bg-gray-800 text-white px-6 py-3 rounded-full shadow-md border border-gray-600">
-              <span className="text-lg font-bold">
-                {totalItemsCount} منتج في السلة
-              </span>
-            </div>
-            <button
-              onClick={async () => {
-                console.log('🔄 [Cart] Manual refresh triggered');
-                toast.info('🔄 جاري إعادة تحميل السلة...', {
-                  position: "top-center",
-                  autoClose: 1500,
-                  hideProgressBar: true
-                });
-                await fetchCart();
-                toast.success('✅ تم تحديث السلة بنجاح!', {
-                  position: "top-center",
-                  autoClose: 2000,
-                  hideProgressBar: true,
-                  style: {
-                    background: '#10B981',
-                    color: 'white'
-                  }
-                });
-              }}
-              className="bg-gradient-to-r from-gray-700 to-gray-800 text-white px-6 py-3 rounded-full hover:from-gray-800 hover:to-gray-900 transition-all shadow-lg transform hover:scale-105 border border-gray-600"
-            >
-              🔄 تحديث
-            </button>
-            <button
-              onClick={async () => {
-                console.log('🧪 [TEST] Testing save to backend...');
-                
-                if (cartItems.length === 0) {
-                  toast.error('السلة فارغة!');
-                  return;
-                }
-                
-                const firstItem = cartItems[0];
-                console.log('🧪 [TEST] BEFORE - Current item state:', {
-                  id: firstItem.id,
-                  selectedOptions: firstItem.selectedOptions,
-                  attachments: firstItem.attachments
-                });
-                
-                const testOptions = {
-                  ...firstItem.selectedOptions,
-                  testField: 'test-value-' + Date.now(),
-                  size: '44' // تجربة مقاس جديد
-                };
-                
-                console.log('🧪 [TEST] Testing with item:', firstItem.id, 'new options:', testOptions);
-                
-                // تحديث الحالة المحلية أولاً
-                setCartItems(prev => prev.map(item => 
-                  item.id === firstItem.id ? { 
-                    ...item, 
-                    selectedOptions: testOptions 
-                  } : item
-                ));
-                
-                // ثم الحفظ في البكند
-                const success = await saveOptionsToBackend(firstItem.id, 'selectedOptions', testOptions);
-                
-                if (success) {
-                  toast.success('🧪 ✅ اختبار الحفظ نجح! البيانات محفوظة في البكند', {
-                    position: "top-center",
-                    autoClose: 3000,
-                    style: {
-                      background: '#10B981',
-                      fontWeight: 'bold'
-                    }
-                  });
-                  
-                  console.log('🧪 [TEST] SUCCESS - Item updated locally:', {
-                    id: firstItem.id,
-                    newSelectedOptions: testOptions
-                  });
-                } else {
-                  toast.error('🧪 ❌ اختبار الحفظ فشل!', {
-                    position: "top-center",
-                    autoClose: 3000,
-                    style: {
-                      background: '#DC2626',
-                      fontWeight: 'bold'
-                    }
-                  });
-                }
-              }}
-              className="bg-gradient-to-r from-purple-600 to-purple-700 text-white px-6 py-3 rounded-full hover:from-purple-700 hover:to-purple-800 transition-all shadow-lg transform hover:scale-105 border border-purple-500"
-            >
-              🧪 اختبار
-            </button>
-            <button
-              onClick={clearCart}
-              className="bg-gradient-to-r from-red-600 to-red-700 text-white px-6 py-3 rounded-full hover:from-red-700 hover:to-red-800 transition-all shadow-lg transform hover:scale-105 border border-red-500"
-            >
-              🗑️ إفراغ السلة
-            </button>
-          </div>
-
-          {/* Debug Instructions */}
-          <div className="bg-blue-900 text-white p-4 rounded-xl mb-6 border-2 border-blue-700">
-            <h3 className="font-bold text-lg mb-2 flex items-center gap-2">
-              <span>✅</span>
-              النظام يعمل بشكل مثالي!
-            </h3>
-            <div className="text-sm space-y-1">
-              <p>✅ يمكن للضيوف تحديد المقاسات والمواصفات</p>
-              <p>✅ البيانات تُحفظ محلياً لجميع المستخدمين</p>
-              <p>✅ تسجيل الدخول اختياري - ليس مطلوباً</p>
-              <p>✅ يمكن إتمام الطلب كضيف أو بحساب</p>
-              <p>🛒 اختر مقاساتك وأتمم طلبك بسهولة</p>
-            </div>
-          </div>
-
-          {/* Status Indicator */}
-          <div className="flex items-center justify-center gap-4">
-            {!canProceedToCheckout && (
-              <div className="bg-gradient-to-r from-red-900 to-red-800 border-2 border-red-600 rounded-full px-6 py-3 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <span className="text-red-300 text-xl">⚠️</span>
-                  <span className="font-bold text-red-200">
-                    {incompleteItemsDetailed.length} منتج يحتاج إكمال التفاصيل
-                  </span>
-                </div>
+          {/* Cart Header - Clean and Simple */}
+          <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+            {/* Product Count */}
+            <div className="bg-gradient-to-r from-blue-600 to-purple-600 text-white px-6 py-3 rounded-xl shadow-lg">
+              <div className="flex items-center gap-3">
+                <Package className="w-6 h-6" />
+                <span className="font-bold text-lg">
+                  {cartItems.length} {cartItems.length === 1 ? 'منتج' : 'منتج'} في السلة
+                </span>
               </div>
-            )}
-            {canProceedToCheckout && (
-              <div className="bg-gradient-to-r from-green-900 to-green-800 border-2 border-green-600 rounded-full px-6 py-3 shadow-lg">
-                <div className="flex items-center gap-2">
-                  <span className="text-green-300 text-xl">✅</span>
-                  <span className="font-bold text-green-200">جاهز للمتابعة</span>
-                </div>
-              </div>
+            </div>
+
+            {/* Clear Cart Button */}
+            {cartItems.length > 0 && (
+              <button
+                onClick={clearCart}
+                className="bg-gradient-to-r from-red-600 to-red-700 hover:from-red-700 hover:to-red-800 text-white px-6 py-3 rounded-xl shadow-lg transition-all duration-300 transform hover:scale-105 flex items-center gap-2 border border-red-500"
+              >
+                <Trash2 className="w-5 h-5" />
+                <span className="font-medium">إفراغ السلة</span>
+              </button>
             )}
           </div>
 
