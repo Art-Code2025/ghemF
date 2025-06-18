@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Link } from 'react-router-dom';
 import { toast, ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { ChevronLeft, ChevronRight, Menu, X, Search, ShoppingCart, Heart, User, Package, Gift, Sparkles, ArrowLeft, Plus, Minus } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Menu, X, Search, ShoppingCart, Heart, Package, Gift, Sparkles, ArrowLeft, Plus, Minus, Star, Users, Shield, Crown, Truck, Medal, Award, Tag, Zap } from 'lucide-react';
 import { FaInstagram, FaTiktok, FaSnapchatGhost, FaWhatsapp } from 'react-icons/fa';import { FaUser } from 'react-icons/fa';
 // Import components directly for debugging
 import ImageSlider from './components/ImageSlider';
@@ -14,6 +14,7 @@ import cover2 from './assets/cover2.jpg';
 import cover3 from './assets/cover3.jpg';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from './config/api';
 import { addToCartUnified } from './utils/cartUtils';
+import { debugCartSystem, resetCartSystem, testAddToCart, runFullDiagnostic } from './utils/debugCart';
 
 interface Product {
   id: number;
@@ -697,6 +698,41 @@ const App: React.FC = () => {
       </main>
 
       {/* Premium Footer - Mobile Optimized */}
+      {/* DEBUG PANEL - TEMPORARY */}
+      <div className="bg-red-100 border-2 border-red-300 p-4 m-4 rounded-lg">
+        <h3 className="text-red-800 font-bold mb-3">🔧 Cart Debug Panel (مؤقت)</h3>
+        <div className="flex flex-wrap gap-2">
+          <button 
+            onClick={debugCartSystem}
+            className="bg-blue-500 text-white px-3 py-1 rounded text-sm hover:bg-blue-600"
+          >
+            Check Cart System
+          </button>
+          <button 
+            onClick={resetCartSystem}
+            className="bg-yellow-500 text-white px-3 py-1 rounded text-sm hover:bg-yellow-600"
+          >
+            Reset Cart
+          </button>
+          <button 
+            onClick={testAddToCart}
+            className="bg-green-500 text-white px-3 py-1 rounded text-sm hover:bg-green-600"
+          >
+            Test Add Item
+          </button>
+          <button 
+            onClick={async () => {
+              const result = await runFullDiagnostic();
+              console.log('Full diagnostic completed:', result);
+            }}
+            className="bg-purple-500 text-white px-3 py-1 rounded text-sm hover:bg-purple-600"
+          >
+            Run Full Diagnostic
+          </button>
+        </div>
+        <p className="text-red-600 text-xs mt-2">Open browser console to see debug output</p>
+      </div>
+
       <footer className="relative bg-gradient-to-br from-white via-gray-50 to-gray-100 py-6 sm:py-8 lg:py-10 border-t border-gray-200/60 overflow-visible">
         <div className="absolute inset-0 bg-gradient-to-br from-gray-100/30 via-transparent to-gray-200/30" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/15 rounded-full blur-3xl" />
