@@ -733,11 +733,6 @@ const ShoppingCart: React.FC = () => {
                     <div className="p-6 lg:p-8">
                       {/* Mobile Layout: Stack everything vertically */}
                       <div className="block lg:hidden space-y-6">
-                        {/* DEBUG: Mobile View Indicator - Remove after testing */}
-                        <div className="bg-blue-600 text-white p-2 rounded text-center text-sm font-bold">
-                          📱 عرض الموبايل - تجد المقاسات أدناه
-                        </div>
-                        
                         {/* Mobile: Product Image and Price */}
                         <div className="space-y-4">
                           {/* Main Product Image */}
@@ -791,140 +786,137 @@ const ShoppingCart: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Mobile: Product Options - FORCE VISIBLE on mobile */}
+                        {/* Mobile: Product Options - Clean and simple */}
                         {item.product.dynamicOptions && item.product.dynamicOptions.length > 0 && (
-                          <div className="!block lg:!hidden bg-gradient-to-br from-yellow-600 to-orange-600 p-1 rounded-2xl border-4 border-yellow-400 shadow-xl">
-                            <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-4 rounded-xl border-2 border-gray-700 shadow-lg">
-                              <h5 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
-                                <Package className="w-6 h-6 text-blue-400" />
-                                خيارات المنتج المطلوبة
-                                <span className="bg-red-500 text-white px-2 py-1 rounded-full text-xs">مطلوب</span>
-                              </h5>
-                              
-                              <div className="space-y-4">
-                                {item.product.dynamicOptions.map((option) => (
-                                  <div key={option.optionName} className="space-y-2">
-                                    <label className="block text-base font-semibold text-white">
-                                      {getOptionDisplayName(option.optionName)}
-                                      {option.required && <span className="text-red-400 mr-2">*</span>}
-                                    </label>
-                                    
-                                    {option.optionType === 'select' && option.options ? (
-                                      <select
-                                        value={item.selectedOptions?.[option.optionName] || ''}
-                                        onChange={async (e) => {
-                                          const newValue = e.target.value;
-                                          const newOptions = { 
-                                            ...item.selectedOptions, 
-                                            [option.optionName]: newValue 
-                                          };
-                                          const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
-                                          if (saved) {
-                                            toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
-                                              position: "top-center",
-                                              autoClose: 2000,
-                                              hideProgressBar: true,
-                                              style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
-                                            });
-                                          }
-                                        }}
-                                        className="w-full px-3 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 text-base"
-                                        required={option.required}
+                          <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-4 rounded-2xl border-2 border-gray-700 shadow-lg">
+                            <h5 className="text-xl font-bold text-white mb-4 flex items-center gap-2">
+                              <Package className="w-6 h-6 text-blue-400" />
+                              خيارات المنتج
+                            </h5>
+                            
+                            <div className="space-y-4">
+                              {item.product.dynamicOptions.map((option) => (
+                                <div key={option.optionName} className="space-y-2">
+                                  <label className="block text-base font-semibold text-white">
+                                    {getOptionDisplayName(option.optionName)}
+                                    {option.required && <span className="text-red-400 mr-2">*</span>}
+                                  </label>
+                                  
+                                  {option.optionType === 'select' && option.options ? (
+                                    <select
+                                      value={item.selectedOptions?.[option.optionName] || ''}
+                                      onChange={async (e) => {
+                                        const newValue = e.target.value;
+                                        const newOptions = { 
+                                          ...item.selectedOptions, 
+                                          [option.optionName]: newValue 
+                                        };
+                                        const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                        if (saved) {
+                                          toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                            position: "top-center",
+                                            autoClose: 2000,
+                                            hideProgressBar: true,
+                                            style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
+                                          });
+                                        }
+                                      }}
+                                      className="w-full px-3 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 text-base"
+                                      required={option.required}
+                                    >
+                                      <option value="">اختر {getOptionDisplayName(option.optionName)}</option>
+                                      {option.options.map((opt) => (
+                                        <option key={opt.value} value={opt.value}>
+                                          {opt.value}
+                                        </option>
+                                      ))}
+                                    </select>
+                                  ) : option.optionType === 'radio' && option.options ? (
+                                    <div className="grid grid-cols-1 gap-2">
+                                      {option.options.map((opt) => (
+                                        <label key={opt.value} className="flex items-center p-3 border-2 border-gray-600 bg-gray-700 rounded-xl hover:bg-gray-600 hover:border-gray-500 cursor-pointer transition-all shadow-sm">
+                                          <input
+                                            type="radio"
+                                            name={`${item.id}-${option.optionName}`}
+                                            value={opt.value}
+                                            checked={item.selectedOptions?.[option.optionName] === opt.value}
+                                            onChange={async (e) => {
+                                              const newValue = e.target.value;
+                                              const newOptions = { 
+                                                ...item.selectedOptions, 
+                                                [option.optionName]: newValue 
+                                              };
+                                              const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                              if (saved) {
+                                                toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                                  position: "top-center",
+                                                  autoClose: 2000,
+                                                  hideProgressBar: true,
+                                                  style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
+                                                });
+                                              }
+                                            }}
+                                            className="ml-3 text-blue-400 scale-125"
+                                          />
+                                          <span className="font-medium text-white text-base">{opt.value}</span>
+                                        </label>
+                                      ))}
+                                    </div>
+                                  ) : (
+                                    <input
+                                      type={option.optionType === 'number' ? 'number' : 'text'}
+                                      value={item.selectedOptions?.[option.optionName] || ''}
+                                      onChange={async (e) => {
+                                        const newValue = e.target.value;
+                                        const newOptions = { 
+                                          ...item.selectedOptions, 
+                                          [option.optionName]: newValue 
+                                        };
+                                        const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
+                                        if (saved) {
+                                          toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
+                                            position: "top-center",
+                                            autoClose: 2000,
+                                            hideProgressBar: true,
+                                            style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
+                                          });
+                                        }
+                                      }}
+                                      placeholder={option.placeholder}
+                                      className="w-full px-3 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 text-base"
+                                      required={option.required}
+                                    />
+                                  )}
+                                  
+                                  {/* Size Guide - Only for size option */}
+                                  {option.optionName === 'size' && 
+                                   item.product.productType && 
+                                   (item.product.productType === 'جاكيت' || item.product.productType === 'عباية تخرج' || item.product.productType === 'مريول مدرسي') && (
+                                    <div className="mt-2">
+                                      <button
+                                        type="button"
+                                        onClick={() => setShowSizeGuide({show: true, productType: item.product.productType || ''})}
+                                        className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-3 py-2 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105 shadow-lg border border-blue-500"
                                       >
-                                        <option value="">اختر {getOptionDisplayName(option.optionName)}</option>
-                                        {option.options.map((opt) => (
-                                          <option key={opt.value} value={opt.value}>
-                                            {opt.value}
-                                          </option>
-                                        ))}
-                                      </select>
-                                    ) : option.optionType === 'radio' && option.options ? (
-                                      <div className="grid grid-cols-1 gap-2">
-                                        {option.options.map((opt) => (
-                                          <label key={opt.value} className="flex items-center p-3 border-2 border-gray-600 bg-gray-700 rounded-xl hover:bg-gray-600 hover:border-gray-500 cursor-pointer transition-all shadow-sm">
-                                            <input
-                                              type="radio"
-                                              name={`${item.id}-${option.optionName}`}
-                                              value={opt.value}
-                                              checked={item.selectedOptions?.[option.optionName] === opt.value}
-                                              onChange={async (e) => {
-                                                const newValue = e.target.value;
-                                                const newOptions = { 
-                                                  ...item.selectedOptions, 
-                                                  [option.optionName]: newValue 
-                                                };
-                                                const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
-                                                if (saved) {
-                                                  toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
-                                                    position: "top-center",
-                                                    autoClose: 2000,
-                                                    hideProgressBar: true,
-                                                    style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
-                                                  });
-                                                }
-                                              }}
-                                              className="ml-3 text-blue-400 scale-125"
-                                            />
-                                            <span className="font-medium text-white text-base">{opt.value}</span>
-                                          </label>
-                                        ))}
-                                      </div>
-                                    ) : (
-                                      <input
-                                        type={option.optionType === 'number' ? 'number' : 'text'}
-                                        value={item.selectedOptions?.[option.optionName] || ''}
-                                        onChange={async (e) => {
-                                          const newValue = e.target.value;
-                                          const newOptions = { 
-                                            ...item.selectedOptions, 
-                                            [option.optionName]: newValue 
-                                          };
-                                          const saved = await saveOptionsToBackend(item.id, 'selectedOptions', newOptions);
-                                          if (saved) {
-                                            toast.success(`✅ تم حفظ ${getOptionDisplayName(option.optionName)}: ${newValue}`, {
-                                              position: "top-center",
-                                              autoClose: 2000,
-                                              hideProgressBar: true,
-                                              style: { background: '#10B981', color: 'white', fontSize: '14px', fontWeight: 'bold' }
-                                            });
-                                          }
-                                        }}
-                                        placeholder={option.placeholder}
-                                        className="w-full px-3 py-3 border rounded-xl bg-gray-700 text-white border-gray-600 focus:ring-2 focus:ring-blue-400 focus:border-blue-400 transition-all duration-200 text-base"
-                                        required={option.required}
-                                      />
-                                    )}
-                                    
-                                    {/* Size Guide - Only for size option */}
-                                    {option.optionName === 'size' && 
-                                     item.product.productType && 
-                                     (item.product.productType === 'جاكيت' || item.product.productType === 'عباية تخرج' || item.product.productType === 'مريول مدرسي') && (
-                                      <div className="mt-2">
-                                        <button
-                                          type="button"
-                                          onClick={() => setShowSizeGuide({show: true, productType: item.product.productType || ''})}
-                                          className="w-full bg-gradient-to-r from-blue-600 to-indigo-700 hover:from-blue-700 hover:to-indigo-800 text-white px-3 py-2 rounded-lg font-medium text-sm transition-all duration-300 transform hover:scale-105 shadow-lg border border-blue-500"
-                                        >
-                                          <span className="flex items-center justify-center gap-2">
-                                            <span>👁️</span>
-                                            <span>عرض دليل المقاسات</span>
-                                          </span>
-                                        </button>
-                                      </div>
-                                    )}
-                                    
-                                    {/* Validation Error */}
-                                    {option.required && !item.selectedOptions?.[option.optionName] && (
-                                      <div className="bg-red-900 bg-opacity-50 border border-red-600 rounded-lg p-2">
-                                        <p className="text-red-300 text-sm font-medium flex items-center gap-2">
-                                          <span>⚠️</span>
-                                          هذا الحقل مطلوب
-                                        </p>
-                                      </div>
-                                    )}
-                                  </div>
-                                ))}
-                              </div>
+                                        <span className="flex items-center justify-center gap-2">
+                                          <span>👁️</span>
+                                          <span>عرض دليل المقاسات</span>
+                                        </span>
+                                      </button>
+                                    </div>
+                                  )}
+                                  
+                                  {/* Validation Error */}
+                                  {option.required && !item.selectedOptions?.[option.optionName] && (
+                                    <div className="bg-red-900 bg-opacity-50 border border-red-600 rounded-lg p-2">
+                                      <p className="text-red-300 text-sm font-medium flex items-center gap-2">
+                                        <span>⚠️</span>
+                                        هذا الحقل مطلوب
+                                      </p>
+                                    </div>
+                                  )}
+                                </div>
+                              ))}
                             </div>
                           </div>
                         )}
