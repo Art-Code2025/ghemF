@@ -315,23 +315,16 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
           جديد
         </div>
         
-        {/* Wishlist Button - Top Right Corner - Always Visible */}
-        <div className="absolute top-3 sm:top-4 right-3 sm:right-4 z-30">
+        {/* Wishlist Button - Top Right Corner - Always Visible - HIGHEST Z-INDEX */}
+        <div className="absolute top-2 right-2 z-50">
           <button
             onClick={toggleWishlist}
             disabled={false}
-            className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-white/95 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white border border-white/50 transition-all duration-200 hover:scale-110"
+            className="w-10 h-10 rounded-full bg-white shadow-xl flex items-center justify-center hover:bg-gray-50 border-2 border-gray-200 transition-all duration-200 hover:scale-110"
           >
-            <Heart className={`w-4 h-4 sm:w-5 sm:h-5 ${isInWishlist ? 'text-red-500 fill-current' : 'text-gray-600'}`} />
+            <Heart className={`w-5 h-5 ${isInWishlist ? 'text-red-500 fill-current' : 'text-gray-700'}`} />
           </button>
         </div>
-        
-        {/* Product Type Badge - Bottom Left */}
-        {product.productType && (
-          <div className="absolute bottom-3 left-3 bg-black/80 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm border border-black/30 z-10">
-            {product.productType}
-          </div>
-        )}
         
         {/* Out of Stock Overlay */}
         {isOutOfStock && (
