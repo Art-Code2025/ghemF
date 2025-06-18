@@ -76,23 +76,11 @@ interface Category {
   description: string;
 }
 
-interface Review {
-  id: number;
-  productId: number;
-  customerId: string;
-  customerName: string;
-  comment: string;
-  createdAt: string;
-}
-
 const ProductDetail: React.FC = () => {
   const { id, slug } = useParams<{ id?: string; slug?: string }>();
   const navigate = useNavigate();
   const [product, setProduct] = useState<Product | null>(null);
   const [category, setCategory] = useState<Category | null>(null);
-  const [reviews, setReviews] = useState<Review[]>([]);
-  const [newReview, setNewReview] = useState({ comment: '' });
-  const [submittingReview, setSubmittingReview] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [addingToCart, setAddingToCart] = useState(false);
   const [selectedImage, setSelectedImage] = useState('');
@@ -108,14 +96,12 @@ const ProductDetail: React.FC = () => {
     text: ''
   });
   const [loading, setLoading] = useState(true);
-  const [defaultOptions, setDefaultOptions] = useState<any[]>([]);
   const [error, setError] = useState<string | null>(null);
 
   // استخراج ID من slug أو استخدام id مباشرة
   const productId = slug ? extractIdFromSlug(slug).toString() : id;
 
   const getSizeGuideImage = (productType: string): string => {
-    // استخدام الصور الأصلية من مجلد src/assets
     const sizeGuideImages = {
       'جاكيت': size1Image,
       'عباية تخرج': size2Image, 
@@ -134,26 +120,8 @@ const ProductDetail: React.FC = () => {
   }, [productId]);
 
   useEffect(() => {
-    const handleOptionsUpdate = (event: CustomEvent) => {
-      const { productId: eventProductId, options, source } = event.detail;
-      if (product && eventProductId === product.id && source === 'cart') {
-        console.log(`🔄 Updating product options from cart for product ${eventProductId}:`, options);
-        setSelectedOptions(options);
-      }
-    };
-    
-    window.addEventListener('productOptionsUpdated', handleOptionsUpdate as EventListener);
-    
-    return () => {
-      window.removeEventListener('productOptionsUpdated', handleOptionsUpdate as EventListener);
-    };
-  }, [product?.id]);
-
-  useEffect(() => {
     if (product) {
       calculatePrice();
-      fetchReviews();
-      fetchDefaultOptions();
     }
   }, [product, selectedOptions]);
 
@@ -182,7 +150,7 @@ const ProductDetail: React.FC = () => {
         setSelectedOptions(initialOptions);
       }
       
-      // جلب معلومات التصنيف
+      // جلب معلومات التصنيف - Only if needed
       if (data.categoryId) {
         fetchCategory(data.categoryId);
       }
@@ -191,17 +159,6 @@ const ProductDetail: React.FC = () => {
       setError('فشل في تحميل المنتج');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const fetchDefaultOptions = async () => {
-    if (!product?.productType) return;
-    
-    try {
-      const data = await apiCall(API_ENDPOINTS.PRODUCT_DEFAULT_OPTIONS(product.productType));
-      setDefaultOptions(data);
-    } catch (error) {
-      console.error('Error fetching default options:', error);
     }
   };
 
@@ -214,122 +171,34 @@ const ProductDetail: React.FC = () => {
     }
   };
 
-  const fetchReviews = async () => {
-    try {
-      const data = await apiCall(`products/${productId}/reviews`);
-      setReviews(data || []);
-    } catch (error) {
-      console.error('Error fetching reviews:', error);
-      setReviews([]);
-    }
-  };
-
-  const submitReview = async () => {
-    try {
-      const userData = localStorage.getItem('user');
-      if (!userData) {
-        toast.error('يجب تسجيل الدخول لإضافة تعليق');
-        return;
-      }
-
-      const user = JSON.parse(userData);
-      if (!newReview.comment.trim()) {
-        toast.error('يرجى كتابة تعليق');
-        return;
-      }
-
-      setSubmittingReview(true);
-
-      const tempReview = {
-        id: Date.now(),
-        productId: parseInt(productId || '0'),
-        customerId: user.id.toString(),
-        customerName: user.name || 'مستخدم',
-        comment: newReview.comment,
-        createdAt: new Date().toISOString()
-      };
-
-      setReviews(prev => [tempReview, ...prev]);
-      setNewReview({ comment: '' });
-
-      const response = await apiCall(`products/${productId}/reviews`, {
-        method: 'POST',
-        body: JSON.stringify({
-          customerId: user.id.toString(),
-          customerName: user.name,
-          comment: newReview.comment
-        })
-      });
-
-      toast.success('تم إضافة التعليق بنجاح');
-      fetchReviews();
-    } catch (error) {
-      console.error('Error submitting review:', error);
-      fetchReviews();
-      setNewReview({ comment: newReview.comment });
-      toast.error('فشل في إضافة التعليق');
-    } finally {
-      setSubmittingReview(false);
-    }
-  };
-
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('ar-SA', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
-  };
-
   const calculatePrice = () => {
     if (!product) return;
-    
     setCalculatedPrice(product.price);
   };
 
   const handleOptionChange = (optionName: string, value: string) => {
-    const newOptions = {
-      ...selectedOptions,
-      [optionName]: value
-    };
-    
+    const newOptions = { ...selectedOptions, [optionName]: value };
     setSelectedOptions(newOptions);
     
-    if (product) {
-      localStorage.setItem(`productOptions_${product.id}`, JSON.stringify(newOptions));
-      
-      window.dispatchEvent(new CustomEvent('productOptionsUpdated', {
-        detail: { 
-          productId: product.id, 
-          options: newOptions,
-          source: 'product'
-        }
-      }));
-      
-      console.log(`✅ Options updated for product ${product.id}:`, newOptions);
-      console.log(`💾 Options saved to localStorage: productOptions_${product.id}`);
+    // Clear any previous error for this field
+    if (formErrors[optionName]) {
+      setFormErrors(prev => {
+        const updated = { ...prev };
+        delete updated[optionName];
+        return updated;
+      });
     }
-    
-    setFormErrors(prev => ({
-      ...prev,
-      [optionName]: ''
-    }));
   };
 
   const handleAttachmentImagesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from(e.target.files || []);
-    setAttachments(prev => ({
-      ...prev,
-      images: [...prev.images, ...files]
-    }));
+    if (e.target.files) {
+      const filesArray = Array.from(e.target.files);
+      setAttachments(prev => ({ ...prev, images: [...prev.images, ...filesArray] }));
+    }
   };
 
   const handleAttachmentTextChange = (text: string) => {
-    setAttachments(prev => ({
-      ...prev,
-      text
-    }));
+    setAttachments(prev => ({ ...prev, text }));
   };
 
   const removeAttachmentImage = (index: number) => {
@@ -340,15 +209,15 @@ const ProductDetail: React.FC = () => {
   };
 
   const validateForm = (): boolean => {
+    if (!product?.dynamicOptions) return true;
+    
     const errors: Record<string, string> = {};
     
-    if (product?.dynamicOptions) {
-      product.dynamicOptions.forEach((option: ProductOption) => {
-        if (option.required && !selectedOptions[option.optionName]) {
-          errors[option.optionName] = `${getOptionDisplayName(option.optionName)} مطلوب`;
-        }
-      });
-    }
+    product.dynamicOptions.forEach(option => {
+      if (option.required && !selectedOptions[option.optionName]) {
+        errors[option.optionName] = `${getOptionDisplayName(option.optionName)} مطلوب`;
+      }
+    });
     
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
@@ -371,74 +240,63 @@ const ProductDetail: React.FC = () => {
   const decrementQuantity = () => setQuantity(prev => Math.max(prev - 1, 1));
 
   const addToCart = async () => {
-    if (!product) {
-      toast.error('خطأ: لا يوجد منتج محدد');
-      return;
-    }
-
-    console.log('🛒 [ProductDetail] addToCart called with:', {
-      productId: product.id,
-      productName: product.name,
-      quantity,
-      selectedOptions,
-      attachments
-    });
-
-    if (!validateForm()) {
-      toast.error('يرجى إكمال جميع البيانات المطلوبة قبل الإضافة للسلة');
-      return;
-    }
+    if (!product) return;
     
+    if (!validateForm()) {
+      toast.error('يرجى تعبئة جميع الحقول المطلوبة');
+      return;
+    }
+
     setAddingToCart(true);
-
     try {
-      const attachmentsData = {
-        images: attachments.images.map(file => file.name),
-        text: attachments.text
-      };
-
-      console.log('🛒 [ProductDetail] Calling addToCartUnified with:', {
-        productId: product.id,
-        productName: product.name,
+      const success = await addToCartUnified(
+        product.id,
+        product.name,
         quantity,
         selectedOptions,
-        attachmentsData
-      });
-
-      const success = await addToCartUnified(
-        product.id, 
-        product.name, 
-        quantity, 
-        selectedOptions, 
-        attachmentsData
+        {},
+        product.price,
+        product.mainImage
       );
-      
+
       if (success) {
-        console.log('✅ [ProductDetail] Successfully added to cart');
-        // يمكن إضافة أي منطق إضافي هنا إذا لزم الأمر
-      } else {
-        console.log('❌ [ProductDetail] Failed to add to cart');
+        toast.success('✅ تم إضافة المنتج للسلة بنجاح!', {
+          position: "top-center",
+          autoClose: 2000,
+          style: {
+            background: '#10B981',
+            color: 'white',
+            fontWeight: 'bold'
+          }
+        });
       }
     } catch (error) {
-      console.error('❌ Error in addToCart:', error);
+      console.error('Error adding to cart:', error);
+      toast.error('حدث خطأ أثناء إضافة المنتج للسلة');
     } finally {
       setAddingToCart(false);
     }
   };
 
   const addToWishlist = async () => {
-    if (!product) {
-      toast.error('خطأ: لا يوجد منتج محدد');
-      return;
-    }
-
+    if (!product) return;
+    
     try {
       const success = await addToWishlistUnified(product.id, product.name);
       if (success) {
-        // يمكن إضافة أي منطق إضافي هنا إذا لزم الأمر
+        toast.success('✅ تم إضافة المنتج للمفضلة!', {
+          position: "top-center",
+          autoClose: 2000,
+          style: {
+            background: '#EC4899',
+            color: 'white',
+            fontWeight: 'bold'
+          }
+        });
       }
     } catch (error) {
-      console.error('❌ Error in addToWishlist:', error);
+      console.error('Error adding to wishlist:', error);
+      toast.error('حدث خطأ أثناء إضافة المنتج للمفضلة');
     }
   };
 
@@ -768,69 +626,6 @@ const ProductDetail: React.FC = () => {
                 </div>
               </div>
             </div>
-
-            <div className="bg-white rounded-2xl shadow-lg p-6 border border-gray-200">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-gray-800 flex items-center">
-                  <span className="w-6 h-6 bg-blue-500 rounded-lg flex items-center justify-center text-white text-sm mr-2">💬</span>
-                  التعليقات ({reviews.length})
-                </h3>
-              </div>
-
-              <div className="bg-gray-50 rounded-xl p-4 border border-gray-200 mb-6">
-                <h4 className="text-md font-bold text-gray-800 mb-3 flex items-center">
-                  <span className="w-5 h-5 bg-blue-500 rounded-lg flex items-center justify-center text-white text-xs mr-2">✍️</span>
-                  أضف تعليقك
-                </h4>
-                
-                <div className="mb-3">
-                  <textarea
-                    value={newReview.comment}
-                    onChange={(e) => setNewReview(prev => ({ ...prev, comment: e.target.value }))}
-                    rows={3}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-all duration-200 text-sm"
-                    placeholder="شاركنا رأيك في المنتج..."
-                  />
-                </div>
-
-                <button
-                  onClick={submitReview}
-                  disabled={submittingReview || !newReview.comment.trim()}
-                  className="bg-gradient-to-r from-blue-500 to-blue-600 text-white px-4 py-2 rounded-lg hover:from-blue-600 hover:to-blue-700 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 text-sm font-medium"
-                >
-                  {submittingReview ? 'جاري الإرسال...' : 'إرسال التعليق'}
-                </button>
-              </div>
-
-              <div className="space-y-4">
-                {reviews.length > 0 ? (
-                  reviews.map((review) => (
-                    <div key={review.id} className="bg-gray-50 rounded-xl p-4 border border-gray-200">
-                      <div className="flex items-start space-x-3">
-                        <div className="w-8 h-8 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center text-white font-bold text-sm">
-                          {review.customerName.charAt(0)}
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1">
-                            <h5 className="font-bold text-gray-800 text-sm">{review.customerName}</h5>
-                            <span className="text-xs text-gray-500">{formatDate(review.createdAt)}</span>
-                          </div>
-                          <p className="text-gray-700 leading-relaxed text-sm">{review.comment}</p>
-                        </div>
-                      </div>
-                    </div>
-                  ))
-                ) : (
-                  <div className="text-center py-8">
-                    <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
-                      <span className="text-2xl">💬</span>
-                    </div>
-                    <h4 className="text-lg font-bold text-gray-600 mb-1">لا توجد تعليقات بعد</h4>
-                    <p className="text-gray-500 text-sm">كن أول من يعلق على هذا المنتج</p>
-                  </div>
-                )}
-              </div>
-            </div>
           </div>
         </div>
 
@@ -901,7 +696,7 @@ const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number |
       
       const shuffled = filtered.sort(() => Math.random() - 0.5);
       
-      setRelatedProducts(shuffled.slice(0, 4));
+      setRelatedProducts(shuffled.slice(0, 3));
     } catch (error) {
       console.error('Error fetching related products:', error);
     }
@@ -910,17 +705,17 @@ const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number |
   if (relatedProducts.length === 0) return null;
 
   return (
-    <div className="mt-12">
-      <div className="text-center mb-8">
-        <h2 className="text-3xl font-bold text-gray-800 mb-2">منتجات ذات صلة</h2>
-        <div className="h-1 w-20 bg-gradient-to-r from-pink-500 to-rose-500 mx-auto rounded-full"></div>
+    <div className="mt-8">
+      <div className="text-center mb-6">
+        <h2 className="text-2xl font-bold text-gray-800 mb-2">منتجات ذات صلة</h2>
+        <div className="h-1 w-16 bg-gradient-to-r from-pink-500 to-rose-500 mx-auto rounded-full"></div>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {relatedProducts.map((product) => (
           <div 
             key={product.id}
-            className="bg-white rounded-2xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 cursor-pointer"
+            className="bg-white rounded-xl shadow-lg overflow-hidden border border-gray-200 hover:shadow-xl transition-shadow duration-200 cursor-pointer"
             onClick={() => {
               const productSlug = createProductSlug(product.id, product.name);
               navigate(`/product/${productSlug}`);
@@ -932,6 +727,7 @@ const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number |
                   src={buildImageUrl(product.mainImage)}
                   alt={product.name}
                   className="w-full h-full object-cover"
+                  loading="lazy"
                   onError={(e) => {
                     e.currentTarget.src = '/placeholder-image.png';
                   }}
@@ -962,7 +758,7 @@ const RelatedProducts: React.FC<{ currentProductId: number; categoryId: number |
                     <span className="text-lg font-bold text-pink-600">{product.price.toFixed(2)} ر.س</span>
                   )}
                 </div>
-                <button className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-2 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-all duration-300 text-sm">
+                <button className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-3 py-2 rounded-lg hover:from-pink-600 hover:to-rose-600 transition-colors duration-200 text-sm">
                   عرض
                 </button>
               </div>

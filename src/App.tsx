@@ -218,7 +218,7 @@ const App: React.FC = () => {
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
-    }, 3000); // Faster slide transition
+    }, 4000); // Slower slide transition for better performance
     return () => clearInterval(timer);
   }, [heroImages.length]);
 
@@ -378,7 +378,8 @@ const App: React.FC = () => {
                               <img
                                 src={buildImageUrl(categoryProduct.category.image)}
                                 alt={categoryProduct.category.name}
-                                className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                                className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                                loading="lazy"
                                 onError={(e) => {
                                   e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
                                 }}
@@ -449,7 +450,8 @@ const App: React.FC = () => {
                             <img
                               src={buildImageUrl(categoryProduct.category.image)}
                               alt={categoryProduct.category.name}
-                              className="w-full h-full object-cover transition-all duration-700 group-hover:scale-110 group-hover:brightness-110"
+                              className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                              loading="lazy"
                               onError={(e) => {
                                 e.currentTarget.src = `https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=300&fit=crop&crop=center&auto=format,compress&q=60&ixlib=rb-4.0.3`;
                               }}
@@ -562,7 +564,8 @@ const App: React.FC = () => {
                           <img
                             src={buildImageUrl(product.mainImage)}
                             alt={product.name}
-                            className="w-full h-full object-cover transition-all duration-700 group-hover:scale-105"
+                            className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                            loading="lazy"
                             onError={(e) => {
                               e.currentTarget.src = '/placeholder-image.png';
                             }}
