@@ -720,7 +720,7 @@ const ShoppingCart: React.FC = () => {
                     <div className="p-6 lg:p-8">
                       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                         {/* Product Image and Price */}
-                        <div className="lg:col-span-1">
+                        <div className="lg:col-span-1 order-1 lg:order-1">
                           <div className="space-y-6">
                             {/* Main Product Image */}
                             <div className="relative group">
@@ -774,10 +774,10 @@ const ShoppingCart: React.FC = () => {
                           </div>
                         </div>
 
-                        {/* Product Options and Details */}
-                        <div className="lg:col-span-2">
+                        {/* Product Options and Details - Show on all devices */}
+                        <div className="lg:col-span-2 order-2 lg:order-2">
                           <div className="space-y-6">
-                            {/* Product Options */}
+                            {/* Product Options - Always visible */}
                             {item.product.dynamicOptions && item.product.dynamicOptions.length > 0 && (
                               <div className="bg-gradient-to-br from-gray-800 to-gray-900 p-6 rounded-2xl border-2 border-gray-700 shadow-lg">
                                 <h5 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
