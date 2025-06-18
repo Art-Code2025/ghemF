@@ -2,7 +2,7 @@ import React from 'react';
 import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { Heart, Eye } from 'lucide-react';
+import { Heart, Eye, Package, ShoppingCart } from 'lucide-react';
 import { createProductSlug } from '../utils/slugify';
 import { addToCartUnified, addToWishlistUnified, removeFromWishlistUnified } from '../utils/cartUtils';
 import { buildImageUrl, apiCall, API_ENDPOINTS } from '../config/api';
@@ -108,6 +108,15 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     e.stopPropagation(); // منع انتشار الحدث
     
     console.log('🛒 [ProductCard] addToCart called:', { productId: product.id, quantity });
+    
+    // Check if product has required options
+    if (product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required)) {
+      // Product has required options - redirect to product page instead of adding directly
+      console.log('🔄 [ProductCard] Product has required options, redirecting to product page');
+      const productPath = `/product/${createProductSlug(product.id, product.name)}`;
+      navigate(productPath);
+      return;
+    }
     
     try {
       const success = await addToCartUnified(product.id, product.name, quantity);
@@ -221,32 +230,55 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
             
             {!isOutOfStock && (
               <div className="space-y-2 sm:space-y-3 mt-3 sm:mt-4">
-                {/* Quantity Controls */}
-                <div className="flex items-center gap-2 sm:gap-3">
-                  <button
-                    onClick={decreaseQuantity}
-                    disabled={quantity <= 1}
-                    className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold text-sm transition-colors duration-200"
-                  >
-                    -
-                  </button>
-                  <span className="w-8 sm:w-10 md:w-12 text-center font-semibold text-gray-800 text-sm sm:text-base">{quantity}</span>
-                  <button
-                    onClick={increaseQuantity}
-                    disabled={quantity >= product.stock}
-                    className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold text-sm transition-colors duration-200"
-                  >
-                    +
-                  </button>
-                </div>
+                {/* Required Options Indicator */}
+                {product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required) && (
+                  <div className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200 text-center">
+                    يتطلب اختيار المقاسات
+                  </div>
+                )}
+                
+                {/* Only show quantity controls if product doesn't need required options */}
+                {!(product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required)) && (
+                  <div className="flex items-center gap-2 sm:gap-3">
+                    <button
+                      onClick={decreaseQuantity}
+                      disabled={quantity <= 1}
+                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold text-sm transition-colors duration-200"
+                    >
+                      -
+                    </button>
+                    <span className="w-8 sm:w-10 md:w-12 text-center font-semibold text-gray-800 text-sm sm:text-base">{quantity}</span>
+                    <button
+                      onClick={increaseQuantity}
+                      disabled={quantity >= product.stock}
+                      className="w-6 h-6 sm:w-7 sm:h-7 md:w-8 md:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold text-sm transition-colors duration-200"
+                    >
+                      +
+                    </button>
+                  </div>
+                )}
                 
                 <div className="flex items-center gap-2 sm:gap-3">
                   <button
                     onClick={addToCart}
                     disabled={false}
-                    className="flex-1 bg-pink-500 hover:bg-pink-600 disabled:opacity-50 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-md sm:rounded-lg font-semibold text-xs sm:text-sm md:text-base shadow-md transition-all duration-200 flex items-center justify-center gap-2"
+                    className={`flex-1 disabled:opacity-50 text-white px-3 sm:px-4 md:px-6 py-2 sm:py-2.5 md:py-3 rounded-md sm:rounded-lg font-semibold text-xs sm:text-sm md:text-base shadow-md transition-all duration-200 flex items-center justify-center gap-2 ${
+                      product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required)
+                        ? 'bg-blue-500 hover:bg-blue-600'
+                        : 'bg-pink-500 hover:bg-pink-600'
+                    }`}
                   >
-                    <span>إضافة للسلة</span>
+                    {product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required) ? (
+                      <>
+                        <Package className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>اختر المقاسات</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
+                        <span>إضافة للسلة</span>
+                      </>
+                    )}
                   </button>
                 </div>
               </div>
@@ -343,35 +375,58 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
           <p className="text-xs sm:text-sm font-bold text-red-600 bg-red-50 px-2 sm:px-3 py-1 rounded-full">نفذت الكمية</p>
         )}
         
+        {/* Required Options Indicator */}
+        {product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required) && (
+          <div className="text-xs bg-blue-50 text-blue-700 px-2 py-1 rounded-full border border-blue-200">
+            يتطلب اختيار المقاسات
+          </div>
+        )}
+        
         {/* Actions - Smaller on mobile */}
         {!isOutOfStock && (
           <div className="w-full space-y-2 sm:space-y-3 mt-3 sm:mt-4">
-            {/* Quantity Controls - Smaller on mobile */}
-            <div className="flex items-center justify-center gap-2 sm:gap-3">
-              <button
-                onClick={decreaseQuantity}
-                disabled={quantity <= 1}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-105 sm:hover:scale-110 text-sm sm:text-base"
-              >
-                -
-              </button>
-              <span className="w-10 sm:w-12 text-center font-bold text-gray-800 text-base sm:text-lg bg-gray-50 py-1 rounded-md sm:rounded-lg">{quantity}</span>
-              <button
-                onClick={increaseQuantity}
-                disabled={quantity >= product.stock}
-                className="w-7 h-7 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-105 sm:hover:scale-110 text-sm sm:text-base"
-              >
-                +
-              </button>
-            </div>
+            {/* Only show quantity controls if product doesn't need required options */}
+            {!(product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required)) && (
+              <div className="flex items-center justify-center gap-2 sm:gap-3">
+                <button
+                  onClick={decreaseQuantity}
+                  disabled={quantity <= 1}
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-105 sm:hover:scale-110 text-sm sm:text-base"
+                >
+                  -
+                </button>
+                <span className="w-10 sm:w-12 text-center font-bold text-gray-800 text-base sm:text-lg bg-gray-50 py-1 rounded-md sm:rounded-lg">{quantity}</span>
+                <button
+                  onClick={increaseQuantity}
+                  disabled={quantity >= product.stock}
+                  className="w-7 h-7 sm:w-8 sm:h-8 rounded-md sm:rounded-lg bg-gray-100 hover:bg-gray-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center text-gray-600 font-bold transition-all duration-200 hover:scale-105 sm:hover:scale-110 text-sm sm:text-base"
+                >
+                  +
+                </button>
+              </div>
+            )}
             
-            {/* Add to Cart Button - Smaller on mobile */}
+            {/* Action Button - Text changes based on whether options are required */}
             <button
               onClick={addToCart}
               disabled={false}
-              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm shadow-md sm:shadow-lg hover:from-pink-600 hover:to-rose-600 disabled:opacity-50 transition-all duration-300 backdrop-blur-sm border border-pink-400/30 hover:scale-[1.02] sm:hover:scale-105 hover:shadow-lg sm:hover:shadow-xl"
+              className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-lg sm:rounded-xl font-bold text-xs sm:text-sm shadow-md sm:shadow-lg disabled:opacity-50 transition-all duration-300 backdrop-blur-sm hover:scale-[1.02] sm:hover:scale-105 hover:shadow-lg sm:hover:shadow-xl flex items-center justify-center gap-2 ${
+                product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required)
+                  ? 'bg-gradient-to-r from-blue-500 to-blue-600 hover:from-blue-600 hover:to-blue-700 border border-blue-400/30 text-white'
+                  : 'bg-gradient-to-r from-pink-500 to-rose-500 hover:from-pink-600 hover:to-rose-600 border border-pink-400/30 text-white'
+              }`}
             >
-              إضافة للسلة
+              {product.dynamicOptions && product.dynamicOptions.some((opt: any) => opt.required) ? (
+                <>
+                  <Package className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>اختر المقاسات والتفاصيل</span>
+                </>
+              ) : (
+                <>
+                  <ShoppingCart className="w-3 h-3 sm:w-4 sm:h-4" />
+                  <span>إضافة للسلة مباشرة</span>
+                </>
+              )}
             </button>
           </div>
         )}
