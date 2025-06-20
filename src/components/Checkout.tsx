@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ShoppingCart, User, CreditCard, CheckCircle, ArrowLeft, ArrowRight, Package, Truck, Shield, Star, Heart, Gift, MapPin, Phone, Mail, Sparkles, Clock, Award, AlertCircle, Minus, Plus, X, Tag, Percent } from 'lucide-react';
+import { ShoppingCart, User, CreditCard, CheckCircle, ArrowLeft, ArrowRight, Package, Truck, Shield, Star, Heart, Gift, MapPin, Phone, Mail, Sparkles, Clock, Award, AlertCircle, Minus, Plus, X, Tag, Percent, AlertTriangle } from 'lucide-react';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 import { calculateTotalWithShipping, getShippingMessage, formatShippingCost, getAmountNeededForFreeShipping, isFreeShippingEligible } from '../utils/shippingUtils';
 import { calculateShippingCost, getShippingZones, getEstimatedDelivery, ShippingZone } from '../utils/shippingUtils';
@@ -1017,12 +1017,13 @@ const Checkout: React.FC = () => {
                           <div className="w-8 h-8 bg-gradient-to-r from-gray-900 to-black rounded-lg flex items-center justify-center">
                             <Truck className="w-4 h-4 text-white" />
                           </div>
-                          منطقة الشحن
+                          منطقة الشحن *
                         </label>
                         <select
                           value={selectedShippingZone?.id || ''}
                           onChange={(e) => handleShippingZoneChange(e.target.value)}
                           className="w-full p-5 border-2 border-gray-900 rounded-2xl focus:ring-4 focus:ring-gray-900/20 focus:border-gray-900 transition-all duration-300 text-lg glass-effect bg-white"
+                          required
                         >
                           <option value="">اختر منطقة الشحن...</option>
                           {shippingZones
@@ -1030,7 +1031,7 @@ const Checkout: React.FC = () => {
                             .sort((a, b) => a.priority - b.priority)
                             .map(zone => (
                               <option key={zone.id} value={zone.id}>
-                                {zone.name} - {formatShippingCost(zone.shippingCost)} ({zone.estimatedDays})
+                                {zone.name} - {formatShippingCost(zone.shippingCost)}
                               </option>
                             ))
                           }
@@ -1039,31 +1040,32 @@ const Checkout: React.FC = () => {
                         {/* عرض تفاصيل المنطقة المختارة */}
                         {selectedShippingZone && (
                           <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
-                            <div className="flex items-center gap-3 mb-3">
-                              <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
-                                <Truck className="w-3 h-3 text-white" />
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                  <Truck className="w-3 h-3 text-white" />
+                                </div>
+                                <span className="font-bold text-blue-800">{selectedShippingZone.name}</span>
                               </div>
-                              <span className="font-bold text-blue-800">{selectedShippingZone.name}</span>
+                              <div className="text-right">
+                                <div className="font-bold text-blue-800 text-lg">{formatShippingCost(shippingCost)}</div>
+                                <div className="text-sm text-blue-600 flex items-center">
+                                  <Clock className="w-4 h-4 ml-1" />
+                                  {estimatedDelivery}
+                                </div>
+                              </div>
                             </div>
-                            <div className="grid grid-cols-2 gap-4 text-sm">
-                              <div>
-                                <span className="text-blue-600 font-medium">تكلفة الشحن:</span>
-                                <div className="font-bold text-blue-800">{formatShippingCost(shippingCost)}</div>
-                              </div>
-                              <div>
-                                <span className="text-blue-600 font-medium">مدة التوصيل:</span>
-                                <div className="font-bold text-blue-800">{estimatedDelivery}</div>
-                              </div>
-                            </div>
-                            <div className="mt-3">
-                              <span className="text-blue-600 font-medium text-sm">المدن المشمولة:</span>
-                              <div className="flex flex-wrap gap-1 mt-1">
-                                {selectedShippingZone.cities.map((city, index) => (
-                                  <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                    {city}
-                                  </span>
-                                ))}
-                              </div>
+                          </div>
+                        )}
+                        
+                        {/* تحذير إذا لم يتم اختيار منطقة */}
+                        {!selectedShippingZone && (
+                          <div className="mt-4 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                            <div className="flex items-center">
+                              <AlertTriangle className="w-5 h-5 text-yellow-600 ml-2" />
+                              <span className="text-yellow-800 text-sm">
+                                يرجى اختيار منطقة الشحن لحساب تكلفة التوصيل
+                              </span>
                             </div>
                           </div>
                         )}
@@ -1082,7 +1084,7 @@ const Checkout: React.FC = () => {
                           value={customerInfo.city}
                           onChange={handleInputChange}
                           className="w-full p-5 border-2 border-gray-900 rounded-2xl focus:ring-4 focus:ring-gray-900/20 focus:border-gray-900 transition-all duration-300 text-lg glass-effect"
-                          placeholder={selectedShippingZone ? `اختر من: ${selectedShippingZone.cities.join('، ')}` : "الرياض، جدة، الدمام..."}
+                          placeholder={selectedShippingZone ? selectedShippingZone.name : "الرياض، جدة، الدمام..."}
                           required
                         />
                       </div>

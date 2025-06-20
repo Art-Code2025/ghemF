@@ -821,7 +821,18 @@ const Dashboard: React.FC = () => {
   // وظائف نظام الشحن
   const fetchShippingZones = async () => {
     try {
-      // محاكاة البيانات حتى يتم ربطها بالباك إند
+      // محاولة تحميل البيانات من localStorage أولاً
+      const savedZones = localStorage.getItem('shippingZones');
+      if (savedZones) {
+        const zones = JSON.parse(savedZones);
+        if (Array.isArray(zones) && zones.length > 0) {
+          setShippingZones(zones);
+          setFilteredShippingZones(zones);
+          return;
+        }
+      }
+
+      // إذا لم توجد بيانات محفوظة، استخدم البيانات الافتراضية
       const mockZones: ShippingZone[] = [
         {
           id: 1,
@@ -860,6 +871,9 @@ const Dashboard: React.FC = () => {
           createdAt: new Date().toISOString()
         }
       ];
+      
+      // حفظ البيانات الافتراضية في localStorage
+      localStorage.setItem('shippingZones', JSON.stringify(mockZones));
       setShippingZones(mockZones);
       setFilteredShippingZones(mockZones);
     } catch (error) {
@@ -888,13 +902,13 @@ const Dashboard: React.FC = () => {
     try {
       const zoneData: Omit<ShippingZone, 'id' | 'createdAt'> = {
         name: newShippingZone.name || '',
-        description: newShippingZone.description || '',
-        cities: newShippingZone.cities || [],
+        description: newShippingZone.name || '', // استخدام اسم المنطقة كوصف
+        cities: [newShippingZone.name || ''], // استخدام اسم المنطقة كمدينة افتراضية
         shippingCost: newShippingZone.shippingCost || 0,
-        freeShippingThreshold: newShippingZone.freeShippingThreshold || 0,
+        freeShippingThreshold: 500, // قيمة افتراضية ثابتة
         estimatedDays: newShippingZone.estimatedDays || '2-3 أيام',
-        isActive: newShippingZone.isActive ?? true,
-        priority: newShippingZone.priority || 1
+        isActive: true, // تفعيل افتراضي
+        priority: shippingZones.length + 1 // أولوية تلقائية
       };
 
       // محاكاة إضافة المنطقة (سيتم ربطها بالباك إند لاحقاً)
@@ -2807,44 +2821,22 @@ const Dashboard: React.FC = () => {
                       <div className="p-6">
                         <div className="flex items-center justify-between mb-4">
                           <h3 className="font-bold text-lg text-gray-900">{zone.name}</h3>
-                          <div className="flex items-center gap-2">
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              zone.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
-                            }`}>
-                              {zone.isActive ? 'نشط' : 'معطل'}
-                            </span>
-                            <span className="px-2 py-1 bg-gray-100 text-gray-600 rounded text-xs">
-                              أولوية {zone.priority}
-                            </span>
-                          </div>
+                          <span className={`px-3 py-1 rounded-full text-xs font-bold ${
+                            zone.isActive ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+                          }`}>
+                            {zone.isActive ? 'نشط' : 'معطل'}
+                          </span>
                         </div>
-                        
-                        <p className="text-gray-600 text-sm mb-4">{zone.description}</p>
                         
                         <div className="space-y-3 mb-6">
                           <div className="bg-gray-50 rounded-lg p-4 space-y-3">
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-500">تكلفة الشحن:</span>
-                              <span className="text-lg font-bold text-black">{zone.shippingCost} ر.س</span>
-                            </div>
-                            <div className="flex justify-between items-center">
-                              <span className="text-sm text-gray-500">الشحن المجاني من:</span>
-                              <span className="text-sm font-medium">{zone.freeShippingThreshold} ر.س</span>
+                              <span className="text-xl font-bold text-black">{zone.shippingCost} ر.س</span>
                             </div>
                             <div className="flex justify-between items-center">
                               <span className="text-sm text-gray-500">مدة التوصيل:</span>
-                              <span className="text-sm font-medium">{zone.estimatedDays}</span>
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="text-sm font-medium text-gray-700 mb-2">المدن المشمولة:</h4>
-                            <div className="flex flex-wrap gap-1">
-                              {zone.cities.map((city, index) => (
-                                <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
-                                  {city}
-                                </span>
-                              ))}
+                              <span className="text-sm font-medium text-blue-600">{zone.estimatedDays}</span>
                             </div>
                           </div>
                         </div>
@@ -2907,7 +2899,7 @@ const Dashboard: React.FC = () => {
       {/* Shipping Zone Modal */}
       {showShippingZoneModal && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto">
+          <div className="bg-white rounded-xl max-w-md w-full">
             <div className="p-6 border-b border-gray-200">
               <div className="flex items-center justify-between">
                 <h3 className="text-xl font-bold text-gray-900">
@@ -2936,214 +2928,61 @@ const Dashboard: React.FC = () => {
             </div>
             
             <div className="p-6 space-y-6">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">اسم المنطقة</label>
-                  <input
-                    type="text"
-                    value={editingShippingZone?.name || newShippingZone.name || ''}
-                    onChange={(e) => {
-                      if (editingShippingZone) {
-                        setEditingShippingZone({...editingShippingZone, name: e.target.value});
-                      } else {
-                        setNewShippingZone({...newShippingZone, name: e.target.value});
-                      }
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-                    placeholder="مثال: الرياض الكبرى"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">الأولوية</label>
-                  <input
-                    type="number"
-                    min="1"
-                    value={editingShippingZone?.priority || newShippingZone.priority || 1}
-                    onChange={(e) => {
-                      const priority = parseInt(e.target.value) || 1;
-                      if (editingShippingZone) {
-                        setEditingShippingZone({...editingShippingZone, priority});
-                      } else {
-                        setNewShippingZone({...newShippingZone, priority});
-                      }
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-                  />
-                </div>
-              </div>
-              
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">الوصف</label>
-                <textarea
-                  value={editingShippingZone?.description || newShippingZone.description || ''}
-                  onChange={(e) => {
-                    if (editingShippingZone) {
-                      setEditingShippingZone({...editingShippingZone, description: e.target.value});
-                    } else {
-                      setNewShippingZone({...newShippingZone, description: e.target.value});
-                    }
-                  }}
-                  rows={3}
-                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-                  placeholder="وصف المنطقة..."
-                />
-              </div>
-              
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">تكلفة الشحن (ر.س)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={editingShippingZone?.shippingCost || newShippingZone.shippingCost || 0}
-                    onChange={(e) => {
-                      const cost = parseFloat(e.target.value) || 0;
-                      if (editingShippingZone) {
-                        setEditingShippingZone({...editingShippingZone, shippingCost: cost});
-                      } else {
-                        setNewShippingZone({...newShippingZone, shippingCost: cost});
-                      }
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">حد الشحن المجاني (ر.س)</label>
-                  <input
-                    type="number"
-                    min="0"
-                    step="0.01"
-                    value={editingShippingZone?.freeShippingThreshold || newShippingZone.freeShippingThreshold || 0}
-                    onChange={(e) => {
-                      const threshold = parseFloat(e.target.value) || 0;
-                      if (editingShippingZone) {
-                        setEditingShippingZone({...editingShippingZone, freeShippingThreshold: threshold});
-                      } else {
-                        setNewShippingZone({...newShippingZone, freeShippingThreshold: threshold});
-                      }
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-                  />
-                </div>
-                
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">مدة التوصيل</label>
-                  <input
-                    type="text"
-                    value={editingShippingZone?.estimatedDays || newShippingZone.estimatedDays || ''}
-                    onChange={(e) => {
-                      if (editingShippingZone) {
-                        setEditingShippingZone({...editingShippingZone, estimatedDays: e.target.value});
-                      } else {
-                        setNewShippingZone({...newShippingZone, estimatedDays: e.target.value});
-                      }
-                    }}
-                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-                    placeholder="مثال: 2-3 أيام"
-                  />
-                </div>
-              </div>
-              
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">المدن المشمولة</label>
-                <div className="space-y-3">
-                  <div className="flex gap-2">
-                    <input
-                      type="text"
-                      placeholder="إضافة مدينة..."
-                      className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
-                      onKeyPress={(e) => {
-                        if (e.key === 'Enter' && e.currentTarget.value.trim()) {
-                          const city = e.currentTarget.value.trim();
-                          if (editingShippingZone) {
-                            setEditingShippingZone({
-                              ...editingShippingZone, 
-                              cities: [...(editingShippingZone.cities || []), city]
-                            });
-                          } else {
-                            setNewShippingZone({
-                              ...newShippingZone, 
-                              cities: [...(newShippingZone.cities || []), city]
-                            });
-                          }
-                          e.currentTarget.value = '';
-                        }
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        const input = e.currentTarget.previousElementSibling as HTMLInputElement;
-                        const city = input.value.trim();
-                        if (city) {
-                          if (editingShippingZone) {
-                            setEditingShippingZone({
-                              ...editingShippingZone, 
-                              cities: [...(editingShippingZone.cities || []), city]
-                            });
-                          } else {
-                            setNewShippingZone({
-                              ...newShippingZone, 
-                              cities: [...(newShippingZone.cities || []), city]
-                            });
-                          }
-                          input.value = '';
-                        }
-                      }}
-                      className="px-4 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
-                    >
-                      <Plus className="w-4 h-4" />
-                    </button>
-                  </div>
-                  
-                  <div className="flex flex-wrap gap-2">
-                    {(editingShippingZone?.cities || newShippingZone.cities || []).map((city, index) => (
-                      <span key={index} className="inline-flex items-center gap-1 px-3 py-1 bg-blue-100 text-blue-800 text-sm rounded-full">
-                        {city}
-                        <button
-                          onClick={() => {
-                            if (editingShippingZone) {
-                              setEditingShippingZone({
-                                ...editingShippingZone,
-                                cities: editingShippingZone.cities.filter((_, i) => i !== index)
-                              });
-                            } else {
-                              setNewShippingZone({
-                                ...newShippingZone,
-                                cities: (newShippingZone.cities || []).filter((_, i) => i !== index)
-                              });
-                            }
-                          }}
-                          className="text-blue-600 hover:text-blue-800"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              </div>
-              
-              <div className="flex items-center">
+                <label className="block text-sm font-medium text-gray-700 mb-2">اسم المنطقة *</label>
                 <input
-                  type="checkbox"
-                  id="isActive"
-                  checked={editingShippingZone?.isActive ?? newShippingZone.isActive ?? true}
+                  type="text"
+                  value={editingShippingZone?.name || newShippingZone.name || ''}
                   onChange={(e) => {
                     if (editingShippingZone) {
-                      setEditingShippingZone({...editingShippingZone, isActive: e.target.checked});
+                      setEditingShippingZone({...editingShippingZone, name: e.target.value});
                     } else {
-                      setNewShippingZone({...newShippingZone, isActive: e.target.checked});
+                      setNewShippingZone({...newShippingZone, name: e.target.value});
                     }
                   }}
-                  className="w-4 h-4 text-black border-gray-300 rounded focus:ring-black"
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="مثال: الرياض الكبرى"
+                  required
                 />
-                <label htmlFor="isActive" className="mr-2 text-sm text-gray-700">
-                  تفعيل هذه المنطقة
-                </label>
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">تكلفة الشحن (ر.س) *</label>
+                <input
+                  type="number"
+                  min="0"
+                  step="0.01"
+                  value={editingShippingZone?.shippingCost || newShippingZone.shippingCost || 0}
+                  onChange={(e) => {
+                    const cost = parseFloat(e.target.value) || 0;
+                    if (editingShippingZone) {
+                      setEditingShippingZone({...editingShippingZone, shippingCost: cost});
+                    } else {
+                      setNewShippingZone({...newShippingZone, shippingCost: cost});
+                    }
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="25"
+                  required
+                />
+              </div>
+              
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">مدة التوصيل *</label>
+                <input
+                  type="text"
+                  value={editingShippingZone?.estimatedDays || newShippingZone.estimatedDays || ''}
+                  onChange={(e) => {
+                    if (editingShippingZone) {
+                      setEditingShippingZone({...editingShippingZone, estimatedDays: e.target.value});
+                    } else {
+                      setNewShippingZone({...newShippingZone, estimatedDays: e.target.value});
+                    }
+                  }}
+                  className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-black focus:border-black"
+                  placeholder="مثال: 2-3 أيام"
+                  required
+                />
               </div>
             </div>
             
@@ -3170,6 +3009,9 @@ const Dashboard: React.FC = () => {
               <button
                 onClick={editingShippingZone ? handleUpdateShippingZone : handleAddShippingZone}
                 className="px-6 py-2 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors"
+                disabled={!(editingShippingZone?.name || newShippingZone.name) || 
+                         !(editingShippingZone?.shippingCost || newShippingZone.shippingCost) ||
+                         !(editingShippingZone?.estimatedDays || newShippingZone.estimatedDays)}
               >
                 {editingShippingZone ? 'تحديث' : 'إضافة'}
               </button>
