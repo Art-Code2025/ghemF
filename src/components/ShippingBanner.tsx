@@ -24,12 +24,12 @@ const ShippingBanner: React.FC = () => {
           }
         `}
       </style>
-      <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden">
-        <div className="relative h-8 sm:h-9 flex items-center">
+      <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden m-0 p-0 block leading-none">
+        <div className="relative h-8 sm:h-9 flex items-center m-0 p-0">
           {/* Scrolling Text Container */}
           <div className="flex-1 overflow-hidden">
             <div className="banner-scroll whitespace-nowrap">
-              <span className="inline-block text-xs sm:text-sm font-medium px-4">
+              <span className="inline-block text-xs sm:text-sm font-medium px-4 leading-none">
                 🚚 شحن مجاني للطلبات فوق 500 ر.س • ⭐ خدمة عملاء 24/7 • 🎁 ضمان الجودة والاستبدال
               </span>
             </div>
