@@ -8,7 +8,7 @@ import { FaInstagram, FaTiktok, FaSnapchatGhost, FaWhatsapp } from 'react-icons/
 import ImageSlider from './components/ImageSlider';
 import ProductCard from './components/ProductCard';
 import WhatsAppButton from './components/WhatsAppButton';
-import ShippingBanner from './components/ShippingBanner';
+import ShippingOfferPopup from './components/ShippingOfferPopup';
 import cover1 from './assets/cover1.jpg';
 import { createCategorySlug, createProductSlug } from './utils/slugify';
 import cover2 from './assets/cover2.jpg';
@@ -312,92 +312,6 @@ const App: React.FC = () => {
             display: none;
           }
           
-          /* Complete CSS reset for banner-slider area */
-          .banner-slider-container,
-          .banner-slider-container *,
-          .banner-slider-container *:before,
-          .banner-slider-container *:after {
-            box-sizing: border-box;
-          }
-          
-          /* Global reset for banner-slider area with highest priority */
-          html .banner-slider-container,
-          html .banner-slider-container > *,
-          html .banner-slider-container section,
-          html .banner-slider-container div {
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
-            outline: 0 !important;
-            vertical-align: baseline !important;
-          }
-          
-          /* Remove any gaps between banner and slider - Enhanced */
-          .banner-slider-container {
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
-            display: flex !important;
-            flex-direction: column !important;
-            position: relative !important;
-            clear: both !important;
-            gap: 0 !important;
-          }
-          
-          .banner-slider-container > * {
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
-            display: block !important;
-            flex-shrink: 0 !important;
-            float: none !important;
-            clear: none !important;
-          }
-          
-          .banner-slider-container section {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            border-top: 0 !important;
-          }
-          
-          /* Force no spacing on shipping banner */
-          .shipping-banner-no-gap {
-            margin: 0 !important;
-            padding: 0 !important;
-            border: 0 !important;
-            display: block !important;
-            line-height: 0 !important;
-            height: auto !important;
-            min-height: 0 !important;
-            max-height: none !important;
-          }
-          
-          /* Force no spacing on slider section */
-          .slider-section-no-gap {
-            margin: 0 !important;
-            margin-top: -1px !important;
-            padding: 0 !important;
-            border: 0 !important;
-            display: block !important;
-            position: relative !important;
-            top: 0 !important;
-            left: 0 !important;
-            right: 0 !important;
-            transform: none !important;
-          }
-          
-          /* Override any global styles that might add spacing */
-          .banner-slider-container section,
-          .banner-slider-container div {
-            margin-top: 0 !important;
-            margin-bottom: 0 !important;
-            padding-top: 0 !important;
-            padding-bottom: 0 !important;
-            border-top: 0 !important;
-            border-bottom: 0 !important;
-          }
-          
           /* Ensure social media icons are visible on mobile */
           .social-media-icons {
             display: flex !important;
@@ -409,34 +323,26 @@ const App: React.FC = () => {
       
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
       
-      {/* Banner and Slider Container - No gaps */}
-      <div className="banner-slider-container">
-        {/* Shipping Banner - Below navbar, no spacing */}
-        <div className="shipping-banner-no-gap">
-          <ShippingBanner />
+      {/* Premium Hero Slider - Clean start without banner */}
+      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
+        <div className="absolute inset-0">
+          <ImageSlider images={heroImages} currentIndex={currentSlide} />
         </div>
         
-        {/* Premium Hero Slider - directly connected to banner */}
-        <section className="slider-section-no-gap relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
-          <div className="absolute inset-0">
-            <ImageSlider images={heroImages} currentIndex={currentSlide} />
-          </div>
-          
-          {/* Modern Navigation Buttons - لون موحد رمادي */}
-          <button
-            onClick={prevSlide}
-            className="absolute right-3 sm:right-4 lg:right-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
-          >
-            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-          </button>
-          <button
-            onClick={nextSlide}
-            className="absolute left-3 sm:left-4 lg:left-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
-          >
-            <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-          </button>
-        </section>
-      </div>
+        {/* Modern Navigation Buttons - لون موحد رمادي */}
+        <button
+          onClick={prevSlide}
+          className="absolute right-3 sm:right-4 lg:right-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
+        >
+          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+        </button>
+        <button
+          onClick={nextSlide}
+          className="absolute left-3 sm:left-4 lg:left-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
+        >
+          <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+        </button>
+      </section>
       
       {/* Premium Collection Section - بدون فراغات */}
       <section className="relative pb-4 sm:pb-6 lg:pb-8 overflow-hidden">
@@ -927,6 +833,9 @@ const App: React.FC = () => {
 
       {/* WhatsApp Button */}
       <WhatsAppButton />
+
+      {/* Shipping Offer Popup */}
+      <ShippingOfferPopup />
     </div>
   );
 }
