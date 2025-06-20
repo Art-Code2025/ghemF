@@ -24,7 +24,7 @@ const ShippingBanner: React.FC = () => {
           }
         `}
       </style>
-      <div className="relative bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden shadow-sm border-b border-pink-400/30">
+      <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden">
         <div className="relative h-8 sm:h-9 flex items-center">
           {/* Scrolling Text Container */}
           <div className="flex-1 overflow-hidden">
