@@ -399,6 +399,12 @@ const Checkout: React.FC = () => {
       setSelectedShippingZone(null);
       setShippingCost(0);
       setEstimatedDelivery('');
+      // إعادة تعيين حقل المدينة إلى فارغ
+      setCustomerInfo(prev => ({
+        ...prev,
+        city: '',
+        shippingZone: ''
+      }));
       return;
     }
 
@@ -411,9 +417,10 @@ const Checkout: React.FC = () => {
       setShippingCost(zone.shippingCost);
       setEstimatedDelivery(zone.estimatedDays);
       
-      // تحديث معلومات العميل
+      // تحديث معلومات العميل وتعبئة المدينة تلقائياً
       setCustomerInfo(prev => ({
         ...prev,
+        city: zone.name, // تعبئة المدينة باسم المنطقة
         shippingZone: zoneId
       }));
     }
@@ -1127,16 +1134,32 @@ const Checkout: React.FC = () => {
                             <MapPin className="w-4 h-4 text-white" />
                           </div>
                           المدينة *
+                          {selectedShippingZone && (
+                            <span className="text-xs text-green-600 font-normal">
+                              (تم تعبئتها تلقائياً حسب منطقة الشحن)
+                            </span>
+                          )}
                         </label>
                         <input
                           type="text"
                           name="city"
                           value={customerInfo.city}
+                          readOnly={!!selectedShippingZone}
                           onChange={handleInputChange}
-                          className="w-full p-5 border-2 border-gray-900 rounded-2xl focus:ring-4 focus:ring-gray-900/20 focus:border-gray-900 transition-all duration-300 text-lg glass-effect"
-                          placeholder={selectedShippingZone ? selectedShippingZone.name : "الرياض، جدة، الدمام..."}
+                          className={`w-full p-5 border-2 rounded-2xl focus:ring-4 focus:ring-gray-900/20 transition-all duration-300 text-lg glass-effect ${
+                            selectedShippingZone 
+                              ? 'border-green-500 bg-green-50 text-green-800 cursor-not-allowed' 
+                              : 'border-gray-900 focus:border-gray-900'
+                          }`}
+                          placeholder={selectedShippingZone ? `تم اختيار: ${selectedShippingZone.name}` : "يرجى اختيار منطقة الشحن أولاً"}
                           required
                         />
+                        {selectedShippingZone && (
+                          <p className="text-xs text-green-600 mt-2 flex items-center">
+                            <CheckCircle className="w-4 h-4 ml-1" />
+                            تم تعبئة المدينة تلقائياً بناءً على منطقة الشحن المختارة
+                          </p>
+                        )}
                       </div>
                       <div className="md:col-span-2 animate-slide-in" style={{ animationDelay: '500ms' }}>
                         <label className="flex items-center gap-3 text-sm font-bold text-gray-700 mb-4">
