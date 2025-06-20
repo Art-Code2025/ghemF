@@ -289,7 +289,7 @@ const App: React.FC = () => {
   // No loading screen - instant display
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden" dir="rtl">
+    <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden pt-8" dir="rtl">
       <style>
         {`
           .scrollbar-hide {
@@ -407,7 +407,7 @@ const App: React.FC = () => {
         `}
       </style>
       
-      {/* Shipping Banner - First element, above everything */}
+      {/* Shipping Banner - Fixed at the very top */}
       <ShippingBanner />
       
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
