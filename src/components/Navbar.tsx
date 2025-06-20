@@ -128,6 +128,20 @@ function Navbar() {
       if (savedWishlistCount) {
         setWishlistItemsCount(parseInt(savedWishlistCount));
       }
+    } else {
+      // For guests, load from localStorage directly
+      const savedWishlist = localStorage.getItem('wishlist');
+      if (savedWishlist) {
+        try {
+          const parsedWishlist = JSON.parse(savedWishlist);
+          if (Array.isArray(parsedWishlist)) {
+            setWishlistItemsCount(parsedWishlist.length);
+          }
+        } catch (error) {
+          console.error('❌ [Navbar] Error parsing guest wishlist:', error);
+          setWishlistItemsCount(0);
+        }
+      }
     }
     
     return () => {
@@ -215,31 +229,40 @@ function Navbar() {
 
   const fetchWishlistCount = async () => {
     try {
+      // Always check localStorage first for wishlist count
+      const savedWishlist = localStorage.getItem('wishlist');
+      let wishlistCount = 0;
+      
+      if (savedWishlist) {
+        try {
+          const parsedWishlist = JSON.parse(savedWishlist);
+          if (Array.isArray(parsedWishlist)) {
+            wishlistCount = parsedWishlist.length;
+          }
+        } catch (parseError) {
+          console.error('❌ [Navbar] Error parsing wishlist from localStorage:', parseError);
+          wishlistCount = 0;
+        }
+      }
+      
+      console.log('📊 [Navbar] Wishlist count from localStorage:', wishlistCount);
+      setWishlistItemsCount(wishlistCount);
+      localStorage.setItem('lastWishlistCount', wishlistCount.toString());
+      
+      // Also save for current user if logged in
       const userData = localStorage.getItem('user');
-      if (!userData) {
-        setWishlistItemsCount(0);
-        localStorage.setItem('lastWishlistCount', '0');
-        return;
+      if (userData) {
+        try {
+          const user = JSON.parse(userData);
+          if (user?.id) {
+            localStorage.setItem(`wishlistCount_${user.id}`, wishlistCount.toString());
+          }
+        } catch (error) {
+          console.error('❌ [Navbar] Error parsing user data:', error);
+        }
       }
       
-      const user = JSON.parse(userData);
-      if (!user?.id) {
-        setWishlistItemsCount(0);
-        localStorage.setItem('lastWishlistCount', '0');
-        return;
-      }
-      
-      console.log('🔄 [Navbar] Fetching wishlist count for user:', user.id);
-      const data = await apiCall(API_ENDPOINTS.USER_WISHLIST(user.id));
-      
-      console.log('📊 [Navbar] Wishlist count fetched:', data.length);
-      setWishlistItemsCount(data.length);
-      
-      // حفظ العداد في localStorage بنفس طريقة cartUtils
-      localStorage.setItem('lastWishlistCount', data.length.toString());
-      localStorage.setItem(`wishlistCount_${user.id}`, data.length.toString());
-      
-      console.log('💾 [Navbar] Wishlist count saved to localStorage:', data.length);
+      console.log('💾 [Navbar] Wishlist count saved to localStorage:', wishlistCount);
     } catch (error) {
       console.error('❌ [Navbar] Error fetching wishlist count:', error);
       setWishlistItemsCount(0);

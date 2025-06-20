@@ -8,6 +8,7 @@ import { FaInstagram, FaTiktok, FaSnapchatGhost, FaWhatsapp } from 'react-icons/
 import ImageSlider from './components/ImageSlider';
 import ProductCard from './components/ProductCard';
 import WhatsAppButton from './components/WhatsAppButton';
+import ShippingBanner from './components/ShippingBanner';
 import cover1 from './assets/cover1.jpg';
 import { createCategorySlug, createProductSlug } from './utils/slugify';
 import cover2 from './assets/cover2.jpg';
@@ -258,24 +259,15 @@ const App: React.FC = () => {
         if (isInWishlist) {
           // Remove from wishlist
           newWishlist = prev.filter(id => id !== productId);
-          toast.success(`تم إزالة "${productName}" من المفضلة`, {
-            position: "top-right",
-            autoClose: 2000,
-          });
         } else {
           // Add to wishlist
           newWishlist = [...prev, productId];
-          toast.success(`تم إضافة "${productName}" إلى المفضلة`, {
-            position: "top-right",
-            autoClose: 2000,
-          });
         }
         
         return newWishlist;
       });
     } catch (error) {
       console.error('خطأ في تحديث المفضلة:', error);
-      toast.error('حدث خطأ أثناء تحديث المفضلة');
     }
   };
 
@@ -415,6 +407,7 @@ const App: React.FC = () => {
         `}
       </style>
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
+      <ShippingBanner />
       
       {/* Premium Hero Slider - أبعاد مضبوطة بدون فراغات */}
       <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden -mt-16 sm:-mt-20 lg:-mt-24">

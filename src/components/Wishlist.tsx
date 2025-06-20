@@ -99,10 +99,8 @@ const Wishlist: React.FC = () => {
       // Dispatch event for other components
       window.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: newWishlist }));
       
-      toast.success(`تم إزالة "${productName}" من المفضلة`);
     } catch (error) {
       console.error('خطأ في إزالة المنتج من المفضلة:', error);
-      toast.error('فشل في إزالة المنتج من المفضلة');
     }
   };
 
@@ -131,10 +129,8 @@ const Wishlist: React.FC = () => {
       // Dispatch event for other components
       window.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: [] }));
       
-      toast.success('تم إفراغ قائمة المفضلة');
     } catch (error) {
       console.error('خطأ في إفراغ قائمة المفضلة:', error);
-      toast.error('فشل في إفراغ قائمة المفضلة');
     }
   };
 

@@ -91,18 +91,10 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
         // Remove from wishlist
         newWishlist = currentWishlist.filter(id => id !== product.id);
         setIsInWishlist(false);
-        toast.success(`تم إزالة "${product.name}" من المفضلة`, {
-          position: "top-right",
-          autoClose: 2000,
-        });
       } else {
         // Add to wishlist
         newWishlist = [...currentWishlist, product.id];
         setIsInWishlist(true);
-        toast.success(`تم إضافة "${product.name}" إلى المفضلة`, {
-          position: "top-right",
-          autoClose: 2000,
-        });
       }
 
       // Save to localStorage
@@ -113,7 +105,6 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
       
     } catch (error) {
       console.error('خطأ في تحديث المفضلة:', error);
-      toast.error('حدث خطأ أثناء تحديث المفضلة');
     }
   };
 

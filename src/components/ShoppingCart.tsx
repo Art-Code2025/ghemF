@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { toast } from 'react-toastify';
-import { ShoppingCart as CartIcon, Plus, Minus, Trash2, Package, Sparkles, ArrowRight, Heart, Edit3, X, Check, Upload, Image as ImageIcon, AlertCircle } from 'lucide-react';
+import { ShoppingCart as CartIcon, Plus, Minus, Trash2, Package, Sparkles, ArrowRight, Heart, Edit3, X, Check, Upload, Image as ImageIcon, AlertCircle, Truck, Gift } from 'lucide-react';
 import { apiCall, API_ENDPOINTS, buildImageUrl, buildApiUrl } from '../config/api';
+import { calculateTotalWithShipping, getShippingMessage, formatShippingCost, getAmountNeededForFreeShipping, isFreeShippingEligible } from '../utils/shippingUtils';
 import size1Image from '../assets/size1.png';
 import size2Image from '../assets/size2.png';
 import size3Image from '../assets/size3.png';
@@ -272,19 +273,26 @@ const ShoppingCart: React.FC = () => {
     }
   };
 
-  // حساب المجموع الكلي
-  const totalPrice = useMemo(() => {
-    return cartItems.reduce((total, item) => {
+  // حساب المجموع الكلي مع الشحن
+  const orderCalculation = useMemo(() => {
+    const subtotal = cartItems.reduce((total, item) => {
       const basePrice = item.product.price;
       const optionsPrice = item.optionsPricing ? 
         Object.values(item.optionsPricing).reduce((sum, price) => sum + price, 0) : 0;
       return total + ((basePrice + optionsPrice) * item.quantity);
     }, 0);
+    
+    return calculateTotalWithShipping(subtotal);
   }, [cartItems]);
 
   const totalItemsCount = useMemo(() => {
     return cartItems.reduce((total, item) => total + item.quantity, 0);
   }, [cartItems]);
+
+  // Get shipping message for display
+  const shippingMessage = useMemo(() => {
+    return getShippingMessage(orderCalculation.subtotal);
+  }, [orderCalculation.subtotal]);
 
   // التحقق من صحة البيانات المطلوبة - محدثة وأكثر صرامة
   const validateCartItems = () => {
@@ -1490,14 +1498,62 @@ const ShoppingCart: React.FC = () => {
                 </div>
                 
                 <div className="p-6">
+                  {/* Free Shipping Progress Bar */}
+                  {!orderCalculation.isFreeShipping && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-green-900/30 to-emerald-900/30 border border-green-600/30 rounded-xl">
+                      <div className="flex items-center gap-3 mb-3">
+                        <div className="w-8 h-8 bg-green-600 rounded-full flex items-center justify-center">
+                          <Truck className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-medium text-green-300">
+                            أضف {getAmountNeededForFreeShipping(orderCalculation.subtotal).toFixed(0)} ر.س للحصول على شحن مجاني
+                          </div>
+                        </div>
+                      </div>
+                      <div className="w-full bg-gray-700 rounded-full h-2">
+                        <div 
+                          className="bg-gradient-to-r from-green-500 to-emerald-500 h-2 rounded-full transition-all duration-500"
+                          style={{ 
+                            width: `${Math.min((orderCalculation.subtotal / 500) * 100, 100)}%` 
+                          }}
+                        />
+                      </div>
+                      <div className="text-xs text-gray-400 mt-2 text-center">
+                        {orderCalculation.subtotal.toFixed(0)} / 500 ر.س
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Free Shipping Achievement */}
+                  {orderCalculation.isFreeShipping && (
+                    <div className="mb-6 p-4 bg-gradient-to-r from-green-900/40 to-emerald-900/40 border border-green-500/50 rounded-xl">
+                      <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center animate-pulse">
+                          <Gift className="w-4 h-4 text-white" />
+                        </div>
+                        <div className="flex-1">
+                          <div className="text-sm font-bold text-green-300">
+                            🎉 مبروك! حصلت على شحن مجاني
+                          </div>
+                          <div className="text-xs text-green-400">
+                            وفرت 50 ر.س في رسوم الشحن
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
                   <div className="space-y-6 mb-8">
                     <div className="flex justify-between items-center text-lg">
                       <span className="text-gray-300">المجموع الفرعي:</span>
-                      <span className="font-bold text-white">{totalPrice.toFixed(2)} ر.س</span>
+                      <span className="font-bold text-white">{orderCalculation.subtotal.toFixed(2)} ر.س</span>
                     </div>
                     <div className="flex justify-between items-center text-lg">
                       <span className="text-gray-300">رسوم التوصيل:</span>
-                      <span className="text-green-400 font-bold">مجاني</span>
+                      <span className={`font-bold ${orderCalculation.isFreeShipping ? 'text-green-400' : 'text-yellow-400'}`}>
+                        {formatShippingCost(orderCalculation.shipping)}
+                      </span>
                     </div>
                     <div className="flex justify-between items-center text-lg">
                       <span className="text-gray-300">الضريبة:</span>
@@ -1507,7 +1563,7 @@ const ShoppingCart: React.FC = () => {
                     <div className="flex justify-between items-center text-2xl font-bold">
                       <span className="text-white">المجموع الكلي:</span>
                       <span className="text-green-400">
-                        {totalPrice.toFixed(2)} ر.س
+                        {orderCalculation.total.toFixed(2)} ر.س
                       </span>
                     </div>
                   </div>
