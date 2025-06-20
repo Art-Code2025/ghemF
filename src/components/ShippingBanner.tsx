@@ -15,22 +15,22 @@ const ShippingBanner: React.FC = () => {
             100% { transform: translateX(-100%); }
           }
           .banner-scroll {
-            animation: scroll-banner 18s linear infinite;
+            animation: scroll-banner 15s linear infinite;
           }
           @media (max-width: 640px) {
             .banner-scroll {
-              animation: scroll-banner 12s linear infinite;
+              animation: scroll-banner 10s linear infinite;
             }
           }
         `}
       </style>
-      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden z-[99999] shadow-md">
-        <div className="relative h-6 sm:h-7 flex items-center">
+      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden z-[99999]">
+        <div className="relative h-5 flex items-center">
           {/* Scrolling Text Container */}
           <div className="flex-1 overflow-hidden">
             <div className="banner-scroll whitespace-nowrap">
-              <span className="inline-block text-xs font-medium px-3">
-                🚚 شحن مجاني +500 ر.س • ⭐ خدمة 24/7 • 🎁 ضمان الجودة
+              <span className="inline-block text-xs font-medium px-2">
+                🚚 شحن مجاني +500 ر.س • ⭐ خدمة 24/7 • 🎁 ضمان
               </span>
             </div>
           </div>
@@ -39,10 +39,10 @@ const ShippingBanner: React.FC = () => {
           <div className="absolute left-1 top-1/2 transform -translate-y-1/2">
             <button
               onClick={() => setIsVisible(false)}
-              className="w-4 h-4 flex items-center justify-center hover:bg-white/20 rounded-full transition-all duration-200 group"
+              className="w-3 h-3 flex items-center justify-center hover:bg-white/20 rounded-full transition-all duration-200 group"
               aria-label="إغلاق"
             >
-              <X className="w-2.5 h-2.5 text-white group-hover:text-pink-200 transition-colors" />
+              <X className="w-2 h-2 text-white group-hover:text-pink-200 transition-colors" />
             </button>
           </div>
         </div>
