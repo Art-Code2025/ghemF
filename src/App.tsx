@@ -344,26 +344,6 @@ const App: React.FC = () => {
         </button>
       </section>
 
-      {/* Fixed Free Shipping Badge */}
-      <div className="fixed bottom-20 left-4 z-[100] hidden sm:block">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full shadow-lg backdrop-blur-xl border border-green-400/20 hover:scale-105 transition-transform duration-300">
-          <div className="flex items-center gap-2">
-            <Truck className="w-4 h-4" />
-            <span className="text-sm font-bold">شحن مجاني +500 ر.س</span>
-          </div>
-        </div>
-      </div>
-
-      {/* Mobile Free Shipping Badge */}
-      <div className="fixed top-20 left-2 z-[100] sm:hidden">
-        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-xl border border-green-400/20">
-          <div className="flex items-center gap-1">
-            <Truck className="w-3 h-3" />
-            <span className="text-xs font-bold">شحن مجاني +500 ر.س</span>
-          </div>
-        </div>
-      </div>
-      
       {/* Premium Collection Section - مع مسافة أكبر من الأعلى */}
       <section className="relative pt-8 sm:pt-12 lg:pt-16 pb-4 sm:pb-6 lg:pb-8 overflow-hidden">
         {/* Premium Background Effects - ألوان متناسقة */}

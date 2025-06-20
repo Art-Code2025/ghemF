@@ -5,19 +5,14 @@ const ShippingOfferPopup: React.FC = () => {
   const [isVisible, setIsVisible] = useState(false);
 
   useEffect(() => {
-    // Show popup after 2 seconds
+    // Show popup after 2 seconds on each page load/refresh
     const timer = setTimeout(() => {
-      // Check if user has seen the popup today
-      const lastShown = localStorage.getItem('shippingPopupLastShown');
-      const today = new Date().toDateString();
-      
-      if (lastShown !== today) {
-        setIsVisible(true);
-        localStorage.setItem('shippingPopupLastShown', today);
-      }
+      setIsVisible(true);
     }, 2000);
 
-    return () => clearTimeout(timer);
+    return () => {
+      clearTimeout(timer);
+    };
   }, []);
 
   const handleClose = () => {
