@@ -343,9 +343,29 @@ const App: React.FC = () => {
           <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
         </button>
       </section>
+
+      {/* Fixed Free Shipping Badge */}
+      <div className="fixed bottom-20 left-4 z-[100] hidden sm:block">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-4 py-2 rounded-full shadow-lg backdrop-blur-xl border border-green-400/20 hover:scale-105 transition-transform duration-300">
+          <div className="flex items-center gap-2">
+            <Truck className="w-4 h-4" />
+            <span className="text-sm font-bold">شحن مجاني +500 ر.س</span>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile Free Shipping Badge */}
+      <div className="fixed top-20 left-2 z-[100] sm:hidden">
+        <div className="bg-gradient-to-r from-green-500 to-green-600 text-white px-3 py-1.5 rounded-full shadow-lg backdrop-blur-xl border border-green-400/20">
+          <div className="flex items-center gap-1">
+            <Truck className="w-3 h-3" />
+            <span className="text-xs font-bold">شحن مجاني +500 ر.س</span>
+          </div>
+        </div>
+      </div>
       
-      {/* Premium Collection Section - بدون فراغات */}
-      <section className="relative pb-4 sm:pb-6 lg:pb-8 overflow-hidden">
+      {/* Premium Collection Section - مع مسافة أكبر من الأعلى */}
+      <section className="relative pt-8 sm:pt-12 lg:pt-16 pb-4 sm:pb-6 lg:pb-8 overflow-hidden">
         {/* Premium Background Effects - ألوان متناسقة */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50/60 via-white/80 to-gray-100/60" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/20 rounded-full blur-3xl" />
