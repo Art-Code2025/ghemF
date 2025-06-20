@@ -1,0 +1,25 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://ghem.store/sitemap.xml
+
+# Allow all search engines to crawl the site
+User-agent: Googlebot
+Allow: /
+
+User-agent: Bingbot
+Allow: /
+
+# Disallow admin areas
+Disallow: /admin/
+Disallow: /api/
+
+# Allow important pages
+Allow: /products/
+Allow: /category/
+Allow: /product/
+Allow: /contact/
+Allow: /about/
+Allow: /privacy-policy/
+Allow: /return-policy/ 

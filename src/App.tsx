@@ -743,8 +743,11 @@ const App: React.FC = () => {
             {/* Brand Section - Simplified for mobile with minimum height */}
             <div className="col-span-1 text-center mb-4 sm:mb-0 min-h-[100px] brand-section flex flex-col items-center">
               <h3 className="text-lg sm:text-xl lg:text-2xl font-black bg-gradient-to-r from-gray-700 to-gray-800 bg-clip-text text-transparent mb-2">
-                GHEM.STORE
+                غِيم - GHEM Store
               </h3>
+              <p className="text-xs text-gray-600 mb-3 text-center max-w-xs">
+                براند سعودي متخصص في عبايات وجاكيتات التخرج بتصاميم أنيقة
+              </p>
 
       {/* Social Media Icons - Flex layout ensures visibility with wrapping and high z-index for layering */}
 {/* On mobile, icons are centered horizontally; on sm+ screens, they align to the start */}
@@ -758,32 +761,6 @@ const App: React.FC = () => {
   >
     <FaInstagram size={20} color="#ec4899" />
   </a>
-
-  {/* TikTok Link - Commented out to disable in the UI */}
-  {/*
-  <a
-    href="https://www.tiktok.com/@yourprofile"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Visit our TikTok page"
-    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-gradient-to-r hover:from-pink-100 hover:to-teal-100 transition-all shadow-sm z-50"
-  >
-    <FaTiktok size={20} color="#000000" />
-  </a>
-  */}
-
-  {/* Snapchat Link - Commented out to disable in the UI */}
-  {/*
-  <a
-    href="https://www.snapchat.com/add/yourusername"
-    target="_blank"
-    rel="noopener noreferrer"
-    aria-label="Visit our Snapchat page"
-    className="bg-white/90 backdrop-blur-xl border border-gray-200/60 p-2 rounded-full hover:bg-yellow-200 transition-all shadow-sm z-50"
-  >
-    <FaSnapchatGhost size={20} color="#facc15" />
-  </a>
-  */}
 
   <a
     href="https://wa.me/966551064118"
@@ -820,11 +797,11 @@ const App: React.FC = () => {
                 </div>
                 <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
                   <span>✉️</span>
-                  <span className="truncate">support@ghem.store</span>
+                  <span className="truncate">info@ghem.store</span>
                 </div>
                 <div className="text-xs sm:text-sm text-gray-700 bg-white/80 backdrop-blur-xl border border-gray-200/50 px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg flex items-center justify-center md:justify-start gap-1">
                   <span>📍</span>
-                  <span className="truncate">السعودية</span>
+                  <span className="truncate">المملكة العربية السعودية</span>
                 </div>
               </div>
             </div>
@@ -834,7 +811,7 @@ const App: React.FC = () => {
           <div className="border-t border-gray-200/60 pt-3 sm:pt-4 text-center">
             <div className="bg-gradient-to-r from-white/80 via-gray-50/90 to-white/80 backdrop-blur-xl border border-gray-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
               <p className="text-xs sm:text-sm text-gray-700 font-medium">
-                © 2025 Ghem Store By Art-code
+                © 2025 غِيم - GHEM Store | جميع الحقوق محفوظة
               </p>
             </div>
           </div>
