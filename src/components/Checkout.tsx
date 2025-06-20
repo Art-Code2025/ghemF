@@ -4,6 +4,7 @@ import { toast } from 'react-toastify';
 import { ShoppingCart, User, CreditCard, CheckCircle, ArrowLeft, ArrowRight, Package, Truck, Shield, Star, Heart, Gift, MapPin, Phone, Mail, Sparkles, Clock, Award, AlertCircle, Minus, Plus, X, Tag, Percent } from 'lucide-react';
 import { apiCall, API_ENDPOINTS, buildImageUrl } from '../config/api';
 import { calculateTotalWithShipping, getShippingMessage, formatShippingCost, getAmountNeededForFreeShipping, isFreeShippingEligible } from '../utils/shippingUtils';
+import { calculateShippingCost, getShippingZones, getEstimatedDelivery, ShippingZone } from '../utils/shippingUtils';
 
 interface Product {
   id: number;
@@ -39,6 +40,7 @@ interface CustomerInfo {
   email: string;
   address: string;
   city: string;
+  shippingZone?: string; // إضافة حقل المنطقة
   notes?: string;
 }
 
@@ -68,6 +70,7 @@ const Checkout: React.FC = () => {
     email: '',
     address: '',
     city: '',
+    shippingZone: '',
     notes: ''
   });
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('cod');
@@ -77,6 +80,13 @@ const Checkout: React.FC = () => {
   const [couponCode, setCouponCode] = useState<string>('');
   const [appliedCoupon, setAppliedCoupon] = useState<any>(null);
   const [couponValidating, setCouponValidating] = useState<boolean>(false);
+  
+  // إضافة state للشحن
+  const [shippingZones, setShippingZones] = useState<ShippingZone[]>([]);
+  const [selectedShippingZone, setSelectedShippingZone] = useState<ShippingZone | null>(null);
+  const [shippingCost, setShippingCost] = useState<number>(0);
+  const [estimatedDelivery, setEstimatedDelivery] = useState<string>('2-5 أيام عمل');
+  
   const navigate = useNavigate();
 
   const [orderData, setOrderData] = useState<OrderData>({
@@ -208,7 +218,26 @@ const Checkout: React.FC = () => {
 
   useEffect(() => {
     fetchCart();
+    
+    // تحميل مناطق الشحن
+    const zones = getShippingZones();
+    setShippingZones(zones);
   }, [fetchCart]);
+
+  // حساب تكلفة الشحن عند تغيير المنطقة أو المجموع الفرعي
+  useEffect(() => {
+    const subtotal = getTotalPrice();
+    let cityForCalculation = customerInfo.city;
+    
+    // إذا تم اختيار منطقة شحن محددة، استخدم أول مدينة منها
+    if (selectedShippingZone && selectedShippingZone.cities.length > 0) {
+      cityForCalculation = selectedShippingZone.cities[0];
+    }
+    
+    const shippingResult = calculateShippingCost(subtotal, cityForCalculation);
+    setShippingCost(shippingResult.shipping);
+    setEstimatedDelivery(getEstimatedDelivery(cityForCalculation));
+  }, [customerInfo.city, selectedShippingZone, cartItems]);
 
   // تحديث بيانات المستخدم تلقائياً
   useEffect(() => {
@@ -258,9 +287,7 @@ const Checkout: React.FC = () => {
   };
 
   const getShippingCost = () => {
-    const subtotal = getTotalPrice();
-    const { shipping } = calculateTotalWithShipping(subtotal);
-    return shipping;
+    return shippingCost;
   };
 
   const getDiscountAmount = () => {
@@ -320,10 +347,26 @@ const Checkout: React.FC = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setCustomerInfo(prev => ({
-      ...prev,
-      [name]: value
-    }));
+    setCustomerInfo(prev => ({ ...prev, [name]: value }));
+  };
+
+  const handleShippingZoneChange = (zoneId: string) => {
+    const zone = shippingZones.find(z => z.id.toString() === zoneId);
+    setSelectedShippingZone(zone || null);
+    
+    if (zone) {
+      // تحديث المدينة تلقائياً بأول مدينة في المنطقة
+      setCustomerInfo(prev => ({ 
+        ...prev, 
+        shippingZone: zone.name,
+        city: zone.cities[0] || prev.city 
+      }));
+    } else {
+      setCustomerInfo(prev => ({ 
+        ...prev, 
+        shippingZone: '' 
+      }));
+    }
   };
 
   const validateStep = (step: number): boolean => {
@@ -967,6 +1010,65 @@ const Checkout: React.FC = () => {
                           placeholder="example@email.com"
                         />
                       </div>
+                      
+                      {/* منطقة الشحن */}
+                      <div className="animate-slide-in" style={{ animationDelay: '350ms' }}>
+                        <label className="flex items-center gap-3 text-sm font-bold text-gray-700 mb-4">
+                          <div className="w-8 h-8 bg-gradient-to-r from-gray-900 to-black rounded-lg flex items-center justify-center">
+                            <Truck className="w-4 h-4 text-white" />
+                          </div>
+                          منطقة الشحن
+                        </label>
+                        <select
+                          value={selectedShippingZone?.id || ''}
+                          onChange={(e) => handleShippingZoneChange(e.target.value)}
+                          className="w-full p-5 border-2 border-gray-900 rounded-2xl focus:ring-4 focus:ring-gray-900/20 focus:border-gray-900 transition-all duration-300 text-lg glass-effect bg-white"
+                        >
+                          <option value="">اختر منطقة الشحن...</option>
+                          {shippingZones
+                            .filter(zone => zone.isActive)
+                            .sort((a, b) => a.priority - b.priority)
+                            .map(zone => (
+                              <option key={zone.id} value={zone.id}>
+                                {zone.name} - {formatShippingCost(zone.shippingCost)} ({zone.estimatedDays})
+                              </option>
+                            ))
+                          }
+                        </select>
+                        
+                        {/* عرض تفاصيل المنطقة المختارة */}
+                        {selectedShippingZone && (
+                          <div className="mt-4 p-4 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-xl border-2 border-blue-200">
+                            <div className="flex items-center gap-3 mb-3">
+                              <div className="w-6 h-6 bg-blue-600 rounded-full flex items-center justify-center">
+                                <Truck className="w-3 h-3 text-white" />
+                              </div>
+                              <span className="font-bold text-blue-800">{selectedShippingZone.name}</span>
+                            </div>
+                            <div className="grid grid-cols-2 gap-4 text-sm">
+                              <div>
+                                <span className="text-blue-600 font-medium">تكلفة الشحن:</span>
+                                <div className="font-bold text-blue-800">{formatShippingCost(shippingCost)}</div>
+                              </div>
+                              <div>
+                                <span className="text-blue-600 font-medium">مدة التوصيل:</span>
+                                <div className="font-bold text-blue-800">{estimatedDelivery}</div>
+                              </div>
+                            </div>
+                            <div className="mt-3">
+                              <span className="text-blue-600 font-medium text-sm">المدن المشمولة:</span>
+                              <div className="flex flex-wrap gap-1 mt-1">
+                                {selectedShippingZone.cities.map((city, index) => (
+                                  <span key={index} className="px-2 py-1 bg-blue-100 text-blue-800 text-xs rounded-full">
+                                    {city}
+                                  </span>
+                                ))}
+                              </div>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                      
                       <div className="animate-slide-in" style={{ animationDelay: '400ms' }}>
                         <label className="flex items-center gap-3 text-sm font-bold text-gray-700 mb-4">
                           <div className="w-8 h-8 bg-gradient-to-r from-gray-900 to-black rounded-lg flex items-center justify-center">
@@ -980,7 +1082,7 @@ const Checkout: React.FC = () => {
                           value={customerInfo.city}
                           onChange={handleInputChange}
                           className="w-full p-5 border-2 border-gray-900 rounded-2xl focus:ring-4 focus:ring-gray-900/20 focus:border-gray-900 transition-all duration-300 text-lg glass-effect"
-                          placeholder="الرياض، جدة، الدمام..."
+                          placeholder={selectedShippingZone ? `اختر من: ${selectedShippingZone.cities.join('، ')}` : "الرياض، جدة، الدمام..."}
                           required
                         />
                       </div>
@@ -1279,11 +1381,37 @@ const Checkout: React.FC = () => {
                   </div>
                 )}
                 
-                <div className="flex justify-between items-center p-4 glass-effect rounded-2xl border border-gray-900">
-                  <span className="text-gray-700 font-semibold">رسوم التوصيل</span>
-                  <span className={`font-bold text-lg ${getShippingCost() === 0 ? 'text-green-600' : 'text-gray-800'}`}>
-                    {formatShippingCost(getShippingCost())}
-                  </span>
+                <div className="p-4 glass-effect rounded-2xl border border-gray-900">
+                  <div className="flex justify-between items-center mb-2">
+                    <span className="text-gray-700 font-semibold">رسوم التوصيل</span>
+                    <span className={`font-bold text-lg ${getShippingCost() === 0 ? 'text-green-600' : 'text-gray-800'}`}>
+                      {formatShippingCost(getShippingCost())}
+                    </span>
+                  </div>
+                  
+                  {/* عرض تفاصيل المنطقة المختارة */}
+                  {selectedShippingZone && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <Truck className="w-4 h-4 text-blue-600" />
+                        <span className="text-sm font-medium text-blue-600">{selectedShippingZone.name}</span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-gray-600">
+                        <Clock className="w-3 h-3" />
+                        <span>مدة التوصيل: {estimatedDelivery}</span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* رسالة إذا لم يتم اختيار منطقة */}
+                  {!selectedShippingZone && (
+                    <div className="mt-3 pt-3 border-t border-gray-200">
+                      <div className="flex items-center gap-2 text-xs text-gray-500">
+                        <AlertCircle className="w-3 h-3" />
+                        <span>يرجى اختيار منطقة الشحن لحساب التكلفة الدقيقة</span>
+                      </div>
+                    </div>
+                  )}
                 </div>
                 
                 {/* Free Shipping Progress */}

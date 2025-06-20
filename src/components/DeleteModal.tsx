@@ -7,7 +7,7 @@ interface DeleteModalProps {
   title: string;
   message: string;
   itemName?: string;
-  type: 'product' | 'category' | 'order' | 'customer' | 'coupon';
+  type: 'product' | 'category' | 'order' | 'customer' | 'coupon' | 'shippingZone';
   loading?: boolean;
 }
 
@@ -30,6 +30,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       case 'order': return '🛒';
       case 'customer': return '👤';
       case 'coupon': return '🎫';
+      case 'shippingZone': return '🚚';
       default: return '🗑️';
     }
   };
@@ -41,6 +42,7 @@ const DeleteModal: React.FC<DeleteModalProps> = ({
       case 'order': return 'from-purple-500 to-purple-600';
       case 'customer': return 'from-green-500 to-green-600';
       case 'coupon': return 'from-pink-500 to-pink-600';
+      case 'shippingZone': return 'from-indigo-500 to-indigo-600';
       default: return 'from-red-500 to-red-600';
     }
   };

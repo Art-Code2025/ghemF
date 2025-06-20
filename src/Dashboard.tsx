@@ -194,7 +194,7 @@ const Dashboard: React.FC = () => {
     globalFreeShippingThreshold: 500,
     defaultShippingCost: 50,
     enableFreeShipping: true,
-    enableZoneBasedShipping: false,
+    enableZoneBasedShipping: true, // تفعيل الشحن حسب المنطقة
     enableExpressShipping: true,
     expressShippingCost: 100,
     expressShippingDays: '1-2 أيام',
@@ -904,8 +904,13 @@ const Dashboard: React.FC = () => {
         createdAt: new Date().toISOString()
       };
 
-      setShippingZones([...shippingZones, newZoneWithId]);
+      const updatedZones = [...shippingZones, newZoneWithId];
+      setShippingZones(updatedZones);
       setFilteredShippingZones([...filteredShippingZones, newZoneWithId]);
+      
+      // حفظ المناطق في localStorage
+      localStorage.setItem('shippingZones', JSON.stringify(updatedZones));
+      
       setShowShippingZoneModal(false);
       setNewShippingZone({
         name: '',
@@ -929,8 +934,13 @@ const Dashboard: React.FC = () => {
 
     try {
       // محاكاة تحديث المنطقة (سيتم ربطها بالباك إند لاحقاً)
-      setShippingZones(shippingZones.map(z => z.id === editingShippingZone.id ? editingShippingZone : z));
+      const updatedZones = shippingZones.map(z => z.id === editingShippingZone.id ? editingShippingZone : z);
+      setShippingZones(updatedZones);
       setFilteredShippingZones(filteredShippingZones.map(z => z.id === editingShippingZone.id ? editingShippingZone : z));
+      
+      // حفظ المناطق في localStorage
+      localStorage.setItem('shippingZones', JSON.stringify(updatedZones));
+      
       setShowShippingZoneModal(false);
       setEditingShippingZone(null);
       toast.success('تم تحديث منطقة الشحن بنجاح');
@@ -955,10 +965,16 @@ const Dashboard: React.FC = () => {
   const handleUpdateShippingSettings = async () => {
     try {
       // محاكاة تحديث إعدادات الشحن (سيتم ربطها بالباك إند لاحقاً)
-      setShippingSettings({
+      const updatedSettings = {
         ...shippingSettings,
         updatedAt: new Date().toISOString()
-      });
+      };
+      
+      setShippingSettings(updatedSettings);
+      
+      // حفظ الإعدادات في localStorage
+      localStorage.setItem('shippingSettings', JSON.stringify(updatedSettings));
+      
       setShowShippingSettingsModal(false);
       toast.success('تم تحديث إعدادات الشحن بنجاح');
     } catch (error) {

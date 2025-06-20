@@ -26,12 +26,46 @@ const DEFAULT_SHIPPING_SETTINGS: ShippingSettings = {
   globalFreeShippingThreshold: 500,
   defaultShippingCost: 50,
   enableFreeShipping: true,
-  enableZoneBasedShipping: false,
+  enableZoneBasedShipping: true,
   enableExpressShipping: true,
   expressShippingCost: 100,
   expressShippingDays: '1-2 أيام',
   shippingTaxRate: 0
 };
+
+// Default shipping zones
+const DEFAULT_SHIPPING_ZONES: ShippingZone[] = [
+  {
+    id: 1,
+    name: 'الرياض الكبرى',
+    cities: ['الرياض', 'الدرعية', 'الخرج', 'المزاحمية'],
+    shippingCost: 25,
+    freeShippingThreshold: 300,
+    estimatedDays: '1-2 أيام',
+    isActive: true,
+    priority: 1
+  },
+  {
+    id: 2,
+    name: 'جدة ومكة',
+    cities: ['جدة', 'مكة المكرمة', 'الطائف', 'رابغ'],
+    shippingCost: 35,
+    freeShippingThreshold: 400,
+    estimatedDays: '2-3 أيام',
+    isActive: true,
+    priority: 2
+  },
+  {
+    id: 3,
+    name: 'المنطقة الشرقية',
+    cities: ['الدمام', 'الخبر', 'الظهران', 'الأحساء', 'الجبيل'],
+    shippingCost: 40,
+    freeShippingThreshold: 450,
+    estimatedDays: '2-4 أيام',
+    isActive: true,
+    priority: 3
+  }
+];
 
 // Get shipping settings from localStorage or use defaults
 export const getShippingSettings = (): ShippingSettings => {
@@ -51,12 +85,18 @@ export const getShippingZones = (): ShippingZone[] => {
   try {
     const stored = localStorage.getItem('shippingZones');
     if (stored) {
-      return JSON.parse(stored);
+      const zones = JSON.parse(stored);
+      if (Array.isArray(zones) && zones.length > 0) {
+        return zones;
+      }
     }
   } catch (error) {
     console.error('Error loading shipping zones:', error);
   }
-  return [];
+  
+  // إذا لم تكن هناك مناطق محفوظة، استخدم المناطق الافتراضية وحفظها
+  saveShippingZones(DEFAULT_SHIPPING_ZONES);
+  return DEFAULT_SHIPPING_ZONES;
 };
 
 // Find shipping zone by city
