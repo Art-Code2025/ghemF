@@ -180,16 +180,11 @@ const ContactSection = () => {
           
           {/* Copyright Section */}
           <div className="text-center">
-            <a 
-              href="https://www.instagram.com/artc.ode39?igsh=OG0xOGltcmM0djV6" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="inline-flex items-center text-gray-600 text-xs sm:text-sm font-medium hover:text-gray-800 transition-all duration-300 bg-white/60 backdrop-blur-xl border border-gray-300/40 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl hover:bg-white/80 transform hover:scale-105"
-            >
-              <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-bold">ArtCode</span>
-              <span className="mx-1 sm:mx-2">-</span>
-              <span>2025</span>
-            </a>
+            <div className="inline-flex items-center text-gray-600 text-xs sm:text-sm font-medium bg-white/60 backdrop-blur-xl border border-gray-300/40 px-4 sm:px-6 py-2 sm:py-3 rounded-xl sm:rounded-2xl">
+              <span className="text-gray-800 font-bold">© 2025 غِيم - GHEM Store</span>
+              <span className="mx-2">|</span>
+              <span className="bg-gradient-to-r from-pink-400 to-rose-400 bg-clip-text text-transparent font-bold">تم التطوير بواسطة ArtCode</span>
+            </div>
           </div>
         </div>
       </footer>

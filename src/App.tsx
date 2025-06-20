@@ -811,7 +811,7 @@ const App: React.FC = () => {
           <div className="border-t border-gray-200/60 pt-3 sm:pt-4 text-center">
             <div className="bg-gradient-to-r from-white/80 via-gray-50/90 to-white/80 backdrop-blur-xl border border-gray-200/50 rounded-lg sm:rounded-xl p-3 sm:p-4 max-w-full mx-auto shadow-lg">
               <p className="text-xs sm:text-sm text-gray-700 font-medium">
-                © 2025 غِيم - GHEM Store | جميع الحقوق محفوظة
+                © 2025 غِيم - GHEM Store | تم التطوير بواسطة ArtCode
               </p>
             </div>
           </div>
