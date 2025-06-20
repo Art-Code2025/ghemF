@@ -224,19 +224,56 @@ const Checkout: React.FC = () => {
     setShippingZones(zones);
   }, [fetchCart]);
 
+  // مراقبة تحديثات مناطق الشحن
+  useEffect(() => {
+    const handleShippingZonesUpdate = () => {
+      console.log('🔄 [Checkout] Reloading shipping zones...');
+      const zones = getShippingZones();
+      setShippingZones(zones);
+      
+      // إعادة حساب التكلفة إذا كانت هناك منطقة مختارة
+      if (selectedShippingZone) {
+        const updatedZone = zones.find(z => z.id === selectedShippingZone.id);
+        if (updatedZone) {
+          console.log('💰 [Checkout] Recalculating shipping cost for zone:', updatedZone.name);
+          setShippingCost(updatedZone.shippingCost);
+          setEstimatedDelivery(updatedZone.estimatedDays);
+        } else {
+          // المنطقة المختارة لم تعد موجودة (تم حذفها)
+          console.log('❌ [Checkout] Selected zone no longer exists, resetting...');
+          setSelectedShippingZone(null);
+          setShippingCost(0);
+          setEstimatedDelivery('');
+        }
+      }
+    };
+
+    // مراقبة تغييرات localStorage
+    window.addEventListener('storage', handleShippingZonesUpdate);
+    
+    // مراقبة تغييرات مخصصة (عندما يتم التحديث في نفس التبويب)
+    window.addEventListener('shippingZonesUpdated', handleShippingZonesUpdate);
+    
+    return () => {
+      window.removeEventListener('storage', handleShippingZonesUpdate);
+      window.removeEventListener('shippingZonesUpdated', handleShippingZonesUpdate);
+    };
+  }, [selectedShippingZone]);
+
   // حساب تكلفة الشحن عند تغيير المنطقة أو المجموع الفرعي
   useEffect(() => {
-    const subtotal = getTotalPrice();
-    let cityForCalculation = customerInfo.city;
-    
-    // إذا تم اختيار منطقة شحن محددة، استخدم أول مدينة منها
-    if (selectedShippingZone && selectedShippingZone.cities.length > 0) {
-      cityForCalculation = selectedShippingZone.cities[0];
+    if (selectedShippingZone) {
+      // استخدام تكلفة المنطقة المختارة مباشرة
+      console.log('💰 [Checkout] Using zone shipping cost:', selectedShippingZone.shippingCost);
+      setShippingCost(selectedShippingZone.shippingCost);
+      setEstimatedDelivery(selectedShippingZone.estimatedDays);
+    } else {
+      // إذا لم يتم اختيار منطقة، استخدم الحساب الافتراضي
+      const subtotal = getTotalPrice();
+      const shippingResult = calculateShippingCost(subtotal, customerInfo.city);
+      setShippingCost(shippingResult.shipping);
+      setEstimatedDelivery(getEstimatedDelivery(customerInfo.city));
     }
-    
-    const shippingResult = calculateShippingCost(subtotal, cityForCalculation);
-    setShippingCost(shippingResult.shipping);
-    setEstimatedDelivery(getEstimatedDelivery(cityForCalculation));
   }, [customerInfo.city, selectedShippingZone, cartItems]);
 
   // تحديث بيانات المستخدم تلقائياً
@@ -301,6 +338,13 @@ const Checkout: React.FC = () => {
     return Math.max(0, subtotal + shipping - discount);
   };
 
+  const formatShippingCost = (cost: number): string => {
+    if (cost === 0) {
+      return 'مجاني';
+    }
+    return `${cost.toFixed(2)} ر.س`;
+  };
+
   const formatOptionName = (optionName: string): string => {
     const optionNames: { [key: string]: string } = {
       nameOnSash: 'الاسم على الوشاح',
@@ -351,20 +395,26 @@ const Checkout: React.FC = () => {
   };
 
   const handleShippingZoneChange = (zoneId: string) => {
+    if (!zoneId) {
+      setSelectedShippingZone(null);
+      setShippingCost(0);
+      setEstimatedDelivery('');
+      return;
+    }
+
     const zone = shippingZones.find(z => z.id.toString() === zoneId);
-    setSelectedShippingZone(zone || null);
-    
     if (zone) {
-      // تحديث المدينة تلقائياً بأول مدينة في المنطقة
-      setCustomerInfo(prev => ({ 
-        ...prev, 
-        shippingZone: zone.name,
-        city: zone.cities[0] || prev.city 
-      }));
-    } else {
-      setCustomerInfo(prev => ({ 
-        ...prev, 
-        shippingZone: '' 
+      console.log('🚚 [Checkout] Selected shipping zone:', zone.name, 'Cost:', zone.shippingCost);
+      setSelectedShippingZone(zone);
+      
+      // استخدام تكلفة المنطقة مباشرة
+      setShippingCost(zone.shippingCost);
+      setEstimatedDelivery(zone.estimatedDays);
+      
+      // تحديث معلومات العميل
+      setCustomerInfo(prev => ({
+        ...prev,
+        shippingZone: zoneId
       }));
     }
   };

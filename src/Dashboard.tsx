@@ -925,6 +925,12 @@ const Dashboard: React.FC = () => {
       // حفظ المناطق في localStorage
       localStorage.setItem('shippingZones', JSON.stringify(updatedZones));
       
+      // إشعار المكونات الأخرى بالتحديث
+      window.dispatchEvent(new Event('shippingZonesUpdated'));
+      
+      // إشعار المكونات الأخرى بالتحديث
+      window.dispatchEvent(new Event('shippingZonesUpdated'));
+      
       setShowShippingZoneModal(false);
       setNewShippingZone({
         name: '',
@@ -967,8 +973,16 @@ const Dashboard: React.FC = () => {
   const handleDeleteShippingZone = async (id: number) => {
     try {
       // محاكاة حذف المنطقة (سيتم ربطها بالباك إند لاحقاً)
-      setShippingZones(shippingZones.filter(z => z.id !== id));
+      const updatedZones = shippingZones.filter(z => z.id !== id);
+      setShippingZones(updatedZones);
       setFilteredShippingZones(filteredShippingZones.filter(z => z.id !== id));
+      
+      // حفظ المناطق المحدثة في localStorage
+      localStorage.setItem('shippingZones', JSON.stringify(updatedZones));
+      
+      // إشعار المكونات الأخرى بالتحديث
+      window.dispatchEvent(new Event('shippingZonesUpdated'));
+      
       toast.success('تم حذف منطقة الشحن بنجاح');
     } catch (error) {
       console.error('Error deleting shipping zone:', error);
