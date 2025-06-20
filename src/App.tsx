@@ -406,11 +406,14 @@ const App: React.FC = () => {
           }
         `}
       </style>
-      <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
+      
+      {/* Shipping Banner - First element, above everything */}
       <ShippingBanner />
       
+      <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
+      
       {/* Premium Hero Slider - أبعاد مضبوطة بدون فراغات */}
-      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden -mt-16 sm:-mt-20 lg:-mt-24">
+      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
         <div className="absolute inset-0">
           <ImageSlider images={heroImages} currentIndex={currentSlide} />
         </div>
