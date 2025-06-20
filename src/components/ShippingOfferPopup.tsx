@@ -76,7 +76,7 @@ const ShippingOfferPopup: React.FC = () => {
             <div className="space-y-2 mb-5">
               <div className="flex items-center justify-center gap-2 bg-white/15 backdrop-blur-md rounded-lg p-2.5 border border-white/20">
                 <Truck className="w-4 h-4 text-white" />
-                <span className="text-sm font-medium">شحن مجاني +500 ر.س</span>
+                <span className="text-sm font-medium">شحن مجاني على كل الطلبات</span>
               </div>
               
               <div className="flex items-center justify-center gap-2 bg-white/15 backdrop-blur-md rounded-lg p-2.5 border border-white/20">
