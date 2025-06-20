@@ -312,16 +312,90 @@ const App: React.FC = () => {
             display: none;
           }
           
-          /* Remove any gaps between banner and slider */
+          /* Complete CSS reset for banner-slider area */
+          .banner-slider-container,
+          .banner-slider-container *,
+          .banner-slider-container *:before,
+          .banner-slider-container *:after {
+            box-sizing: border-box;
+          }
+          
+          /* Global reset for banner-slider area with highest priority */
+          html .banner-slider-container,
+          html .banner-slider-container > *,
+          html .banner-slider-container section,
+          html .banner-slider-container div {
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            outline: 0 !important;
+            vertical-align: baseline !important;
+          }
+          
+          /* Remove any gaps between banner and slider - Enhanced */
           .banner-slider-container {
             margin: 0 !important;
             padding: 0 !important;
             border: 0 !important;
+            display: flex !important;
+            flex-direction: column !important;
+            position: relative !important;
+            clear: both !important;
+            gap: 0 !important;
           }
           
           .banner-slider-container > * {
             margin: 0 !important;
+            padding: 0 !important;
             border: 0 !important;
+            display: block !important;
+            flex-shrink: 0 !important;
+            float: none !important;
+            clear: none !important;
+          }
+          
+          .banner-slider-container section {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            border-top: 0 !important;
+          }
+          
+          /* Force no spacing on shipping banner */
+          .shipping-banner-no-gap {
+            margin: 0 !important;
+            padding: 0 !important;
+            border: 0 !important;
+            display: block !important;
+            line-height: 0 !important;
+            height: auto !important;
+            min-height: 0 !important;
+            max-height: none !important;
+          }
+          
+          /* Force no spacing on slider section */
+          .slider-section-no-gap {
+            margin: 0 !important;
+            margin-top: -1px !important;
+            padding: 0 !important;
+            border: 0 !important;
+            display: block !important;
+            position: relative !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            transform: none !important;
+          }
+          
+          /* Override any global styles that might add spacing */
+          .banner-slider-container section,
+          .banner-slider-container div {
+            margin-top: 0 !important;
+            margin-bottom: 0 !important;
+            padding-top: 0 !important;
+            padding-bottom: 0 !important;
+            border-top: 0 !important;
+            border-bottom: 0 !important;
           }
           
           /* Ensure social media icons are visible on mobile */
@@ -338,10 +412,12 @@ const App: React.FC = () => {
       {/* Banner and Slider Container - No gaps */}
       <div className="banner-slider-container">
         {/* Shipping Banner - Below navbar, no spacing */}
-        <ShippingBanner />
+        <div className="shipping-banner-no-gap">
+          <ShippingBanner />
+        </div>
         
         {/* Premium Hero Slider - directly connected to banner */}
-        <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
+        <section className="slider-section-no-gap relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
           <div className="absolute inset-0">
             <ImageSlider images={heroImages} currentIndex={currentSlide} />
           </div>

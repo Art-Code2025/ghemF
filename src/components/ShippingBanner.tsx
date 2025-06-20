@@ -7,7 +7,7 @@ const ShippingBanner: React.FC = () => {
   if (!isVisible) return null;
 
   return (
-    <>
+    <div style={{ margin: 0, padding: 0, border: 0, display: 'block', lineHeight: 0 }}>
       <style>
         {`
           @keyframes scroll-banner {
@@ -24,8 +24,8 @@ const ShippingBanner: React.FC = () => {
           }
         `}
       </style>
-      <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden m-0 p-0 block leading-none border-0">
-        <div className="relative h-8 sm:h-9 flex items-center m-0 p-0 border-0">
+      <div className="bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden m-0 p-0 block leading-none border-0" style={{ margin: 0, padding: 0, border: 0, display: 'block' }}>
+        <div className="relative h-8 sm:h-9 flex items-center m-0 p-0 border-0" style={{ margin: 0, padding: 0, border: 0 }}>
           {/* Scrolling Text Container */}
           <div className="flex-1 overflow-hidden">
             <div className="banner-scroll whitespace-nowrap">
@@ -47,7 +47,7 @@ const ShippingBanner: React.FC = () => {
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
