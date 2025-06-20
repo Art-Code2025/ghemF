@@ -19,14 +19,14 @@ const About: React.FC = () => {
           </div>
           <div className="h-1 w-24 sm:w-32 bg-gradient-to-r from-pink-500 to-rose-500 mx-auto rounded-full mb-4 sm:mb-6"></div>
           <p className="text-base sm:text-lg text-gray-600 max-w-2xl mx-auto px-4">
-            تعرف على قصة ZAHRISTORE وكيف نساعدك في إطلالة التخرج المثالية
+            تعرف على قصة GHEM-STORE وكيف نساعدك في إطلالة التخرج المثالية
           </p>
         </div>
 
         {/* Brand Story */}
         <div className="bg-white rounded-xl sm:rounded-2xl shadow-lg p-6 sm:p-8 mb-8 sm:mb-12 border border-gray-100">
           <div className="text-center mb-6 sm:mb-8">
-            <h2 className="text-2xl sm:text-3xl font-bold text-pink-800 mb-3 sm:mb-4">ZAHRI.STORE</h2>
+            <h2 className="text-2xl sm:text-3xl font-bold text-pink-800 mb-3 sm:mb-4">GHEM.STORE</h2>
             <p className="text-lg sm:text-xl text-pink-600 font-medium">براند سعودي لعبايات التخرج</p>
           </div>
           
