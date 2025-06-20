@@ -57,6 +57,8 @@ const App: React.FC = () => {
   const [cartCount, setCartCount] = useState(0);
   // Add quantity state for mobile cards
   const [quantities, setQuantities] = useState<{[key: number]: number}>({});
+  // Add wishlist state
+  const [wishlist, setWishlist] = useState<number[]>([]);
 
   const heroImages = [cover1, cover2, cover3];
 
@@ -89,6 +91,37 @@ const App: React.FC = () => {
       window.removeEventListener('cartUpdated', updateCartCount);
     };
   }, []);
+
+  // Load wishlist from localStorage
+  useEffect(() => {
+    const loadWishlist = () => {
+      try {
+        const savedWishlist = localStorage.getItem('wishlist');
+        if (savedWishlist) {
+          const parsedWishlist = JSON.parse(savedWishlist);
+          if (Array.isArray(parsedWishlist)) {
+            setWishlist(parsedWishlist);
+          }
+        }
+      } catch (error) {
+        console.error('خطأ في تحميل المفضلة:', error);
+        setWishlist([]);
+      }
+    };
+
+    loadWishlist();
+  }, []);
+
+  // Save wishlist to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem('wishlist', JSON.stringify(wishlist));
+      // Dispatch custom event for other components
+      window.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: wishlist }));
+    } catch (error) {
+      console.error('خطأ في حفظ المفضلة:', error);
+    }
+  }, [wishlist]);
 
   const handleCategoriesUpdate = () => {
     fetchCategoriesWithProducts();
@@ -215,6 +248,42 @@ const App: React.FC = () => {
     }
   };
 
+  // Handle wishlist toggle
+  const handleWishlistToggle = (productId: number, productName: string) => {
+    try {
+      setWishlist(prev => {
+        const isInWishlist = prev.includes(productId);
+        let newWishlist;
+        
+        if (isInWishlist) {
+          // Remove from wishlist
+          newWishlist = prev.filter(id => id !== productId);
+          toast.success(`تم إزالة "${productName}" من المفضلة`, {
+            position: "top-right",
+            autoClose: 2000,
+          });
+        } else {
+          // Add to wishlist
+          newWishlist = [...prev, productId];
+          toast.success(`تم إضافة "${productName}" إلى المفضلة`, {
+            position: "top-right",
+            autoClose: 2000,
+          });
+        }
+        
+        return newWishlist;
+      });
+    } catch (error) {
+      console.error('خطأ في تحديث المفضلة:', error);
+      toast.error('حدث خطأ أثناء تحديث المفضلة');
+    }
+  };
+
+  // Check if product is in wishlist
+  const isInWishlist = (productId: number) => {
+    return wishlist.includes(productId);
+  };
+
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentSlide((prev) => (prev + 1) % heroImages.length);
@@ -271,6 +340,39 @@ const App: React.FC = () => {
             .mobile-card:hover {
               transform: translateY(-8px) scale(1.02);
               box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
+            }
+          }
+          
+          /* Mobile touch optimization for buttons */
+          @media (max-width: 640px) {
+            .touch-button {
+              touch-action: manipulation;
+              -webkit-tap-highlight-color: transparent;
+              -webkit-touch-callout: none;
+              -webkit-user-select: none;
+              user-select: none;
+            }
+            
+            .touch-button:active {
+              transform: scale(0.95);
+              transition: transform 0.1s ease;
+            }
+            
+            .wishlist-button {
+              min-height: 44px;
+              min-width: 44px;
+              position: relative;
+              z-index: 100;
+            }
+            
+            .wishlist-button:before {
+              content: '';
+              position: absolute;
+              top: -8px;
+              left: -8px;
+              right: -8px;
+              bottom: -8px;
+              background: transparent;
             }
           }
           
@@ -576,17 +678,28 @@ const App: React.FC = () => {
                           </div>
                           
                           {/* Wishlist Button */}
-                          <div className="absolute top-3 left-3">
+                          <div className="absolute top-3 left-3 z-20">
                             <button
                               onClick={(e) => {
                                 e.preventDefault();
                                 e.stopPropagation();
-                                // Add wishlist functionality here
-                                console.log('❤️ Wishlist clicked for product:', product.id);
+                                handleWishlistToggle(product.id, product.name);
                               }}
-                              className="w-10 h-10 rounded-full bg-white/90 backdrop-blur-sm shadow-lg flex items-center justify-center hover:bg-white border border-white/40 transition-all duration-200 hover:scale-110"
+                              className={`w-10 h-10 rounded-full backdrop-blur-sm shadow-lg flex items-center justify-center border transition-all duration-200 hover:scale-110 touch-button wishlist-button ${
+                                isInWishlist(product.id)
+                                  ? 'bg-red-100/90 border-red-200/60 hover:bg-red-200/90'
+                                  : 'bg-white/90 border-white/40 hover:bg-white'
+                              }`}
+                              type="button"
+                              aria-label={isInWishlist(product.id) ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
                             >
-                              <Heart className="w-5 h-5 text-gray-600 hover:text-red-500 transition-colors" />
+                              <Heart 
+                                className={`w-5 h-5 transition-colors duration-200 ${
+                                  isInWishlist(product.id)
+                                    ? 'text-red-500 fill-red-500'
+                                    : 'text-gray-600 hover:text-red-500'
+                                }`}
+                              />
                             </button>
                           </div>
                         </div>

@@ -34,38 +34,40 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
 
+  // Load wishlist status from localStorage
   useEffect(() => {
     checkWishlistStatus();
-    // eslint-disable-next-line
   }, [product.id]);
 
-  // إضافة مستمع لتحديث حالة المفضلة عند تغييرها
+  // Listen for wishlist updates
   useEffect(() => {
-    const handleWishlistUpdate = () => {
-      checkWishlistStatus();
+    const handleWishlistUpdate = (event: any) => {
+      if (event.detail && Array.isArray(event.detail)) {
+        setIsInWishlist(event.detail.includes(product.id));
+      } else {
+        checkWishlistStatus();
+      }
     };
 
     window.addEventListener('wishlistUpdated', handleWishlistUpdate);
-    window.addEventListener('productAddedToWishlist', handleWishlistUpdate);
-    window.addEventListener('productRemovedFromWishlist', handleWishlistUpdate);
 
     return () => {
       window.removeEventListener('wishlistUpdated', handleWishlistUpdate);
-      window.removeEventListener('productAddedToWishlist', handleWishlistUpdate);
-      window.removeEventListener('productRemovedFromWishlist', handleWishlistUpdate);
     };
-  }, []);
+  }, [product.id]);
 
-  const checkWishlistStatus = async () => {
-    const userData = localStorage.getItem('user');
-    if (!userData) return;
-
+  const checkWishlistStatus = () => {
     try {
-      const user = JSON.parse(userData);
-      const data = await apiCall(API_ENDPOINTS.WISHLIST_CHECK(user.id, product.id));
-      setIsInWishlist(data.isInWishlist);
+      const savedWishlist = localStorage.getItem('wishlist');
+      if (savedWishlist) {
+        const parsedWishlist = JSON.parse(savedWishlist);
+        if (Array.isArray(parsedWishlist)) {
+          setIsInWishlist(parsedWishlist.includes(product.id));
+        }
+      }
     } catch (error) {
-      console.error('Error checking wishlist status:', error);
+      console.error('خطأ في تحميل حالة المفضلة:', error);
+      setIsInWishlist(false);
     }
   };
 
@@ -73,30 +75,45 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
     e.preventDefault();
     e.stopPropagation();
     
-    console.log('🤍 [ProductCard] toggleWishlist called:', { productId: product.id, currentState: isInWishlist });
-    
     try {
-      if (isInWishlist) {
-        console.log('💔 [ProductCard] Removing from wishlist...');
-        const success = await removeFromWishlistUnified(product.id, product.name);
-        if (success) {
-          setIsInWishlist(false);
-          console.log('✅ [ProductCard] Product removed from wishlist successfully');
-        } else {
-          console.log('❌ [ProductCard] Failed to remove from wishlist');
-        }
-      } else {
-        console.log('❤️ [ProductCard] Adding to wishlist...');
-        const success = await addToWishlistUnified(product.id, product.name);
-        if (success) {
-          setIsInWishlist(true);
-          console.log('✅ [ProductCard] Product added to wishlist successfully');
-        } else {
-          console.log('❌ [ProductCard] Failed to add to wishlist');
+      const savedWishlist = localStorage.getItem('wishlist');
+      let currentWishlist: number[] = [];
+      
+      if (savedWishlist) {
+        const parsedWishlist = JSON.parse(savedWishlist);
+        if (Array.isArray(parsedWishlist)) {
+          currentWishlist = parsedWishlist;
         }
       }
+
+      let newWishlist: number[];
+      if (isInWishlist) {
+        // Remove from wishlist
+        newWishlist = currentWishlist.filter(id => id !== product.id);
+        setIsInWishlist(false);
+        toast.success(`تم إزالة "${product.name}" من المفضلة`, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      } else {
+        // Add to wishlist
+        newWishlist = [...currentWishlist, product.id];
+        setIsInWishlist(true);
+        toast.success(`تم إضافة "${product.name}" إلى المفضلة`, {
+          position: "top-right",
+          autoClose: 2000,
+        });
+      }
+
+      // Save to localStorage
+      localStorage.setItem('wishlist', JSON.stringify(newWishlist));
+      
+      // Dispatch event for other components
+      window.dispatchEvent(new CustomEvent('wishlistUpdated', { detail: newWishlist }));
+      
     } catch (error) {
-      console.error('❌ [ProductCard] Error in toggleWishlist:', error);
+      console.error('خطأ في تحديث المفضلة:', error);
+      toast.error('حدث خطأ أثناء تحديث المفضلة');
     }
   };
 
@@ -180,10 +197,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
             <div className="absolute top-2 sm:top-3 md:top-4 right-2 sm:right-3 md:right-4">
               <button
                 onClick={toggleWishlist}
-                disabled={false}
-                className="w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-md sm:rounded-lg bg-white shadow-md flex items-center justify-center hover:bg-gray-100 transition-colors duration-200"
+                className={`w-7 h-7 sm:w-8 sm:h-8 md:w-10 md:h-10 rounded-md sm:rounded-lg shadow-md flex items-center justify-center transition-all duration-200 hover:scale-110 touch-button wishlist-button ${
+                  isInWishlist 
+                    ? 'bg-red-100 hover:bg-red-200' 
+                    : 'bg-white hover:bg-gray-100'
+                }`}
+                type="button"
+                aria-label={isInWishlist ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
               >
-                <Heart className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 ${isInWishlist ? 'text-red-500 fill-current' : 'text-gray-600'}`} />
+                <Heart 
+                  className={`w-3 h-3 sm:w-4 sm:h-4 md:w-5 md:h-5 transition-colors duration-200 ${
+                    isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-600'
+                  }`} 
+                />
               </button>
             </div>
           </div>
@@ -319,10 +345,19 @@ const ProductCard: React.FC<ProductCardProps> = ({ product, viewMode = 'grid' })
         <div className="absolute top-2 right-2 z-50">
           <button
             onClick={toggleWishlist}
-            disabled={false}
-            className="w-10 h-10 rounded-full bg-white shadow-xl flex items-center justify-center hover:bg-gray-50 border-2 border-gray-200 transition-all duration-200 hover:scale-110"
+            className={`w-10 h-10 rounded-full shadow-xl flex items-center justify-center border-2 transition-all duration-200 hover:scale-110 touch-button wishlist-button ${
+              isInWishlist 
+                ? 'bg-red-100 hover:bg-red-200 border-red-200' 
+                : 'bg-white hover:bg-gray-50 border-gray-200'
+            }`}
+            type="button"
+            aria-label={isInWishlist ? 'إزالة من المفضلة' : 'إضافة للمفضلة'}
           >
-            <Heart className={`w-5 h-5 ${isInWishlist ? 'text-red-500 fill-current' : 'text-gray-700'}`} />
+            <Heart 
+              className={`w-5 h-5 transition-colors duration-200 ${
+                isInWishlist ? 'text-red-500 fill-red-500' : 'text-gray-700'
+              }`} 
+            />
           </button>
         </div>
         
