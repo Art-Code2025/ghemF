@@ -589,13 +589,6 @@ const App: React.FC = () => {
                               <Heart className="w-5 h-5 text-gray-600 hover:text-red-500 transition-colors" />
                             </button>
                           </div>
-                          
-                          {/* Product Type Badge */}
-                          {product.productType && (
-                            <div className="absolute top-3 left-3 bg-black/70 text-white px-2 py-1 rounded-full text-xs font-medium backdrop-blur-sm">
-                              {product.productType}
-                            </div>
-                          )}
                         </div>
                         
                         {/* Product Info - Centered Layout */}
