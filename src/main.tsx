@@ -1,6 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
-import { BrowserRouter, Routes, Route, Navigate, useLocation } from 'react-router-dom';
+import { BrowserRouter as Router, Routes, Route, Navigate, useLocation } from 'react-router-dom';
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
 import Navbar from './components/Navbar';
@@ -11,8 +11,9 @@ import ShoppingCart from './components/ShoppingCart';
 import CartDiagnostics from './components/CartDiagnostics';
 import Wishlist from './components/Wishlist';
 import Login from './Login';
-import Dashboard from './Dashboard';
+import Dashboard from './components/Dashboard';
 import ServiceForm from './ServiceForm';
+import ServiceDetails from './ServiceDetails';
 import ProductForm from './components/ProductForm';
 import CategoryAdd from './CategoryAdd';
 import CategoryEdit from './CategoryEdit';
@@ -110,7 +111,7 @@ const LayoutWrapper: React.FC = () => {
 
 ReactDOM.createRoot(document.getElementById('root')!).render(
   <React.StrictMode>
-    <BrowserRouter>
+    <Router>
       <LayoutWrapper />
       {/* Global ToastContainer for all pages */}
       <ToastContainer 
@@ -135,6 +136,6 @@ ReactDOM.createRoot(document.getElementById('root')!).render(
           fontSize: '16px'
         }}
       />
-    </BrowserRouter>
+    </Router>
   </React.StrictMode>
 );
