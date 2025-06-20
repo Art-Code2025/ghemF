@@ -24,25 +24,25 @@ const ShippingBanner: React.FC = () => {
           }
         `}
       </style>
-      <div className="fixed top-0 left-0 right-0 bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden z-[99999]">
-        <div className="relative h-5 flex items-center">
+      <div className="relative bg-gradient-to-r from-pink-500 via-pink-600 to-pink-500 text-white overflow-hidden shadow-sm border-b border-pink-400/30">
+        <div className="relative h-8 sm:h-9 flex items-center">
           {/* Scrolling Text Container */}
           <div className="flex-1 overflow-hidden">
             <div className="banner-scroll whitespace-nowrap">
-              <span className="inline-block text-xs font-medium px-2">
-                🚚 شحن مجاني +500 ر.س • ⭐ خدمة 24/7 • 🎁 ضمان
+              <span className="inline-block text-xs sm:text-sm font-medium px-4">
+                🚚 شحن مجاني للطلبات فوق 500 ر.س • ⭐ خدمة عملاء 24/7 • 🎁 ضمان الجودة والاستبدال
               </span>
             </div>
           </div>
 
           {/* Close Button */}
-          <div className="absolute left-1 top-1/2 transform -translate-y-1/2">
+          <div className="absolute left-2 top-1/2 transform -translate-y-1/2">
             <button
               onClick={() => setIsVisible(false)}
-              className="w-3 h-3 flex items-center justify-center hover:bg-white/20 rounded-full transition-all duration-200 group"
-              aria-label="إغلاق"
+              className="w-6 h-6 flex items-center justify-center hover:bg-white/20 rounded-full transition-all duration-200 group"
+              aria-label="إغلاق الإعلان"
             >
-              <X className="w-2 h-2 text-white group-hover:text-pink-200 transition-colors" />
+              <X className="w-4 h-4 text-white group-hover:text-pink-200 transition-colors" />
             </button>
           </div>
         </div>
