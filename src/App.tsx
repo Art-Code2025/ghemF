@@ -292,139 +292,36 @@ const App: React.FC = () => {
     <div className="min-h-screen bg-gradient-to-br from-pink-50 via-white to-rose-50 overflow-hidden" dir="rtl">
       <style>
         {`
-          .scrollbar-hide {
-            -ms-overflow-style: none;
-            scrollbar-width: none;
+          .text-responsive-sm {
+            font-size: clamp(0.75rem, 2vw, 0.875rem);
           }
-          .scrollbar-hide::-webkit-scrollbar {
-            display: none;
-          }
+          
           .line-clamp-2 {
             display: -webkit-box;
             -webkit-line-clamp: 2;
             -webkit-box-orient: vertical;
             overflow: hidden;
           }
-          .snap-x {
-            scroll-snap-type: x mandatory;
-          }
-          .snap-start {
-            scroll-snap-align: start;
-          }
-          .snap-mandatory {
-            scroll-snap-type: x mandatory;
+          
+          .scrollbar-hide {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
           }
           
-          /* Force no gap between banner and slider */
-          .shipping-banner-container {
+          .scrollbar-hide::-webkit-scrollbar {
+            display: none;
+          }
+          
+          /* Remove any gaps between banner and slider */
+          .banner-slider-container {
             margin: 0 !important;
             padding: 0 !important;
-            display: block !important;
-            line-height: 1 !important;
+            border: 0 !important;
           }
           
-          .hero-slider-container {
-            margin-top: -4px !important;
-            padding-top: 0 !important;
-            margin-bottom: 0 !important;
-          }
-          
-          .image-slider-container {
+          .banner-slider-container > * {
             margin: 0 !important;
-            padding: 0 !important;
-            box-shadow: none !important;
-          }
-          
-          /* Mobile specific fixes */
-          @media (max-width: 640px) {
-            .shipping-banner-container {
-              margin: 0 !important;
-              padding: 0 !important;
-            }
-            
-            .hero-slider-container {
-              margin-top: -6px !important;
-            }
-            
-            .mobile-scroll {
-              scroll-behavior: smooth;
-              -webkit-overflow-scrolling: touch;
-            }
-          }
-          
-          /* Enhanced mobile card animations */
-          @media (max-width: 640px) {
-            .mobile-card {
-              transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-              transform-origin: center;
-            }
-            .mobile-card:hover {
-              transform: translateY(-8px) scale(1.02);
-              box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
-            }
-          }
-          
-          /* Mobile touch optimization for buttons */
-          @media (max-width: 640px) {
-            .touch-button {
-              touch-action: manipulation;
-              -webkit-tap-highlight-color: transparent;
-              -webkit-touch-callout: none;
-              -webkit-user-select: none;
-              user-select: none;
-            }
-            
-            .touch-button:active {
-              transform: scale(0.95);
-              transition: transform 0.1s ease;
-            }
-            
-            .wishlist-button {
-              min-height: 44px;
-              min-width: 44px;
-              position: relative;
-              z-index: 100;
-            }
-            
-            .wishlist-button:before {
-              content: '';
-              position: absolute;
-              top: -8px;
-              left: -8px;
-              right: -8px;
-              bottom: -8px;
-              background: transparent;
-            }
-          }
-          
-          /* Loading skeleton animation */
-          @keyframes shimmer {
-            0% { background-position: -200px 0; }
-            100% { background-position: calc(200px + 100%) 0; }
-          }
-          .skeleton {
-            background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
-            background-size: 200px 100%;
-            animation: shimmer 1.5s infinite;
-          }
-          
-          /* Premium hover effects */
-          .premium-hover {
-            position: relative;
-            overflow: hidden;
-          }
-          .premium-hover::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: -100%;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent);
-            transition: left 0.5s;
-          }
-          .premium-hover:hover::before {
-            left: 100%;
+            border: 0 !important;
           }
           
           /* Ensure social media icons are visible on mobile */
@@ -438,34 +335,35 @@ const App: React.FC = () => {
       
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
       
-      {/* Shipping Banner - Below navbar, no spacing */}
-      <div className="shipping-banner-container">
+      {/* Banner and Slider Container - No gaps */}
+      <div className="banner-slider-container">
+        {/* Shipping Banner - Below navbar, no spacing */}
         <ShippingBanner />
+        
+        {/* Premium Hero Slider - directly connected to banner */}
+        <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden">
+          <div className="absolute inset-0">
+            <ImageSlider images={heroImages} currentIndex={currentSlide} />
+          </div>
+          
+          {/* Modern Navigation Buttons - لون موحد رمادي */}
+          <button
+            onClick={prevSlide}
+            className="absolute right-3 sm:right-4 lg:right-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
+          >
+            <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+          </button>
+          <button
+            onClick={nextSlide}
+            className="absolute left-3 sm:left-4 lg:left-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
+          >
+            <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
+          </button>
+        </section>
       </div>
       
-      {/* Premium Hero Slider - directly connected to banner */}
-      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden hero-slider-container">
-        <div className="absolute inset-0">
-          <ImageSlider images={heroImages} currentIndex={currentSlide} />
-        </div>
-        
-        {/* Modern Navigation Buttons - لون موحد رمادي */}
-        <button
-          onClick={prevSlide}
-          className="absolute right-3 sm:right-4 lg:right-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
-        >
-          <ChevronRight className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-        </button>
-        <button
-          onClick={nextSlide}
-          className="absolute left-3 sm:left-4 lg:left-6 top-1/2 transform -translate-y-1/2 bg-gray-800/70 backdrop-blur-xl border border-white/30 text-white p-1.5 sm:p-2 lg:p-2.5 rounded-full hover:bg-gray-800/90 shadow-2xl z-30 group transition-all duration-300"
-        >
-          <ChevronLeft className="w-3.5 h-3.5 sm:w-4 sm:h-4 lg:w-5 lg:h-5" />
-        </button>
-      </section>
-      
       {/* Premium Collection Section - بدون فراغات */}
-      <section className="relative py-4 sm:py-6 lg:py-8 overflow-hidden">
+      <section className="relative pb-4 sm:pb-6 lg:pb-8 overflow-hidden">
         {/* Premium Background Effects - ألوان متناسقة */}
         <div className="absolute inset-0 bg-gradient-to-br from-gray-50/60 via-white/80 to-gray-100/60" />
         <div className="absolute top-0 left-0 w-48 h-48 sm:w-72 sm:h-72 lg:w-96 lg:h-96 bg-gray-200/20 rounded-full blur-3xl" />

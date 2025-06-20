@@ -61,7 +61,7 @@ function ImageSlider({ images, currentIndex = 0 }: ImageSliderProps) {
   return (
     // الحاوية الرئيسية للسلايدر - بدون هوامش إضافية
     <div 
-      className="image-slider-container relative w-full h-full overflow-hidden bg-white shadow-lg"
+      className="image-slider-container relative w-full h-full overflow-hidden bg-white shadow-lg border-0 m-0 p-0"
       onTouchStart={handleTouchStart}
       onTouchMove={handleTouchMove}
       onTouchEnd={handleTouchEnd}
