@@ -315,8 +315,37 @@ const App: React.FC = () => {
             scroll-snap-type: x mandatory;
           }
           
-          /* Smooth scrolling for mobile */
+          /* Force no gap between banner and slider */
+          .shipping-banner-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
+            line-height: 1 !important;
+          }
+          
+          .hero-slider-container {
+            margin-top: -4px !important;
+            padding-top: 0 !important;
+            margin-bottom: 0 !important;
+          }
+          
+          .image-slider-container {
+            margin: 0 !important;
+            padding: 0 !important;
+            box-shadow: none !important;
+          }
+          
+          /* Mobile specific fixes */
           @media (max-width: 640px) {
+            .shipping-banner-container {
+              margin: 0 !important;
+              padding: 0 !important;
+            }
+            
+            .hero-slider-container {
+              margin-top: -6px !important;
+            }
+            
             .mobile-scroll {
               scroll-behavior: smooth;
               -webkit-overflow-scrolling: touch;
@@ -410,10 +439,12 @@ const App: React.FC = () => {
       <ToastContainer position="top-left" autoClose={3000} hideProgressBar={false} newestOnTop closeOnClick pauseOnHover draggable />
       
       {/* Shipping Banner - Below navbar, no spacing */}
-      <ShippingBanner />
+      <div className="shipping-banner-container">
+        <ShippingBanner />
+      </div>
       
       {/* Premium Hero Slider - directly connected to banner */}
-      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden -mt-1">
+      <section className="relative h-[280px] sm:h-[320px] md:h-[360px] lg:h-[400px] xl:h-[450px] overflow-hidden hero-slider-container">
         <div className="absolute inset-0">
           <ImageSlider images={heroImages} currentIndex={currentSlide} />
         </div>
