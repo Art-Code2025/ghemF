@@ -740,6 +740,24 @@ const Dashboard: React.FC = () => {
     setDeleteModal(prev => ({ ...prev, loading: true }));
     
     try {
+      // التعامل مع مناطق الشحن محلياً
+      if (deleteModal.type === 'shippingZone') {
+        const updatedZones = shippingZones.filter(item => item.id !== deleteModal.id);
+        setShippingZones(updatedZones);
+        setFilteredShippingZones(updatedZones);
+        
+        // حفظ المناطق المحدثة في localStorage
+        localStorage.setItem('shippingZones', JSON.stringify(updatedZones));
+        
+        // إشعار المكونات الأخرى بالتحديث
+        window.dispatchEvent(new Event('shippingZonesUpdated'));
+        
+        toast.success('تم حذف منطقة الشحن بنجاح!');
+        closeDeleteModal();
+        return;
+      }
+
+      // التعامل مع باقي الأنواع عبر API
       let endpoint = '';
       let successMessage = '';
       
@@ -763,10 +781,6 @@ const Dashboard: React.FC = () => {
         case 'coupon':
           endpoint = API_ENDPOINTS.COUPON_BY_ID(deleteModal.id.toString());
           successMessage = 'تم حذف الكوبون بنجاح!';
-          break;
-        case 'shippingZone':
-          endpoint = `shippingZones/${deleteModal.id}`;
-          successMessage = 'تم حذف منطقة الشحن بنجاح!';
           break;
       }
 
@@ -802,10 +816,6 @@ const Dashboard: React.FC = () => {
         case 'coupon':
           setCoupons(prev => prev.filter(item => item.id !== deleteModal.id));
           setFilteredCoupons(prev => prev.filter(item => item.id !== deleteModal.id));
-          break;
-        case 'shippingZone':
-          setShippingZones(prev => prev.filter(item => item.id !== deleteModal.id));
-          setFilteredShippingZones(prev => prev.filter(item => item.id !== deleteModal.id));
           break;
       }
 
