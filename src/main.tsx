@@ -11,7 +11,7 @@ import ShoppingCart from './components/ShoppingCart';
 import CartDiagnostics from './components/CartDiagnostics';
 import Wishlist from './components/Wishlist';
 import Login from './Login';
-import Dashboard from './components/Dashboard';
+import Dashboard from './Dashboard';
 import ServiceForm from './ServiceForm';
 import ServiceDetails from './ServiceDetails';
 import ProductForm from './components/ProductForm';
